@@ -1,65 +1,90 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
 import '../styles/Layout.css';
 
 const Layout = ({ children }) => {
-  const location = useLocation();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('light');
 
-  const isActive = (path) => location.pathname === path;
+  useEffect(() => {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    closeMobileMenu();
+    logout();
+  };
 
   return (
     <div className="layout">
-      <nav className="navbar">
-        <div className="navbar-brand">
-          <h2>KathaPe Business</h2>
-          <span className="business-name">{user?.business_name}</span>
-        </div>
-
-        <div className="navbar-menu">
-          <Link
-            to="/dashboard"
-            className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
+      <header className="app-header">
+        <div className="header-content">
+          <h1 className="app-title">Khatape</h1>
+          
+          <button 
+            className={`nav-toggle ${mobileMenuOpen ? 'active' : ''}`} 
+            id="navToggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle Menu"
           >
-            Dashboard
-          </Link>
-          <Link
-            to="/customers"
-            className={`nav-link ${isActive('/customers') ? 'active' : ''}`}
-          >
-            Customers
-          </Link>
-          <Link
-            to="/transactions"
-            className={`nav-link ${isActive('/transactions') ? 'active' : ''}`}
-          >
-            Transactions
-          </Link>
-          <Link
-            to="/recurring-transactions"
-            className={`nav-link ${isActive('/recurring-transactions') ? 'active' : ''}`}
-          >
-            Recurring
-          </Link>
-          <Link
-            to="/bulk-reminders"
-            className={`nav-link ${isActive('/bulk-reminders') ? 'active' : ''}`}
-          >
-            Reminders
-          </Link>
-          <Link
-            to="/profile"
-            className={`nav-link ${isActive('/profile') ? 'active' : ''}`}
-          >
-            Profile
-          </Link>
-          <button onClick={logout} className="nav-link logout-btn">
-            Logout
+            <i className="fas fa-bars"></i>
           </button>
+          
+          <nav className={`nav-links ${mobileMenuOpen ? 'active' : ''}`} id="navLinks">
+            <Link to="/dashboard" onClick={closeMobileMenu}>
+              <i className="fas fa-chart-line"></i> Dashboard
+            </Link>
+            <Link to="/customers" onClick={closeMobileMenu}>
+              <i className="fas fa-users"></i> Customers
+            </Link>
+            <Link to="/profile" onClick={closeMobileMenu}>
+              <i className="fas fa-user-circle"></i> Profile
+            </Link>
+            <button onClick={handleLogout} className="logout-btn">
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </nav>
         </div>
-      </nav>
+      </header>
 
-      <main className="main-content">{children}</main>
+      {/* Theme Toggle Button */}
+      <div className="theme-toggle" onClick={toggleTheme} title="Toggle light/dark theme">
+        {theme === 'light' ? (
+          <i className="fas fa-moon"></i>
+        ) : (
+          <i className="fas fa-sun"></i>
+        )}
+      </div>
+      
+      <div className="container">
+        <main className="main-content">{children}</main>
+      </div>
+
+      <footer className="footer">
+        <div className="container">
+          © 2024 Khatape. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };

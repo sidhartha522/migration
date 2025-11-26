@@ -57,6 +57,7 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
+      <div className="animated-bg"></div>
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}

@@ -1,11 +1,121 @@
-/* Auth Pages (Login & Register) */
+/* Auth Pages (Login & Register) - Original Design */
+.login-container, .register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.app-logo {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.app-logo h1 {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.app-logo p {
+  color: var(--text-muted);
+  margin-top: 5px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+}
+
+.auth-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  max-width: 430px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  transform: translateY(0);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.tab-selector {
+  display: flex;
+  border-bottom: 1px solid var(--border-color, var(--input-border));
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .tab-selector {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.tab-option {
+  flex: 1;
+  text-align: center;
+  padding: 18px 0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  color: var(--text-muted);
+}
+
+.tab-option.active {
+  color: var(--text-color);
+  background-color: transparent;
+}
+
+.tab-option.active:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px 3px 0 0;
+}
+
+.tab-content {
+  padding: 30px;
+}
+
+.user-type-display {
+  margin-bottom: 24px;
+  padding: 14px;
+  border-radius: 12px;
+  background-color: var(--primary-light);
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-type-display i {
+  margin-right: 8px;
+  font-size: 18px;
+  color: var(--primary-color);
 }
 
 .auth-box {
