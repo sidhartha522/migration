@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import '../styles/Layout.css';
 
 const Layout = ({ children }) => {
   const { logout } = useAuth();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState('light');
 
@@ -35,8 +36,20 @@ const Layout = ({ children }) => {
     logout();
   };
 
+  // Don't show header/footer on login/register pages
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return (
+      <div className="app-container">
+        <div className="animated-bg"></div>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div className="layout">
+    <div className="app-container">
+      <div className="animated-bg"></div>
+      
       <header className="app-header">
         <div className="header-content">
           <h1 className="app-title">Khatape</h1>
@@ -76,9 +89,7 @@ const Layout = ({ children }) => {
         )}
       </div>
       
-      <div className="container">
-        <main className="main-content">{children}</main>
-      </div>
+      <main className="main-content">{children}</main>
 
       <footer className="footer">
         <div className="container">

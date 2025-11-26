@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { dashboardAPI } from '../services/api';
 import '../styles/Dashboard.css';
 
@@ -33,27 +32,22 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="loading">
-          <i className="fas fa-spinner fa-spin"></i> Loading dashboard...
-        </div>
-      </Layout>
+      <div className="loading">
+        <i className="fas fa-spinner fa-spin"></i> Loading dashboard...
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout>
-        <div className="error-message">{error}</div>
-      </Layout>
+      <div className="error-message">{error}</div>
     );
   }
 
   const { business, summary, recent_transactions, pending_customers } = dashboardData || {};
 
   return (
-    <Layout>
-      <div className="dashboard-container">
+    <div className="dashboard-container">
         {/* Business Profile Section */}
         <div className="profile-card">
           <div className="profile-image">
@@ -224,7 +218,7 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </div>
   );
 };
 

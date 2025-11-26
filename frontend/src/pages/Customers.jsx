@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { customerAPI } from '../services/api';
 import '../styles/Customers.css';
 
@@ -33,17 +32,14 @@ const Customers = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="loading">
-          <i className="fas fa-spinner fa-spin"></i> Loading customers...
-        </div>
-      </Layout>
+      <div className="loading">
+        <i className="fas fa-spinner fa-spin"></i> Loading customers...
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="customer-container">
+    <div className="customer-container">
         <div className="section-actions">
           <Link to="/" className="back-btn">
             <i className="fas fa-arrow-left"></i> Back
@@ -115,7 +111,7 @@ const Customers = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </div>
   );
 };
 
