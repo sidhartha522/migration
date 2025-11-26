@@ -34,62 +34,81 @@ const Customers = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="loading">Loading customers...</div>
+        <div className="loading">
+          <i className="fas fa-spinner fa-spin"></i> Loading customers...
+        </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <div className="customers-page">
-        <div className="page-header">
-          <h1>Customers</h1>
-          <Link to="/add-customer" className="btn btn-primary">
-            Add Customer
+      <div className="customer-container">
+        <div className="section-actions">
+          <Link to="/" className="back-btn">
+            <i className="fas fa-arrow-left"></i> Back
+          </Link>
+          <Link to="/add-customer" className="add-btn">
+            <i className="fas fa-user-plus"></i> Add Customer
           </Link>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
-        <div className="search-bar">
+        <div className="search-container">
           <input
             type="text"
-            placeholder="Search by name or phone..."
+            className="search-input"
+            placeholder="Search customers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <i className="fas fa-search search-icon"></i>
         </div>
 
         {filteredCustomers.length === 0 ? (
           <div className="empty-state">
-            <p>No customers found</p>
-            <Link to="/add-customer" className="btn btn-secondary">
-              Add Your First Customer
+            <i className="fas fa-users"></i>
+            <p>No customers yet</p>
+            <Link to="/add-customer" className="btn-primary">
+              Add your first customer
             </Link>
           </div>
         ) : (
-          <div className="customers-grid">
+          <div className="customer-list">
             {filteredCustomers.map((customer) => (
               <Link
                 key={customer.$id}
                 to={`/customer/${customer.$id}`}
                 className="customer-card"
               >
-                <div className="customer-info">
-                  <h3>{customer.name}</h3>
-                  <p className="phone">{customer.phone}</p>
+                <div className="customer-avatar">
+                  {customer.profile_photo_url ? (
+                    <img src={customer.profile_photo_url} alt={customer.name} />
+                  ) : (
+                    <div className="avatar-placeholder">
+                      {customer.name?.[0]?.toUpperCase() || '?'}
+                    </div>
+                  )}
                 </div>
-                <div className="customer-stats">
-                  <div className="stat">
-                    <span className="label">Balance:</span>
-                    <span className={`value ${customer.balance > 0 ? 'positive' : ''}`}>
-                      ₹{customer.balance?.toFixed(2) || '0.00'}
-                    </span>
-                  </div>
-                  <div className="stat">
-                    <span className="label">Transactions:</span>
-                    <span className="value">{customer.transaction_count || 0}</span>
-                  </div>
+                <div className="customer-info">
+                  <h3 className="customer-name">{customer.name}</h3>
+                  <p className="customer-phone">{customer.phone}</p>
+                </div>
+                <div className={`customer-balance ${customer.balance > 0 ? 'positive' : ''}`}>
+                  ₹{customer.balance?.toFixed(2) || '0.00'}
+                </div>
+                <div className="remind-action">
+                  <a
+                    href={`https://wa.me/${customer.phone}?text=Hello%20${customer.name}`}
+                    className="remind-btn"
+                    onClick={(e) => e.stopPropagation()}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Send WhatsApp reminder"
+                  >
+                    <i className="fab fa-whatsapp"></i>
+                  </a>
                 </div>
               </Link>
             ))}
