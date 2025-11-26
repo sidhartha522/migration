@@ -1,0 +1,75 @@
+/* Profile Page */
+.profile-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  background: white;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.profile-info {
+  margin-bottom: 24px;
+}
+
+.profile-info .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-info .info-row:last-child {
+  border-bottom: none;
+}
+
+.profile-info .info-row.highlight {
+  background: #f0f4ff;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.profile-info .pin {
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+  color: #667eea;
+  letter-spacing: 2px;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.qr-code-section {
+  background: white;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.qr-code-section h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.qr-code-image {
+  max-width: 300px;
+  margin: 0 auto 20px;
+  border: 2px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.qr-code-section p {
+  color: #6b7280;
+  margin-bottom: 20px;
+}

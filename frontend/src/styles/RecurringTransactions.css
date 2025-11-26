@@ -1,0 +1,83 @@
+/* Recurring Transactions Page */
+.recurring-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.recurring-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recurring-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid #667eea;
+}
+
+.recurring-card.inactive {
+  opacity: 0.6;
+  border-left-color: #9ca3af;
+}
+
+.recurring-info h3 {
+  font-size: 18px;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.recurring-info .amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 4px;
+}
+
+.recurring-info .frequency {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.recurring-info .notes {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.recurring-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-warning {
+  background: #fbbf24;
+  color: #78350f;
+}
+
+.btn-warning:hover {
+  background: #f59e0b;
+}
+
+.btn-success {
+  background: #10b981;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
