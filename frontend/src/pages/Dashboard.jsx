@@ -1,222 +1,174 @@
+/**
+ * Dashboard Page - Business Dashboard
+ */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { dashboardAPI } from '../services/api';
+import { dashboardAPI, qrAPI } from '../services/api';
+import FlashMessage from '../components/FlashMessage';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [messages, setMessages] = useState([]);
   const [showQR, setShowQR] = useState(false);
+  const [accessPin, setAccessPin] = useState('');
 
   useEffect(() => {
-    fetchDashboard();
+    loadDashboard();
+    loadAccessPin();
   }, []);
 
-  const fetchDashboard = async () => {
+  const loadDashboard = async () => {
     try {
-      setLoading(true);
       const response = await dashboardAPI.getDashboard();
-      setDashboardData(response.data);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load dashboard');
+      setSummary(response.data.summary);
+      setBusiness(response.data.business);
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to load dashboard'
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleQRCode = (e) => {
-    e.preventDefault();
-    setShowQR(!showQR);
+  const loadAccessPin = async () => {
+    try {
+      const response = await qrAPI.getAccessPin();
+      setAccessPin(response.data.access_pin);
+    } catch (error) {
+      console.error('Failed to load access pin', error);
+    }
   };
 
   if (loading) {
     return (
-      <div className="loading">
-        <i className="fas fa-spinner fa-spin"></i> Loading dashboard...
+      <div className="loading-spinner">
+        <div className="spinner"></div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="error-message">{error}</div>
-    );
-  }
-
-  const { business, summary, recent_transactions, pending_customers } = dashboardData || {};
-
   return (
-    <div className="dashboard-container">
-        {/* Business Profile Section */}
-        <div className="profile-card">
-          <div className="profile-image">
-            {business?.profile_photo_url ? (
-              <img src={business.profile_photo_url} alt="Business Profile" />
-            ) : (
-              <div className="placeholder">
-                <i className="fas fa-store"></i>
-              </div>
-            )}
-          </div>
-          <div className="profile-info">
-            <h2>{business?.name || 'Business Name'}</h2>
-            <p>{business?.description || 'Business Description'}</p>
-            <Link to="/profile" className="edit-profile-link">
-              <i className="fas fa-edit"></i> Edit Profile
-            </Link>
-          </div>
-        </div>
+    <div className="customer-dashboard">
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-        {/* Financial Summary */}
+      {/* Business Profile Section */}
+      <div className="profile-section">
+        <div className="profile-image">
+          {business?.profile_photo_url ? (
+            <img src={business.profile_photo_url} alt="Business Profile" />
+          ) : (
+            <i className="fas fa-store"></i>
+          )}
+        </div>
+        <div className="profile-info">
+          <h2>{business?.name || 'Your Business'}</h2>
+          <p className="phone-number">
+            <i className="fas fa-phone"></i> {business?.phone}
+          </p>
+          {business?.description && <p>{business.description}</p>}
+        </div>
+      </div>
+
+      {/* Financial Summary */}
+      <div className="dashboard-section">
+        <div className="section-header">
+          <h3 className="section-title">Financial Summary</h3>
+        </div>
         <div className="summary-cards">
-          <div className="summary-card balance-card">
-            <div className="summary-icon">
+          <div className="card">
+            <div className="card-icon" style={{backgroundColor: 'var(--danger-color)'}}>
               <i className="fas fa-wallet"></i>
             </div>
-            <div className="summary-content">
-              <div className="summary-label">TOTAL TO RECEIVE</div>
-              <div className="summary-amount">₹{summary?.outstanding_balance?.toFixed(2) || '0.00'}</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <Link to="/customers" className="action-btn customers-btn">
-            <i className="fas fa-users"></i>
-            <span>View Customers</span>
-          </Link>
-          <Link to="/transactions" className="action-btn transactions-btn">
-            <i className="fas fa-receipt"></i>
-            <span>View Transactions</span>
-          </Link>
-          <Link to="/add-customer" className="action-btn add-btn">
-            <i className="fas fa-user-plus"></i>
-            <span>Add Customer</span>
-          </Link>
-          <a href="#" className="action-btn qr-btn" onClick={toggleQRCode}>
-            <i className="fas fa-qrcode"></i>
-            <span>QR Code</span>
-          </a>
-        </div>
-
-        {/* Bulk Actions */}
-        <div className="bulk-actions">
-          <Link to="/bulk-reminders" className="bulk-action-btn remind-all-btn" title="Send WhatsApp reminders to all customers with outstanding balances">
-            <i className="fab fa-whatsapp"></i>
-            <span>Send All Reminders</span>
-          </Link>
-        </div>
-
-        {/* QR Code Section */}
-        {showQR && (
-          <div className="connect-card" id="qr-section">
-            <div className="connect-header">
-              <h3>Customer Connection</h3>
-              <p>Share these details with your customers to connect</p>
-            </div>
-            <div className="connect-content">
-              <div className="pin-display">
-                <span className="label">Your Business PIN:</span>
-                <span className="pin">{business?.pin || 'N/A'}</span>
-                <span className="pin-subtitle">Permanent identifier for your business</span>
-              </div>
-            
-              <div className="qr-code-container">
-                <div className="qr-code">
-                  <img src={`/api/business/qr/${business?.id}`} alt="Business QR Code" />
-                </div>
-                <p className="qr-info">Scan to connect with {business?.name}</p>
+            <div className="card-content">
+              <div className="card-label">Total to Receive</div>
+              <div className="card-amount" style={{color: 'var(--danger-color)'}}>
+                ₹{summary?.total_outstanding || '0.00'}
               </div>
             </div>
           </div>
-        )}
-             
-        {/* Customers Section */}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="dashboard-section">
         <div className="section-header">
-          <h3>Your Customers</h3>
-          <Link to="/customers" className="view-all">View All</Link>
+          <h3 className="section-title">Quick Actions</h3>
         </div>
-
-        {pending_customers && pending_customers.length > 0 ? (
-          <div className="customer-list">
-            {pending_customers.slice(0, 5).map((customer) => (
-              <Link
-                key={customer.id}
-                to={`/customer/${customer.id}`}
-                className="customer-card"
-              >
-                <div className="customer-avatar">
-                  {customer.profile_photo_url ? (
-                    <img src={customer.profile_photo_url} alt={customer.name} />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      {customer.name?.[0]?.toUpperCase() || '?'}
-                    </div>
-                  )}
-                </div>
-                <div className="customer-info">
-                  <div className="customer-name">{customer.name}</div>
-                  <div className={`customer-balance ${customer.balance > 0 ? 'positive' : ''}`}>
-                    ₹{customer.balance?.toFixed(2) || '0.00'}
-                  </div>
-                </div>
-                <div className="customer-actions">
-                  <a href={`https://wa.me/${customer.phone}?text=Hello%20${customer.name}`} className="remind-btn" target="_blank" rel="noreferrer" title="Send WhatsApp reminder" onClick={(e) => e.stopPropagation()}>
-                    <i className="fab fa-whatsapp"></i>
-                  </a>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <i className="fas fa-users"></i>
-            <p>No customers yet</p>
-            <Link to="/add-customer" className="btn btn-primary">Add your first customer</Link>
-          </div>
-        )}
-
-        {/* Transactions Section */}
-        <div className="section-header">
-          <h3>Recent Transactions</h3>
-          <Link to="/transactions" className="view-all">View All</Link>
+        <div className="quick-links">
+          <Link to="/customers" className="quick-link-card">
+            <div className="quick-link-icon">
+              <i className="fas fa-users"></i>
+            </div>
+            <div className="quick-link-text">View Customers</div>
+          </Link>
+          
+          <Link to="/transactions" className="quick-link-card">
+            <div className="quick-link-icon">
+              <i className="fas fa-receipt"></i>
+            </div>
+            <div className="quick-link-text">View Transactions</div>
+          </Link>
+          
+          <Link to="/add-customer" className="quick-link-card">
+            <div className="quick-link-icon">
+              <i className="fas fa-user-plus"></i>
+            </div>
+            <div className="quick-link-text">Add Customer</div>
+          </Link>
+          
+          <button 
+            className="quick-link-card" 
+            onClick={() => setShowQR(!showQR)}
+            style={{border: 'none', background: 'rgba(255, 255, 255, 0.5)'}}
+          >
+            <div className="quick-link-icon">
+              <i className="fas fa-qrcode"></i>
+            </div>
+            <div className="quick-link-text">QR Code</div>
+          </button>
         </div>
+      </div>
 
-        {recent_transactions && recent_transactions.length > 0 ? (
-          <div className="transaction-list">
-            {recent_transactions.slice(0, 5).map((transaction) => (
-              <div key={transaction.$id} className="transaction-card">
-                <div className={`transaction-icon ${transaction.type === 'credit' ? 'credit-icon' : 'payment-icon'}`}>
-                  {transaction.type === 'credit' ? (
-                    <i className="fas fa-arrow-up"></i>
-                  ) : (
-                    <i className="fas fa-arrow-down"></i>
-                  )}
-                </div>
-                <div className="transaction-info">
-                  <div className="transaction-name">{transaction.customer_name || 'Unknown'}</div>
-                  <div className="transaction-date">
-                    {new Date(transaction.created_at).toLocaleDateString('en-IN', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </div>
-                </div>
-                <div className={`transaction-amount ${transaction.type}`}>
-                  {transaction.type === 'credit' ? '+' : '-'}₹{parseFloat(transaction.amount).toFixed(2)}
-                </div>
+      {/* QR Code Section */}
+      {showQR && (
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h3 className="section-title">Customer Connection</h3>
+          </div>
+          <div className="card" style={{textAlign: 'center'}}>
+            <p>Share these details with your customers to connect</p>
+            <div className="pin-display" style={{margin: '20px 0', padding: '20px', backgroundColor: 'var(--light-color)', borderRadius: '12px'}}>
+              <strong>Your Business PIN:</strong>
+              <div style={{fontSize: '2rem', color: 'var(--primary-color)', fontWeight: '700', margin: '10px 0'}}>
+                {accessPin}
               </div>
-            ))}
+              <small>Permanent identifier for your business</small>
+            </div>
+            <div className="qr-code-container" style={{margin: '20px 0'}}>
+              <img 
+                src={`${import.meta.env.VITE_API_URL || 'http://localhost:5003/api'}/business/qr-code`} 
+                alt="Business QR Code" 
+                style={{maxWidth: '300px', border: '2px solid var(--input-border)', borderRadius: '12px'}}
+              />
+            </div>
           </div>
-        ) : (
-          <div className="empty-state">
-            <i className="fas fa-receipt"></i>
-            <p>No transactions yet</p>
-          </div>
-        )}
+        </div>
+      )}
+
+      {/* Recent Customers */}
+      <div className="dashboard-section">
+        <div className="section-header">
+          <h3 className="section-title">Recent Customers</h3>
+          <Link to="/customers" className="add-business-btn">
+            View All <i className="fas fa-arrow-right"></i>
+          </Link>
+        </div>
+        {/* Customer list will be added here */}
       </div>
     </div>
   );

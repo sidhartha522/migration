@@ -1,101 +1,106 @@
+/**
+ * RecurringTransactions Page - Manage recurring transactions
+ */
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
 import { recurringAPI } from '../services/api';
-import '../styles/RecurringTransactions.css';
+import FlashMessage from '../components/FlashMessage';
 
 const RecurringTransactions = () => {
+  const navigate = useNavigate();
   const [recurringTransactions, setRecurringTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    fetchRecurringTransactions();
+    loadRecurringTransactions();
   }, []);
 
-  const fetchRecurringTransactions = async () => {
+  const loadRecurringTransactions = async () => {
     try {
-      setLoading(true);
       const response = await recurringAPI.getRecurringTransactions();
       setRecurringTransactions(response.data.recurring_transactions || []);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load recurring transactions');
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to load recurring transactions'
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggle = async (recurringId) => {
+  const handleToggle = async (id) => {
     try {
-      await recurringAPI.toggleRecurringTransaction(recurringId);
-      fetchRecurringTransactions();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to toggle status');
-    }
-  };
-
-  const handleDelete = async (recurringId) => {
-    if (!confirm('Are you sure you want to delete this recurring transaction?')) {
-      return;
-    }
-
-    try {
-      await recurringAPI.deleteRecurringTransaction(recurringId);
-      fetchRecurringTransactions();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete');
+      await recurringAPI.toggleRecurringTransaction(id);
+      setMessages([{ type: 'success', message: 'Recurring transaction updated!' }]);
+      loadRecurringTransactions();
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: 'Failed to update recurring transaction'
+      }]);
     }
   };
 
   if (loading) {
     return (
-      <Layout>
-        <div className="loading">Loading recurring transactions...</div>
-      </Layout>
+      <div className="loading-spinner">
+        <div className="spinner"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="recurring-page">
-        <div className="page-header">
-          <h1>Recurring Transactions</h1>
-          <Link to="/add-recurring" className="btn btn-primary">
-            Add Recurring Transaction
-          </Link>
-        </div>
+    <div className="customer-dashboard">
+      <div className="page-header">
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <h1>Recurring Transactions</h1>
+      </div>
 
-        {error && <div className="error-message">{error}</div>}
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
+      <div className="dashboard-section">
         {recurringTransactions.length === 0 ? (
           <div className="empty-state">
+            <i className="fas fa-sync-alt"></i>
             <p>No recurring transactions found</p>
-            <Link to="/add-recurring" className="btn btn-secondary">
-              Create Your First Recurring Transaction
-            </Link>
           </div>
         ) : (
-          <div className="recurring-list">
-            {recurringTransactions.map((rt) => (
-              <div key={rt.$id} className={`recurring-card ${rt.is_active ? 'active' : 'inactive'}`}>
-                <div className="recurring-info">
-                  <h3>{rt.customer_name}</h3>
-                  <p className="amount">₹{parseFloat(rt.amount).toFixed(2)}</p>
-                  <p className="frequency">Frequency: {rt.frequency}</p>
-                  {rt.notes && <p className="notes">{rt.notes}</p>}
+          <div className="businesses-list">
+            {recurringTransactions.map((recurring) => (
+              <div key={recurring.id} className="business-card-inner" style={{marginBottom: '10px'}}>
+                <div className="business-icon" style={{
+                  backgroundColor: recurring.transaction_type === 'credit' ? 'var(--danger-color)' : 'var(--secondary-color)'
+                }}>
+                  <i className="fas fa-sync-alt"></i>
                 </div>
-                <div className="recurring-actions">
-                  <button
-                    onClick={() => handleToggle(rt.$id)}
-                    className={`btn ${rt.is_active ? 'btn-warning' : 'btn-success'}`}
+                <div className="business-info">
+                  <div className="business-name">
+                    {recurring.customer_name || 'Customer'}
+                  </div>
+                  <div>{recurring.transaction_type === 'credit' ? 'Credit' : 'Payment'} - {recurring.frequency}</div>
+                  <div style={{fontSize: '0.9rem', color: 'var(--dark-color)'}}>
+                    Next: {new Date(recurring.next_date).toLocaleDateString()}
+                  </div>
+                  <div style={{fontSize: '0.9rem', color: recurring.is_active ? 'var(--secondary-color)' : 'var(--dark-color)'}}>
+                    {recurring.is_active ? 'Active' : 'Inactive'}
+                  </div>
+                </div>
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px'}}>
+                  <div className="business-balance" style={{
+                    color: recurring.transaction_type === 'credit' ? 'var(--danger-color)' : 'var(--secondary-color)'
+                  }}>
+                    ₹{recurring.amount}
+                  </div>
+                  <button 
+                    className="btn primary-btn" 
+                    onClick={() => handleToggle(recurring.id)}
+                    style={{padding: '6px 12px', fontSize: '0.85rem'}}
                   >
-                    {rt.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(rt.$id)}
-                    className="btn btn-danger"
-                  >
-                    Delete
+                    {recurring.is_active ? 'Pause' : 'Resume'}
                   </button>
                 </div>
               </div>
@@ -103,7 +108,7 @@ const RecurringTransactions = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </div>
   );
 };
 

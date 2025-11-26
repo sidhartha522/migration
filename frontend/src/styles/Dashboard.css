@@ -1,686 +1,306 @@
-/* Dashboard Page */
-.dashboard-container {
-  --spacing: 20px;
-  --whatsapp: #25D366;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px 16px 40px;
+/* Dashboard Styles */
+.customer-dashboard {
+    padding-bottom: 30px;
 }
 
-/* Profile Card */
-.profile-card {
-  display: flex;
-  align-items: center;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  padding: var(--spacing);
-  margin-bottom: var(--spacing);
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.profile-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.profile-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+.profile-section:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(92, 103, 222, 0.08));
+    z-index: 1;
+    pointer-events: none;
+}
+
+.profile-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .profile-image {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-right: 20px;
-  background-color: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  border: 3px solid rgba(255, 255, 255, 0.1);
-}
-
-.profile-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.profile-info {
-  flex: 1;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.2rem;
+    box-shadow: 0 5px 15px rgba(92, 103, 222, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-info h2 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-color);
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.6rem;
+    font-weight: 700;
 }
 
-.profile-info p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 14px;
+.phone-number {
+    color: var(--primary-color);
+    margin: 8px 0 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
 }
 
-.edit-profile-link {
-  display: inline-block;
-  margin-top: 10px;
-  color: var(--primary-color);
-  font-size: 14px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.2s;
+.phone-number i {
+    margin-right: 8px;
 }
 
-.edit-profile-link:hover {
-  color: #4152b3;
-  transform: translateX(3px);
+.dashboard-section {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 24px;
+    margin-bottom: 24px;
 }
 
-.edit-profile-link i {
-  margin-right: 5px;
-}
-
-/* Summary Cards */
-.summary-cards {
-  display: flex;
-  gap: var(--spacing);
-  margin-bottom: var(--spacing);
-}
-
-.summary-card {
-  flex: 1;
-  padding: 20px;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-  width: 100%;
-}
-
-.summary-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-}
-
-.credit-card {
-  border-left: 4px solid var(--credit-color);
-}
-
-.balance-card {
-  border-left: 4px solid var(--payment-color);
-}
-
-.summary-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  font-size: 20px;
-}
-
-.credit-card .summary-icon {
-  background-color: var(--credit-light);
-  color: var(--credit-color);
-}
-
-.balance-card .summary-icon {
-  background-color: var(--payment-light);
-  color: var(--payment-color);
-}
-
-.summary-content {
-  flex: 1;
-}
-
-.summary-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.summary-amount {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: var(--spacing);
-  margin-bottom: var(--spacing);
-}
-
-.action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 16px;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  text-decoration: none;
-  color: var(--text-color);
-  transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.action-btn:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-}
-
-.action-btn i {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.action-btn span {
-  font-weight: 600;
-}
-
-.action-btn.customers-btn i {
-  color: var(--primary-color);
-}
-
-.action-btn.transactions-btn i {
-  color: var(--credit-color);
-}
-
-.action-btn.add-btn i {
-  color: var(--payment-color);
-}
-
-.action-btn.qr-btn i {
-  color: #ff9500;
-}
-
-/* Bulk Actions */
-.bulk-actions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: var(--spacing);
-  flex-wrap: wrap;
-}
-
-.bulk-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 24px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s;
-  border: none;
-  cursor: pointer;
-  min-width: 200px;
-  flex: 1;
-  max-width: 280px;
-}
-
-.remind-all-btn {
-  background-color: var(--whatsapp);
-  color: white;
-}
-
-.remind-all-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
-  background-color: #128C7E;
-}
-
-.bulk-action-btn i {
-  font-size: 18px;
-  margin-right: 10px;
-}
-
-.bulk-action-btn span {
-  font-size: 16px;
-}
-
-/* Connect Card */
-.connect-card {
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  margin-bottom: var(--spacing);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.connect-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-}
-
-.connect-header {
-  padding: 20px;
-  background: var(--primary-gradient);
-  color: white;
-}
-
-.connect-header h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.connect-header p {
-  margin: 0;
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.connect-content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.pin-display {
-  margin-bottom: 20px;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 12px 20px;
-  border-radius: 24px;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.label {
-  font-weight: 600;
-  margin-right: 10px;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.pin {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary-color);
-  letter-spacing: 2px;
-}
-
-.pin-subtitle {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  display: block;
-  font-style: italic;
-}
-
-.qr-code-container {
-  text-align: center;
-}
-
-.qr-code {
-  background-color: white;
-  padding: 20px;
-  display: inline-block;
-  border-radius: 14px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.qr-code img {
-  width: 200px;
-  height: 200px;
-}
-
-.qr-info {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* Section Headers */
 .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 32px 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
 }
 
-.section-header h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  position: relative;
-  padding-left: 14px;
-  color: var(--text-color);
+.section-title {
+    margin: 0;
+    color: var(--text-color);
+    font-weight: 700;
+    font-size: 1.25rem;
+    position: relative;
+    padding-left: 14px;
 }
 
-.section-header h3:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 18px;
-  background-color: var(--primary-color);
-  border-radius: 2px;
+.section-title:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 18px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
 }
 
-.view-all {
-  font-size: 14px;
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 600;
+.add-business-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(92, 103, 222, 0.3);
 }
 
-.view-all:hover {
-  text-decoration: underline;
+.add-business-btn i {
+    margin-right: 8px;
 }
 
-/* Customer List */
-.customer-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: var(--spacing);
+.add-business-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(92, 103, 222, 0.4);
 }
 
-.customer-card {
-  display: flex;
-  align-items: center;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--box-shadow);
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s;
+.businesses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.customer-card:hover {
-  transform: translateX(5px);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
+.business-card {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: transform 0.3s;
 }
 
-.customer-avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-right: 15px;
-  background-color: var(--primary-color);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.business-card-inner {
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 18px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--input-border);
+    transition: all 0.3s;
 }
 
-.customer-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.business-card:hover .business-card-inner {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    border-color: rgba(92, 103, 222, 0.3);
 }
 
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  background-color: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: bold;
+.business-icon {
+    width: 56px;
+    height: 56px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 18px;
+    box-shadow: 0 5px 10px rgba(92, 103, 222, 0.2);
 }
 
-.customer-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.business-info {
+    flex: 1;
 }
 
-.customer-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 4px;
+.business-name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 6px;
 }
 
-.customer-balance {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--credit-color);
+.business-balance {
+    color: var(--credit-color);
+    font-weight: 600;
 }
 
-.customer-balance.positive {
-  color: var(--payment-color);
+.business-balance.positive {
+    color: var(--payment-color);
 }
 
-.customer-actions {
-  margin-left: 12px;
+.business-arrow {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(92, 103, 222, 0.1);
+    transition: all 0.3s;
 }
 
-.remind-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background-color: rgba(37, 211, 102, 0.15);
-  color: var(--whatsapp);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: all 0.3s;
-  border: 1px solid rgba(37, 211, 102, 0.3);
+.business-card:hover .business-arrow {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateX(3px);
 }
 
-.remind-btn:hover {
-  background-color: rgba(37, 211, 102, 0.25);
-  transform: scale(1.05);
-}
-
-/* Transaction List */
-.transaction-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: var(--spacing);
-}
-
-.transaction-card {
-  display: flex;
-  align-items: center;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--box-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s;
-}
-
-.transaction-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.transaction-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-}
-
-.transaction-icon.credit-icon {
-  background-color: var(--credit-light);
-  color: var(--credit-color);
-}
-
-.transaction-icon.payment-icon {
-  background-color: var(--payment-light);
-  color: var(--payment-color);
-}
-
-.transaction-info {
-  flex: 1;
-}
-
-.transaction-name {
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--text-color);
-  margin-bottom: 4px;
-}
-
-.transaction-date {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.transaction-amount {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.transaction-amount.credit {
-  color: var(--credit-color);
-}
-
-.transaction-amount.payment {
-  color: var(--payment-color);
-}
-
-/* Empty State */
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  padding: 40px 20px;
-  box-shadow: var(--box-shadow);
-  text-align: center;
-  margin-bottom: var(--spacing);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    padding: 40px 0;
 }
 
 .empty-state i {
-  font-size: 36px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  opacity: 0.5;
+    font-size: 3.5rem;
+    color: var(--primary-color);
+    opacity: 0.4;
+    margin-bottom: 20px;
 }
 
 .empty-state p {
-  margin: 0 0 20px;
-  color: var(--text-muted);
+    margin-bottom: 10px;
+    color: var(--text-color);
+    opacity: 0.7;
 }
 
-.btn-primary {
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s;
-  display: inline-block;
-  box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+.empty-hint {
+    font-size: 0.9rem;
 }
 
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(78, 115, 223, 0.4);
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-  font-size: 18px;
-}
-
-.loading i {
-  font-size: 36px;
-  margin-bottom: 16px;
-  color: var(--primary-color);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .summary-cards {
+.quick-link-card {
+    display: flex;
     flex-direction: column;
-    gap: 15px;
-  }
-  
-  .action-buttons {
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
-  
-  .qr-code img {
-    width: 180px;
-    height: 180px;
-  }
-  
-  .dashboard-container {
-    padding: 15px 12px 30px;
-  }
-  
-  .profile-card,
-  .connect-content,
-  .connect-header,
-  .summary-card {
-    padding: 15px;
-  }
-  
-  .section-header {
-    margin: 25px 0 15px;
-  }
-  
-  .profile-image {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .bulk-actions {
-    margin: 15px 0;
-    text-align: center;
-  }
-  
-  .bulk-action-btn {
-    padding: 12px 20px;
-    font-size: 14px;
-    width: 100%;
-    max-width: 300px;
-  }
+    align-items: center;
+    padding: 22px 15px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text-color);
+    border: 1px solid var(--input-border);
+    transition: all 0.3s;
 }
 
-@media (max-width: 480px) {
-  .qr-code img {
-    width: 150px;
-    height: 150px;
-  }
+.quick-link-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-color: rgba(92, 103, 222, 0.3);
+}
+
+.quick-link-icon {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(92, 103, 222, 0.1);
+    transition: all 0.3s;
+}
+
+.quick-link-card:hover .quick-link-icon {
+    background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.quick-link-text {
+    font-weight: 600;
+    text-align: center;
+}
+
+[data-theme="dark"] .business-card-inner,
+[data-theme="dark"] .quick-link-card {
+    background-color: rgba(40, 40, 40, 0.5);
+}
+
+@media (max-width: 768px) {
+    .profile-section {
+        padding: 20px;
+    }
+    
+    .profile-image {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .profile-info h2 {
+        font-size: 1.4rem;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+    }
 }

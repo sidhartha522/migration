@@ -1,193 +1,189 @@
+/**
+ * AddTransaction Page - Add a transaction for a customer
+ */
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { useParams, useNavigate } from 'react-router-dom';
 import { transactionAPI, customerAPI } from '../services/api';
-import '../styles/Form.css';
+import FlashMessage from '../components/FlashMessage';
 
 const AddTransaction = () => {
-  const { customerId: paramCustomerId } = useParams();
-  const [customers, setCustomers] = useState([]);
-  const [customerId, setCustomerId] = useState(paramCustomerId || '');
-  const [type, setType] = useState('credit');
-  const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
-  const [billImage, setBillImage] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { customerId } = useParams();
   const navigate = useNavigate();
+  const [customer, setCustomer] = useState(null);
+  const [formData, setFormData] = useState({
+    customer_id: customerId,
+    transaction_type: 'credit',
+    amount: '',
+    notes: '',
+    bill_photo: null
+  });
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    loadCustomer();
+  }, [customerId]);
 
-  const fetchCustomers = async () => {
+  const loadCustomer = async () => {
     try {
-      const response = await customerAPI.getCustomers();
-      setCustomers(response.data.customers || []);
-    } catch (err) {
-      setError('Failed to load customers');
+      const response = await customerAPI.getCustomer(customerId);
+      setCustomer(response.data.customer);
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: 'Failed to load customer details'
+      }]);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 16 * 1024 * 1024) {
-        setError('File size must be less than 16MB');
-        return;
-      }
-      setBillImage(file);
+      setFormData(prev => ({
+        ...prev,
+        bill_photo: file
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!customerId || !type || !amount) {
-      setError('Customer, type, and amount are required');
-      return;
-    }
-
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Amount must be a positive number');
+    
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      setMessages([{ type: 'error', message: 'Please enter a valid amount' }]);
       return;
     }
 
     setLoading(true);
+    setMessages([]);
 
     try {
-      const formData = new FormData();
-      formData.append('customer_id', customerId);
-      formData.append('type', type);
-      formData.append('amount', amountNum);
-      formData.append('notes', notes);
-      if (billImage) {
-        formData.append('bill_image', billImage);
-      }
-
       await transactionAPI.createTransaction(formData);
-      
-      if (paramCustomerId) {
-        navigate(`/customer/${paramCustomerId}`);
-      } else {
-        navigate('/transactions');
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create transaction');
+      setMessages([{ type: 'success', message: 'Transaction added successfully!' }]);
+      setTimeout(() => {
+        navigate(`/customer/${customerId}`);
+      }, 1000);
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to add transaction'
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="form-page">
-        <div className="form-container">
-          <h1>Add Transaction</h1>
-
-          <form onSubmit={handleSubmit}>
-            {error && <div className="error-message">{error}</div>}
-
-            <div className="form-group">
-              <label htmlFor="customer">Select Customer *</label>
-              <select
-                id="customer"
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-                disabled={loading || paramCustomerId}
-              >
-                <option value="">-- Select Customer --</option>
-                {customers.map((customer) => (
-                  <option key={customer.$id} value={customer.$id}>
-                    {customer.name} ({customer.phone})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Transaction Type *</label>
-              <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    value="credit"
-                    checked={type === 'credit'}
-                    onChange={(e) => setType(e.target.value)}
-                    disabled={loading}
-                  />
-                  Credit (Given)
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    value="payment"
-                    checked={type === 'payment'}
-                    onChange={(e) => setType(e.target.value)}
-                    disabled={loading}
-                  />
-                  Payment (Received)
-                </label>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="amount">Amount *</label>
-              <input
-                type="number"
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                step="0.01"
-                min="0"
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="notes">Notes (Optional)</label>
-              <textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add any notes..."
-                rows="3"
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="billImage">Bill Image (Optional)</label>
-              <input
-                type="file"
-                id="billImage"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={loading}
-              />
-              {billImage && <p className="file-name">{billImage.name}</p>}
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="btn btn-secondary"
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Saving...' : 'Add Transaction'}
-              </button>
-            </div>
-          </form>
-        </div>
+    <div className="customer-dashboard">
+      <div className="page-header">
+        <button className="btn-back" onClick={() => navigate(`/customer/${customerId}`)}>
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <h1>Add Transaction</h1>
       </div>
-    </Layout>
+
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
+
+      {customer && (
+        <div className="card" style={{marginBottom: '20px'}}>
+          <h3>{customer.name}</h3>
+          <p>Current Balance: ₹{Math.abs(customer.balance || 0).toFixed(2)} {customer.balance > 0 ? 'to receive' : 'received'}</p>
+        </div>
+      )}
+
+      <div className="auth-card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Transaction Type *</label>
+            <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
+              <label style={{flex: 1, display: 'flex', alignItems: 'center', padding: '14px', border: `2px solid ${formData.transaction_type === 'credit' ? 'var(--danger-color)' : 'var(--input-border)'}`, borderRadius: '12px', cursor: 'pointer'}}>
+                <input
+                  type="radio"
+                  name="transaction_type"
+                  value="credit"
+                  checked={formData.transaction_type === 'credit'}
+                  onChange={handleChange}
+                  style={{marginRight: '8px'}}
+                />
+                <span>Credit (You Gave)</span>
+              </label>
+              <label style={{flex: 1, display: 'flex', alignItems: 'center', padding: '14px', border: `2px solid ${formData.transaction_type === 'payment' ? 'var(--secondary-color)' : 'var(--input-border)'}`, borderRadius: '12px', cursor: 'pointer'}}>
+                <input
+                  type="radio"
+                  name="transaction_type"
+                  value="payment"
+                  checked={formData.transaction_type === 'payment'}
+                  onChange={handleChange}
+                  style={{marginRight: '8px'}}
+                />
+                <span>Payment (You Received)</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="amount" className="form-label">Amount *</label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              className="form-input"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="Enter amount"
+              step="0.01"
+              min="0"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="notes" className="form-label">Notes (Optional)</label>
+            <textarea
+              id="notes"
+              name="notes"
+              className="form-input"
+              value={formData.notes}
+              onChange={handleChange}
+              placeholder="Add any notes about this transaction"
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="bill_photo" className="form-label">Bill Photo (Optional)</label>
+            <input
+              type="file"
+              id="bill_photo"
+              name="bill_photo"
+              className="form-input"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+          </div>
+
+          <button type="submit" className="btn primary-btn" disabled={loading}>
+            <i className="fas fa-check"></i> {loading ? 'Adding...' : 'Add Transaction'}
+          </button>
+          
+          <button 
+            type="button" 
+            className="btn secondary-btn" 
+            onClick={() => navigate(`/customer/${customerId}`)}
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 

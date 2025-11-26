@@ -1,102 +1,85 @@
+/**
+ * Login Page - Business login
+ */
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import FlashMessage from '../components/FlashMessage';
 import '../styles/Auth.css';
 
 const Login = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('customer');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [messages, setMessages] = useState([]);
+  
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
+    
     if (!phone || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (phone.length !== 10 || !/^\d+$/.test(phone)) {
-      setError('Phone number must be exactly 10 digits');
+      setMessages([{ type: 'error', message: 'Please enter both phone number and password' }]);
       return;
     }
 
     setLoading(true);
+    setMessages([]);
 
     const result = await login(phone, password);
-
+    
     if (result.success) {
-      navigate('/dashboard');
+      setMessages([{ type: 'success', message: 'Successfully logged in!' }]);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     } else {
-      setError(result.error);
+      setMessages([{ type: 'error', message: result.error }]);
     }
-
+    
     setLoading(false);
   };
 
   return (
     <div className="login-container">
       <div className="app-logo">
-        <h1>Khatape</h1>
-        <p>Your Digital Credit Book</p>
+        <h1>KhataPe Business</h1>
+        <p>Manage Your Business Credit Book</p>
       </div>
 
       <div className="auth-card">
-        <div className="tab-selector">
-          <div 
-            className={`tab-option ${userType === 'customer' ? 'active' : ''}`}
-            onClick={() => setUserType('customer')}
-          >
-            <i className="fas fa-user"></i> Customer
-          </div>
-          <div 
-            className={`tab-option ${userType === 'business' ? 'active' : ''}`}
-            onClick={() => setUserType('business')}
-          >
-            <i className="fas fa-store"></i> Business
-          </div>
-        </div>
-        
         <div className="tab-content">
           <div className="user-type-display">
-            <i className={`fas ${userType === 'customer' ? 'fa-user-circle' : 'fa-store'}`}></i>
-            Logging in as: <span>{userType.charAt(0).toUpperCase() + userType.slice(1)}</span>
+            <i className="fas fa-store"></i> Business Login
           </div>
           
+          <FlashMessage messages={messages} onClose={() => setMessages([])} />
+          
           <form onSubmit={handleSubmit}>
-            {error && <div className="alert alert-danger">{error}</div>}
-            
             <div className="form-group">
               <label htmlFor="phone" className="form-label">Mobile Number</label>
-              <input 
-                type="tel" 
-                id="phone" 
+              <input
+                type="tel"
+                id="phone"
+                className="form-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="form-input" 
-                required 
                 placeholder="Enter your mobile number"
-                maxLength="10"
-                disabled={loading}
+                required
               />
             </div>
             
             <div className="form-group">
               <label htmlFor="password" className="form-label">Password</label>
-              <input 
-                type="password" 
-                id="password" 
+              <input
+                type="password"
+                id="password"
+                className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="form-input" 
-                required 
                 placeholder="Enter your password"
-                disabled={loading}
+                required
               />
             </div>
             
@@ -104,8 +87,20 @@ const Login = () => {
               <i className="fas fa-sign-in-alt"></i> {loading ? 'Logging in...' : 'Login'}
             </button>
             
+            <div className="business-login-section">
+              <div className="divider">
+                <span>or</span>
+              </div>
+              <a href="https://customer.khatape.tech" className="btn business-btn">
+                <i className="fas fa-user"></i> Login as Customer
+              </a>
+              <p className="business-help-text">
+                Are you a customer? Click above to access the customer app.
+              </p>
+            </div>
+            
             <Link to="/register" className="btn secondary-btn">
-              <i className="fas fa-user-plus"></i> New User? Register
+              <i className="fas fa-user-plus"></i> New Business? Register
             </Link>
           </form>
         </div>

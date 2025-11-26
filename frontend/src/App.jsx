@@ -1,85 +1,28 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import CustomerDetails from './pages/CustomerDetails';
 import AddCustomer from './pages/AddCustomer';
-import Transactions from './pages/Transactions';
 import AddTransaction from './pages/AddTransaction';
+import Transactions from './pages/Transactions';
 import RecurringTransactions from './pages/RecurringTransactions';
-import AddRecurringTransaction from './pages/AddRecurringTransaction';
 import Profile from './pages/Profile';
 import BulkReminders from './pages/BulkReminders';
-import './App.css';
-
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
-
-// Public Route Component (redirect to dashboard if logged in)
-const PublicRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
-};
+import './styles/App.css';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router>
         <Layout>
           <Routes>
-            {/* Public Routes */}
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <PublicRoute>
-                  <Register />
-                </PublicRoute>
-              }
-            />
-
-            {/* Protected Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route
               path="/dashboard"
               element={
@@ -113,26 +56,18 @@ function App() {
               }
             />
             <Route
+              path="/customer/:customerId/transaction"
+              element={
+                <ProtectedRoute>
+                  <AddTransaction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/transactions"
               element={
                 <ProtectedRoute>
                   <Transactions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/add-transaction"
-              element={
-                <ProtectedRoute>
-                  <AddTransaction />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/add-transaction/:customerId"
-              element={
-                <ProtectedRoute>
-                  <AddTransaction />
                 </ProtectedRoute>
               }
             />
@@ -145,10 +80,10 @@ function App() {
               }
             />
             <Route
-              path="/add-recurring"
+              path="/profile"
               element={
                 <ProtectedRoute>
-                  <AddRecurringTransaction />
+                  <Profile />
                 </ProtectedRoute>
               }
             />
@@ -160,21 +95,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Default redirect */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
 }

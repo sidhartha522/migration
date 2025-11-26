@@ -1,184 +1,192 @@
+/**
+ * Profile Page - Business profile management
+ */
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { profileAPI } from '../services/api';
-import '../styles/Profile.css';
+import FlashMessage from '../components/FlashMessage';
 
-const Profile = () => {
-  const [profile, setProfile] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [showQR, setShowQR] = useState(false);
+function Profile() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    description: '',
+    profile_photo: null
+  });
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
 
   useEffect(() => {
-    fetchProfile();
+    loadProfile();
   }, []);
 
-  const fetchProfile = async () => {
+  const loadProfile = async () => {
     try {
-      setLoading(true);
       const response = await profileAPI.getProfile();
-      setProfile(response.data.business);
-      setName(response.data.business.name);
-      setPhone(response.data.business.phone || '');
-    } catch (err) {
-      setError('Failed to load profile');
+      setFormData({
+        name: response.data.name || '',
+        phone: response.data.phone || '',
+        description: response.data.description || '',
+        profile_photo: null
+      });
+      setProfilePhotoUrl(response.data.profile_photo_url || '');
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to load profile'
+      }]);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        profile_photo: file
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    setLoading(true);
+    setMessages([]);
+
+    try {
+      await profileAPI.updateProfile(formData);
+      setMessages([{ type: 'success', message: 'Profile updated successfully!' }]);
+      loadProfile();
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to update profile'
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    setError('');
-    setMessage('');
-
-    try {
-      setSaving(true);
-      await profileAPI.updateProfile({ name, phone });
-      setMessage('Profile updated successfully!');
-      setEditing(false);
-      fetchProfile();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
-
-  const handleRegeneratePin = async () => {
-    if (!confirm('Are you sure you want to regenerate your business PIN? The old PIN will no longer work.')) {
-      return;
-    }
-
-    try {
-      const response = await profileAPI.regeneratePin();
-      setMessage(`New PIN generated: ${response.data.pin}`);
-      fetchProfile();
-    } catch (err) {
-      setError('Failed to regenerate PIN');
-    }
-  };
-
-  const handleShowQR = async () => {
-    try {
-      const response = await profileAPI.getQRCode();
-      const url = URL.createObjectURL(response.data);
-      setQrCodeUrl(url);
-      setShowQR(true);
-    } catch (err) {
-      setError('Failed to generate QR code');
-    }
-  };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="loading">Loading profile...</div>
-      </Layout>
-    );
-  }
 
   return (
-    <Layout>
-      <div className="profile-page">
-        <div className="page-header">
-          <h1>Business Profile</h1>
-        </div>
+    <div className="container">
+      <div className="page-header">
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <h1>Business Profile</h1>
+      </div>
 
-        {message && <div className="success-message">{message}</div>}
-        {error && <div className="error-message">{error}</div>}
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-        <div className="profile-card">
-          {editing ? (
-            <form onSubmit={handleSave}>
-              <div className="form-group">
-                <label htmlFor="name">Business Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  maxLength="10"
-                  disabled={saving}
-                />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  className="btn btn-secondary"
-                  disabled={saving}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <>
-              <div className="profile-info">
-                <div className="info-row">
-                  <span>Business Name:</span>
-                  <strong>{profile?.name}</strong>
-                </div>
-                <div className="info-row">
-                  <span>Phone:</span>
-                  <strong>{profile?.phone || 'Not set'}</strong>
-                </div>
-                <div className="info-row highlight">
-                  <span>Business PIN:</span>
-                  <strong className="pin">{profile?.pin}</strong>
-                </div>
-              </div>
-
-              <div className="profile-actions">
-                <button onClick={() => setEditing(true)} className="btn btn-primary">
-                  Edit Profile
-                </button>
-                <button onClick={handleRegeneratePin} className="btn btn-warning">
-                  Regenerate PIN
-                </button>
-                <button onClick={handleShowQR} className="btn btn-secondary">
-                  Show QR Code
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        {showQR && qrCodeUrl && (
-          <div className="qr-code-section">
-            <h2>Business PIN QR Code</h2>
-            <img src={qrCodeUrl} alt="Business QR Code" className="qr-code-image" />
-            <p>Customers can scan this QR code to get your business PIN</p>
-            <button onClick={() => setShowQR(false)} className="btn btn-secondary">
-              Close
-            </button>
+      <div className="auth-card">
+        {profilePhotoUrl && (
+          <div className="profile-photo-preview">
+            <img src={profilePhotoUrl} alt="Profile" style={{width: '100px', height: '100px', borderRadius: '50%'}} />
           </div>
         )}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name" className="form-label">
+              Business Name <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              className="form-input"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone" className="form-label">
+              Phone Number <span className="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              className="form-input"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              disabled
+            />
+            <small>Phone number cannot be changed</small>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              className="form-input"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Brief description of your business"
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="profile_photo" className="form-label">Profile Photo</label>
+            <input
+              type="file"
+              id="profile_photo"
+              name="profile_photo"
+              className="form-input"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn primary-btn"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
+        </form>
+
+        <div className="profile-actions">
+          <button 
+            className="btn secondary-btn"
+            onClick={handleLogout}
+          >
+            <i className="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+
+        <div className="profile-info">
+          <h3>Account Information</h3>
+          <p><strong>User ID:</strong> {user?.id}</p>
+          <p><strong>Registered:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
-};
+}
 
 export default Profile;

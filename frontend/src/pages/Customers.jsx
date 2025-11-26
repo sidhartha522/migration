@@ -1,110 +1,119 @@
+/**
+ * Customers Page - View all customers
+ */
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { customerAPI } from '../services/api';
-import '../styles/Customers.css';
+import FlashMessage from '../components/FlashMessage';
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCustomers();
+    loadCustomers();
   }, []);
 
-  const fetchCustomers = async () => {
+  const loadCustomers = async () => {
     try {
-      setLoading(true);
       const response = await customerAPI.getCustomers();
       setCustomers(response.data.customers || []);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load customers');
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to load customers'
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone?.includes(searchTerm)
-  );
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadCustomers();
+      return;
+    }
+    
+    try {
+      const response = await customerAPI.searchCustomers(searchQuery);
+      setCustomers(response.data.customers || []);
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: 'Search failed'
+      }]);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="loading">
-        <i className="fas fa-spinner fa-spin"></i> Loading customers...
+      <div className="loading-spinner">
+        <div className="spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="customer-container">
-        <div className="section-actions">
-          <Link to="/" className="back-btn">
-            <i className="fas fa-arrow-left"></i> Back
-          </Link>
-          <Link to="/add-customer" className="add-btn">
-            <i className="fas fa-user-plus"></i> Add Customer
-          </Link>
-        </div>
+    <div className="customer-dashboard">
+      <div className="page-header">
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <h1>Your Customers</h1>
+      </div>
 
-        {error && <div className="error-message">{error}</div>}
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-        <div className="search-container">
+      <div className="dashboard-section">
+        <div className="search-bar" style={{marginBottom: '20px'}}>
           <input
             type="text"
-            className="search-input"
-            placeholder="Search customers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-input"
+            placeholder="Search customers by name or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <i className="fas fa-search search-icon"></i>
+          <button className="btn primary-btn" onClick={handleSearch} style={{marginTop: '10px'}}>
+            <i className="fas fa-search"></i> Search
+          </button>
         </div>
 
-        {filteredCustomers.length === 0 ? (
+        <Link to="/add-customer" className="btn primary-btn" style={{marginBottom: '20px'}}>
+          <i className="fas fa-user-plus"></i> Add New Customer
+        </Link>
+
+        {customers.length === 0 ? (
           <div className="empty-state">
             <i className="fas fa-users"></i>
-            <p>No customers yet</p>
-            <Link to="/add-customer" className="btn-primary">
-              Add your first customer
-            </Link>
+            <p>No customers found</p>
+            <p className="empty-hint">Add your first customer to get started</p>
           </div>
         ) : (
-          <div className="customer-list">
-            {filteredCustomers.map((customer) => (
+          <div className="businesses-list">
+            {customers.map((customer) => (
               <Link
-                key={customer.$id}
-                to={`/customer/${customer.$id}`}
-                className="customer-card"
+                key={customer.id}
+                to={`/customer/${customer.id}`}
+                className="business-card"
               >
-                <div className="customer-avatar">
-                  {customer.profile_photo_url ? (
-                    <img src={customer.profile_photo_url} alt={customer.name} />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      {customer.name?.[0]?.toUpperCase() || '?'}
+                <div className="business-card-inner">
+                  <div className="business-icon">
+                    <i className="fas fa-user"></i>
+                  </div>
+                  <div className="business-info">
+                    <div className="business-name">{customer.name}</div>
+                    <div className="business-balance" 
+                         style={{color: customer.balance > 0 ? 'var(--danger-color)' : 'var(--secondary-color)'}}>
+                      ₹{Math.abs(customer.balance || 0).toFixed(2)} {customer.balance > 0 ? 'to receive' : 'received'}
                     </div>
-                  )}
-                </div>
-                <div className="customer-info">
-                  <h3 className="customer-name">{customer.name}</h3>
-                  <p className="customer-phone">{customer.phone}</p>
-                </div>
-                <div className={`customer-balance ${customer.balance > 0 ? 'positive' : ''}`}>
-                  ₹{customer.balance?.toFixed(2) || '0.00'}
-                </div>
-                <div className="remind-action">
-                  <a
-                    href={`https://wa.me/${customer.phone}?text=Hello%20${customer.name}`}
-                    className="remind-btn"
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Send WhatsApp reminder"
-                  >
-                    <i className="fab fa-whatsapp"></i>
-                  </a>
+                  </div>
+                  <div className="business-arrow">
+                    <i className="fas fa-chevron-right"></i>
+                  </div>
                 </div>
               </Link>
             ))}

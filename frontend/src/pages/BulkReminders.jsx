@@ -1,82 +1,64 @@
+/**
+ * BulkReminders Page - Send bulk reminders to customers
+ */
 import { useState } from 'react';
-import Layout from '../components/Layout';
-import { customerAPI } from '../services/api';
-import '../styles/BulkReminders.css';
+import { useNavigate } from 'react-router-dom';
+import { reminderAPI } from '../services/api';
+import FlashMessage from '../components/FlashMessage';
 
 const BulkReminders = () => {
-  const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
 
   const handleSendBulkReminders = async () => {
-    if (!confirm('Are you sure you want to send reminders to all customers with pending balances?')) {
+    if (!window.confirm('Send reminders to all customers with outstanding balances?')) {
       return;
     }
 
+    setLoading(true);
+    setMessages([]);
+
     try {
-      setSending(true);
-      setError('');
-      setMessage('');
-      
-      const response = await customerAPI.remindAllCustomers();
-      setMessage(response.data.message);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send reminders');
+      await reminderAPI.sendBulkReminders();
+      setMessages([{ type: 'success', message: 'Bulk reminders sent successfully!' }]);
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to send bulk reminders'
+      }]);
     } finally {
-      setSending(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="bulk-reminders-page">
-        <div className="page-header">
-          <h1>Bulk Reminders</h1>
-        </div>
+    <div className="customer-dashboard">
+      <div className="page-header">
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <h1>Bulk Reminders</h1>
+      </div>
 
-        <div className="reminder-info-card">
-          <h2>Send Payment Reminders</h2>
-          <p>
-            This feature will send payment reminders to all customers who have pending balances.
-            The system will automatically identify customers with outstanding payments.
-          </p>
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
+
+      <div className="dashboard-section">
+        <div className="card">
+          <h3>Send Reminders to All Customers</h3>
+          <p>This will send WhatsApp reminders to all customers with outstanding balances.</p>
           
-          <div className="reminder-features">
-            <h3>What happens:</h3>
-            <ul>
-              <li>Reminders are sent only to customers with positive balances</li>
-              <li>Each customer receives a personalized message</li>
-              <li>Reminders are sent via SMS/WhatsApp (when configured)</li>
-            </ul>
-          </div>
-
-          {message && (
-            <div className="success-message">
-              ✓ {message}
-            </div>
-          )}
-
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          <button
+          <button 
+            className="btn primary-btn" 
             onClick={handleSendBulkReminders}
-            className="btn btn-primary btn-large"
-            disabled={sending}
+            disabled={loading}
+            style={{marginTop: '20px'}}
           >
-            {sending ? 'Sending Reminders...' : 'Send Bulk Reminders'}
+            <i className="fab fa-whatsapp"></i> {loading ? 'Sending...' : 'Send Bulk Reminders'}
           </button>
-
-          <p className="note">
-            <strong>Note:</strong> Make sure you have configured SMS/WhatsApp integration
-            in your settings for reminders to be delivered.
-          </p>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

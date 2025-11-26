@@ -1,3 +1,6 @@
+/**
+ * API Service - Handles all API calls to the Business backend
+ */
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5003/api';
@@ -10,7 +13,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor - Add token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -24,7 +27,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor - Handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -38,54 +41,103 @@ api.interceptors.response.use(
   }
 );
 
-// ========== Auth APIs ==========
+// Auth APIs
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
-  logout: () => api.post('/auth/logout'),
+  getCurrentUser: () => api.get('/auth/me'),
 };
 
-// ========== Dashboard APIs ==========
+// Dashboard APIs
 export const dashboardAPI = {
   getDashboard: () => api.get('/dashboard'),
+  getSummary: () => api.get('/business/summary'),
 };
 
-// ========== Customer APIs ==========
+// Customer APIs
 export const customerAPI = {
   getCustomers: () => api.get('/customers'),
-  getCustomerDetails: (customerId) => api.get(`/customer/${customerId}`),
-  addCustomer: (data) => api.post('/customer', data),
-  remindCustomer: (customerId) => api.post(`/customer/${customerId}/remind`),
-  remindAllCustomers: () => api.post('/customers/remind-all'),
+  getCustomer: (id) => api.get(`/customer/${id}`),
+  addCustomer: (data) => api.post('/customer/add', data),
+  updateCustomer: (id, data) => api.put(`/customer/${id}/update`, data),
+  deleteCustomer: (id) => api.delete(`/customer/${id}/delete`),
+  searchCustomers: (query) => api.get(`/customers/search?q=${query}`),
 };
 
-// ========== Transaction APIs ==========
+// Transaction APIs
 export const transactionAPI = {
-  getTransactions: () => api.get('/transactions'),
-  createTransaction: (formData) => {
-    return api.post('/transaction', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  createTransaction: (data) => {
+    // If data contains a file, use FormData
+    if (data.bill_photo) {
+      const formData = new FormData();
+      formData.append('customer_id', data.customer_id);
+      formData.append('transaction_type', data.transaction_type);
+      formData.append('amount', data.amount);
+      formData.append('notes', data.notes || '');
+      formData.append('bill_photo', data.bill_photo);
+      
+      return api.post('/transaction/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
+    return api.post('/transaction/create', data);
   },
-  getBillImage: (transactionId) => api.get(`/transaction/${transactionId}/bill`),
+  getTransactions: () => api.get('/transactions'),
+  getTransaction: (id) => api.get(`/transaction/${id}`),
+  getCustomerTransactions: (customerId) => api.get(`/customer/${customerId}/transactions`),
+  deleteTransaction: (id) => api.delete(`/transaction/${id}/delete`),
 };
 
-// ========== Recurring Transaction APIs ==========
+// Recurring Transaction APIs
 export const recurringAPI = {
   getRecurringTransactions: () => api.get('/recurring-transactions'),
-  createRecurringTransaction: (data) => api.post('/recurring-transaction', data),
-  toggleRecurringTransaction: (recurringId) => api.put(`/recurring-transaction/${recurringId}/toggle`),
-  deleteRecurringTransaction: (recurringId) => api.delete(`/recurring-transaction/${recurringId}`),
+  createRecurringTransaction: (data) => api.post('/recurring-transaction/create', data),
+  updateRecurringTransaction: (id, data) => api.put(`/recurring-transaction/${id}/update`, data),
+  deleteRecurringTransaction: (id) => api.delete(`/recurring-transaction/${id}/delete`),
+  toggleRecurringTransaction: (id) => api.post(`/recurring-transaction/${id}/toggle`),
 };
 
-// ========== Profile APIs ==========
+// Reminder APIs
+export const reminderAPI = {
+  sendReminder: (customerId) => api.post(`/customer/${customerId}/remind`),
+  sendBulkReminders: () => api.post('/reminders/bulk'),
+};
+
+// Profile APIs
 export const profileAPI = {
   getProfile: () => api.get('/profile'),
-  updateProfile: (data) => api.put('/profile', data),
-  regeneratePin: () => api.post('/profile/regenerate-pin'),
-  getQRCode: () => api.get('/profile/qr', { responseType: 'blob' }),
+  updateProfile: (data) => {
+    // If data contains a file, use FormData
+    if (data.profile_photo) {
+      const formData = new FormData();
+      if (data.name) formData.append('name', data.name);
+      if (data.description) formData.append('description', data.description);
+      if (data.phone) formData.append('phone', data.phone);
+      formData.append('profile_photo', data.profile_photo);
+      
+      return api.put('/profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
+    return api.put('/profile', data);
+  },
+};
+
+// QR Code APIs
+export const qrAPI = {
+  getQRCode: () => api.get('/business/qr-code', { responseType: 'blob' }),
+  getAccessPin: () => api.get('/business/access-pin'),
+};
+
+// Utility APIs
+export const utilityAPI = {
+  healthCheck: () => api.get('/health'),
+  getPrivacyPolicy: () => api.get('/privacy'),
+  getTerms: () => api.get('/terms'),
 };
 
 export default api;
