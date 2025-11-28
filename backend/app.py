@@ -55,7 +55,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 # Enable CORS
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000", "http://localhost:5173"],
+        "origins": ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
@@ -155,7 +155,7 @@ def register():
         
         # Check if user already exists
         existing_users = appwrite_db.list_documents('users', [
-            Query.equal('phone', phone)
+            Query.equal('phone_number', phone)
         ])
         
         if existing_users:
@@ -166,7 +166,7 @@ def register():
         from werkzeug.security import generate_password_hash
         
         user_data = {
-            'phone': phone,
+            'phone_number': phone,
             'password': generate_password_hash(password),
             'user_type': 'business',
             'created_at': datetime.utcnow().isoformat()
@@ -183,7 +183,7 @@ def register():
         business_data = {
             'user_id': user_id,
             'name': business_name,
-            'phone': phone,
+            'phone_number': phone,
             'pin': business_pin,
             'is_active': True,
             'created_at': datetime.utcnow().isoformat()
@@ -224,7 +224,7 @@ def login():
         
         # Find user
         users = appwrite_db.list_documents('users', [
-            Query.equal('phone', phone),
+            Query.equal('phone_number', phone),
             Query.equal('user_type', 'business')
         ])
         
@@ -233,9 +233,28 @@ def login():
         
         user = users[0]
         
-        # Verify password
-        from werkzeug.security import check_password_hash
-        if not check_password_hash(user['password'], password):
+        # Verify password - handle both plain text (legacy) and hashed passwords
+        stored_password = user.get('password', '')
+        password_valid = False
+        
+        # Check if password is hashed (bcrypt starts with $2b$, werkzeug starts with pbkdf2 or scrypt)
+        if stored_password.startswith('$') or stored_password.startswith('pbkdf2:') or stored_password.startswith('scrypt:'):
+            # Try hashed password verification
+            from werkzeug.security import check_password_hash
+            try:
+                password_valid = check_password_hash(stored_password, password)
+            except Exception as e:
+                # If werkzeug fails, try bcrypt directly
+                import bcrypt
+                try:
+                    password_valid = bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8'))
+                except:
+                    password_valid = False
+        else:
+            # Plain text password (legacy)
+            password_valid = (stored_password == password)
+        
+        if not password_valid:
             return jsonify({'error': 'Invalid phone number or password'}), 401
         
         # Get business details
@@ -289,12 +308,12 @@ def dashboard():
         
         # Get all customers
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         
         # Get all transactions
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id),
+            Query.equal('business_id', [business_id]),
             Query.order_desc('created_at'),
             Query.limit(100)
         ])
@@ -357,12 +376,12 @@ def get_customers():
         business_id = request.business_id
         
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         
         # Get transactions to calculate balances
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         
         # Calculate balance for each customer
@@ -395,8 +414,8 @@ def get_customer_details(customer_id):
         
         # Get customer transactions
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id),
-            Query.equal('customer_id', customer_id),
+            Query.equal('business_id', [business_id]),
+            Query.equal('customer_id', [customer_id]),
             Query.order_desc('created_at')
         ])
         
@@ -440,9 +459,9 @@ def add_customer():
             return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
         
         # Check if customer already exists
-        existing_customers = appwrite_db.list_documents('customers', [
+        existing = appwrite_db.list_documents('customers', [
             Query.equal('business_id', business_id),
-            Query.equal('phone', phone)
+            Query.equal('phone_number', phone)
         ])
         
         if existing_customers:
@@ -453,7 +472,7 @@ def add_customer():
         customer_data = {
             'business_id': business_id,
             'name': name,
-            'phone': phone,
+            'phone_number': phone,
             'created_at': datetime.utcnow().isoformat()
         }
         
@@ -550,13 +569,13 @@ def get_all_transactions():
         business_id = request.business_id
         
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id),
+            Query.equal('business_id', [business_id]),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
         
@@ -603,13 +622,13 @@ def get_recurring_transactions():
         business_id = request.business_id
         
         recurring_transactions = appwrite_db.list_documents('recurring_transactions', [
-            Query.equal('business_id', business_id),
+            Query.equal('business_id', [business_id]),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
         
@@ -873,12 +892,12 @@ def remind_all_customers():
         
         # Get all customers
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         
         # Get transactions to calculate balances
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', [business_id])
         ])
         
         reminded_count = 0

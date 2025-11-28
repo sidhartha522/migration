@@ -27,16 +27,6 @@ export const AuthProvider = ({ children }) => {
     if (token && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-        // Verify token is still valid
-        authAPI.getCurrentUser()
-          .then(response => {
-            setUser(response.data.user);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-          })
-          .catch(() => {
-            // Token invalid
-            logout();
-          });
       } catch (e) {
         logout();
       }
