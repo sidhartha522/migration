@@ -69,7 +69,7 @@ def create_access_token(user_id, user_type, business_id=None):
         'user_id': user_id,
         'user_type': user_type,
         'business_id': business_id,
-        'exp': datetime.utcnow() + timedelta(days=7)  # Token expires in 7 days
+        'exp': datetime.now() + timedelta(days=7)  # Token expires in 7 days
     }
     return jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
@@ -166,10 +166,11 @@ def register():
         from werkzeug.security import generate_password_hash
         
         user_data = {
+            'name': business_name,
             'phone_number': phone,
             'password': generate_password_hash(password),
             'user_type': 'business',
-            'created_at': datetime.utcnow().isoformat()
+            'created_at': datetime.now().isoformat()
         }
         
         user = appwrite_db.create_document('users', user_id, user_data)
@@ -184,9 +185,9 @@ def register():
             'user_id': user_id,
             'name': business_name,
             'phone_number': phone,
-            'pin': business_pin,
+            'access_pin': business_pin,
             'is_active': True,
-            'created_at': datetime.utcnow().isoformat()
+            'created_at': datetime.now().isoformat()
         }
         
         business = appwrite_db.create_document('businesses', business_id, business_data)
@@ -203,7 +204,7 @@ def register():
                 'user_type': 'business',
                 'business_id': business_id,
                 'business_name': business_name,
-                'business_pin': business_pin
+                'business_pin': business.get('access_pin')
             }
         }), 201
         
@@ -279,7 +280,7 @@ def login():
                 'user_type': 'business',
                 'business_id': business['$id'],
                 'business_name': business['name'],
-                'business_pin': business.get('pin')
+                'business_pin': business.get('access_pin')
             }
         }), 200
         
@@ -320,23 +321,23 @@ def dashboard():
         
         # Calculate statistics
         total_customers = len(customers)
-        total_credit = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'credit')
-        total_payment = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'payment')
+        total_credit = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'credit')
+        total_payment = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'payment')
         outstanding_balance = total_credit - total_payment
         
         # Get pending payments (customers with positive balance)
         pending_customers = []
         for customer in customers:
             customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'payment')
+            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
+            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             customer_balance = customer_credit - customer_payment
             
             if customer_balance > 0:
                 pending_customers.append({
                     'id': customer['$id'],
                     'name': customer.get('name'),
-                    'phone': customer.get('phone'),
+                    'phone': customer.get('phone_number'),
                     'balance': customer_balance
                 })
         
@@ -347,8 +348,8 @@ def dashboard():
             'business': {
                 'id': business['$id'],
                 'name': business['name'],
-                'phone': business.get('phone'),
-                'pin': business.get('pin')
+                'phone': business.get('phone_number'),
+                'access_pin': business.get('access_pin')
             },
             'summary': {
                 'total_customers': total_customers,
@@ -364,6 +365,23 @@ def dashboard():
     except Exception as e:
         logger.error(f"Dashboard error: {str(e)}")
         return jsonify({'error': f'Failed to load dashboard: {str(e)}'}), 500
+
+@app.route('/api/business/access-pin', methods=['GET'])
+@token_required
+@business_required
+def get_access_pin():
+    """Get business access PIN"""
+    try:
+        business_id = request.business_id
+        business = appwrite_db.get_document('businesses', business_id)
+        
+        return jsonify({
+            'access_pin': business.get('access_pin')
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Get access pin error: {str(e)}")
+        return jsonify({'error': f'Failed to load access pin: {str(e)}'}), 500
 
 # ========== Customer Management Endpoints ==========
 
@@ -385,14 +403,21 @@ def get_customers():
         ])
         
         # Calculate balance for each customer
+        customer_list = []
         for customer in customers:
             customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'payment')
-            customer['balance'] = customer_credit - customer_payment
-            customer['transaction_count'] = len(customer_transactions)
+            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
+            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
+            
+            customer_list.append({
+                'id': customer['$id'],
+                'name': customer.get('name'),
+                'phone': customer.get('phone_number'),
+                'balance': customer_credit - customer_payment,
+                'transaction_count': len(customer_transactions)
+            })
         
-        return jsonify({'customers': customers}), 200
+        return jsonify({'customers': customer_list}), 200
         
     except Exception as e:
         logger.error(f"Get customers error: {str(e)}")
@@ -420,12 +445,17 @@ def get_customer_details(customer_id):
         ])
         
         # Calculate balance
-        total_credit = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'credit')
-        total_payment = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'payment')
+        total_credit = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'credit')
+        total_payment = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'payment')
         balance = total_credit - total_payment
         
         return jsonify({
-            'customer': customer,
+            'customer': {
+                'id': customer['$id'],
+                'name': customer.get('name'),
+                'phone': customer.get('phone_number'),
+                'balance': balance
+            },
             'transactions': transactions,
             'summary': {
                 'total_credit': total_credit,
@@ -438,6 +468,44 @@ def get_customer_details(customer_id):
     except Exception as e:
         logger.error(f"Get customer details error: {str(e)}")
         return jsonify({'error': f'Failed to get customer details: {str(e)}'}), 500
+
+@app.route('/api/customer/<customer_id>/transactions', methods=['GET'])
+@token_required
+@business_required
+def get_customer_transactions(customer_id):
+    """Get transactions for a specific customer"""
+    try:
+        business_id = request.business_id
+        
+        # Verify customer belongs to business
+        customer = appwrite_db.get_document('customers', customer_id)
+        if customer.get('business_id') != business_id:
+            return jsonify({'error': 'Access denied'}), 403
+        
+        # Get transactions
+        transactions = appwrite_db.list_documents('transactions', [
+            Query.equal('business_id', business_id),
+            Query.equal('customer_id', customer_id),
+            Query.order_desc('created_at')
+        ])
+        
+        # Format transactions with proper id field
+        transaction_list = []
+        for txn in transactions:
+            transaction_list.append({
+                'id': txn['$id'],
+                'amount': txn.get('amount'),
+                'transaction_type': txn.get('transaction_type'),
+                'notes': txn.get('notes'),
+                'created_at': txn.get('created_at'),
+                'receipt_image_url': txn.get('receipt_image_url')
+            })
+        
+        return jsonify({'transactions': transaction_list}), 200
+        
+    except Exception as e:
+        logger.error(f"Get customer transactions error: {str(e)}")
+        return jsonify({'error': f'Failed to get transactions: {str(e)}'}), 500
 
 @app.route('/api/customer', methods=['POST'])
 @token_required
@@ -579,10 +647,21 @@ def get_all_transactions():
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
         
-        for transaction in transactions:
-            transaction['customer_name'] = customer_map.get(transaction.get('customer_id'), 'Unknown')
+        # Format transactions
+        transaction_list = []
+        for txn in transactions:
+            transaction_list.append({
+                'id': txn['$id'],
+                'customer_id': txn.get('customer_id'),
+                'customer_name': customer_map.get(txn.get('customer_id'), 'Unknown'),
+                'amount': txn.get('amount'),
+                'transaction_type': txn.get('transaction_type'),
+                'notes': txn.get('notes'),
+                'created_at': txn.get('created_at'),
+                'receipt_image_url': txn.get('receipt_image_url')
+            })
         
-        return jsonify({'transactions': transactions}), 200
+        return jsonify({'transactions': transaction_list}), 200
         
     except Exception as e:
         logger.error(f"Get transactions error: {str(e)}")

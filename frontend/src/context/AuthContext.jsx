@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, phone, password) => {
     try {
       setError(null);
-      const response = await authAPI.register({ name, phone, password });
+      const response = await authAPI.register({ business_name: name, phone, password });
       const { token, user: userData } = response.data;
       
       localStorage.setItem('token', token);

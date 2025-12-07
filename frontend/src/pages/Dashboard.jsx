@@ -87,7 +87,7 @@ const Dashboard = () => {
             <div className="card-content">
               <div className="card-label">Total to Receive</div>
               <div className="card-amount" style={{color: 'var(--danger-color)'}}>
-                ₹{summary?.total_outstanding || '0.00'}
+                ₹{summary?.outstanding_balance?.toFixed(2) || '0.00'}
               </div>
             </div>
           </div>
