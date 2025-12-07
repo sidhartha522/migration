@@ -101,6 +101,40 @@
 }
 
 .business-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 14px 20px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    width: 100%;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.business-btn:hover {
+    background-color: #17a876;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.business-help-text {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--dark-color);
+    margin-top: 10px;
+}
+
+.required {
+    color: var(--danger-color);
+}
+
+.business-btn {
     background: transparent !important;
     border: 2px solid #28a745 !important;
     color: #28a745 !important;

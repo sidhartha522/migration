@@ -134,6 +134,13 @@ body {
     padding: 20px 16px;
 }
 
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 16px;
+}
+
 /* Header Navigation */
 .app-header {
     background: var(--header-bg);
@@ -292,7 +299,10 @@ body {
 
 /* Button Styles */
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 14px 20px;
     border: none;
     border-radius: var(--border-radius);
@@ -338,13 +348,18 @@ body {
     transform: translateY(-2px);
 }
 
-[data-theme="dark"] .secondary-btn {
+[data-theme=\"dark\"] .secondary-btn {
     background-color: rgba(255, 255, 255, 0.1);
     color: var(--text-color);
 }
 
-[data-theme="dark"] .secondary-btn:hover {
+[data-theme=\"dark\"] .secondary-btn:hover {
     background-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn.inline-btn {
+    width: auto;
+    display: inline-flex;
 }
 
 /* Card Styles */
@@ -355,11 +370,24 @@ body {
     padding: 24px;
     margin-bottom: 24px;
     transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid var(--input-border);
 }
 
 .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+    margin: 0 0 12px 0;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.card p {
+    margin: 8px 0;
+    color: var(--text-color);
 }
 
 /* Form Styles */
@@ -385,6 +413,7 @@ body {
     transition: all 0.3s;
     background-color: var(--white);
     color: var(--text-color);
+    font-family: inherit;
 }
 
 .form-input::placeholder {
@@ -396,6 +425,53 @@ body {
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+input[type=\"file\"].form-input {
+    padding: 10px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--dark-color);
+    opacity: 0.8;
+}
+
+/* Utility Classes */
+.text-small {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+.text-muted {
+    opacity: 0.7;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
 }
 
 /* Footer */

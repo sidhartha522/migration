@@ -86,7 +86,7 @@ function Profile() {
   };
 
   return (
-    <div className="container">
+    <div className="customer-dashboard">
       <div className="page-header">
         <button className="btn-back" onClick={() => navigate('/dashboard')}>
           <i className="fas fa-arrow-left"></i> Back
