@@ -308,12 +308,12 @@ def dashboard():
         
         # Get all customers
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         
         # Get all transactions
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', [business_id]),
+            Query.equal('business_id', business_id),
             Query.order_desc('created_at'),
             Query.limit(100)
         ])
@@ -376,12 +376,12 @@ def get_customers():
         business_id = request.business_id
         
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         
         # Get transactions to calculate balances
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         
         # Calculate balance for each customer
@@ -414,8 +414,8 @@ def get_customer_details(customer_id):
         
         # Get customer transactions
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', [business_id]),
-            Query.equal('customer_id', [customer_id]),
+            Query.equal('business_id', business_id),
+            Query.equal('customer_id', customer_id),
             Query.order_desc('created_at')
         ])
         
@@ -569,13 +569,13 @@ def get_all_transactions():
         business_id = request.business_id
         
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', [business_id]),
+            Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
         
@@ -622,13 +622,13 @@ def get_recurring_transactions():
         business_id = request.business_id
         
         recurring_transactions = appwrite_db.list_documents('recurring_transactions', [
-            Query.equal('business_id', [business_id]),
+            Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
         
@@ -892,12 +892,12 @@ def remind_all_customers():
         
         # Get all customers
         customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         
         # Get transactions to calculate balances
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', [business_id])
+            Query.equal('business_id', business_id)
         ])
         
         reminded_count = 0
