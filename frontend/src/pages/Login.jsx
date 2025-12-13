@@ -42,27 +42,38 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="app-logo">
-        <h1>KhataPe Business</h1>
-        <p>Manage Your Business Credit Book</p>
-      </div>
+    <div className="login-ios">
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
+      
+      <div className="login-wrapper">
+        {/* Illustration - Borderless */}
+        <div className="illustration-borderless">
+          <img 
+            src="/logo.png" 
+            alt="KhataPe Business" 
+            className="logo-illustration"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'flex';
+            }}
+          />
+          <div className="logo-fallback" style={{ display: 'none' }}>
+            <i className="fas fa-store"></i>
+          </div>
+        </div>
 
-      <div className="auth-card">
-        <div className="tab-content">
-          <div className="user-type-display">
-            <i className="fas fa-store"></i> Business Login
+        {/* Login Card */}
+        <div className="login-card-clean">
+          <div className="card-header-clean">
+            <h1>Login to Access Your</h1>
+            <h2>Credit Book</h2>
           </div>
           
-          <FlashMessage messages={messages} onClose={() => setMessages([])} />
-          
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="phone" className="form-label">Mobile Number</label>
+            <div className="input-clean">
+              <i className="fas fa-phone"></i>
               <input
                 type="tel"
-                id="phone"
-                className="form-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter your mobile number"
@@ -70,12 +81,10 @@ const Login = () => {
               />
             </div>
             
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">Password</label>
+            <div className="input-clean">
+              <i className="fas fa-lock"></i>
               <input
                 type="password"
-                id="password"
-                className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -83,26 +92,24 @@ const Login = () => {
               />
             </div>
             
-            <button type="submit" className="btn primary-btn" disabled={loading}>
-              <i className="fas fa-sign-in-alt"></i> {loading ? 'Logging in...' : 'Login'}
+            <button type="submit" className="btn-login-clean" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
             </button>
-            
-            <div className="business-login-section">
-              <div className="divider">
-                <span>or</span>
-              </div>
-              <a href="https://customer.khatape.tech" className="btn business-btn">
-                <i className="fas fa-user"></i> Login as Customer
-              </a>
-              <p className="business-help-text">
-                Are you a customer? Click above to access the customer app.
-              </p>
-            </div>
-            
-            <Link to="/register" className="btn secondary-btn">
-              <i className="fas fa-user-plus"></i> New Business? Register
-            </Link>
           </form>
+
+          <div className="divider-clean">
+            <span>Or login as</span>
+          </div>
+
+          <a href="https://customer.khatape.tech" className="btn-customer-clean">
+            <i className="fas fa-user"></i>
+            <span>Customer Login</span>
+          </a>
+
+          <div className="signup-link">
+            <span>Don't have an account?</span>
+            <Link to="/register">Create an account</Link>
+          </div>
         </div>
       </div>
     </div>

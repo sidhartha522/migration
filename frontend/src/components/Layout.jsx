@@ -1,27 +1,26 @@
 /**
- * Layout Component - Main layout wrapper
+ * Layout Component - Modern flat design with KathaPe branding
  */
 import { useLocation } from 'react-router-dom';
-import Header from './Header';
-import ThemeToggle from './ThemeToggle';
+import BottomNav from './BottomNav';
+import AppBar from './AppBar';
+import { useAuth } from '../context/AuthContext';
+import '../styles/DesignSystem.css';
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isDashboard = location.pathname === '/dashboard';
+  const { isAuthenticated } = useAuth();
+  
+  // Pages where bottom nav and app bar should be hidden
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
 
   return (
-    <div className="app-container">
-      <div className="animated-bg"></div>
-      <Header />
-      <main className={`main-content ${isDashboard ? 'main-dashboard' : ''}`}>
+    <div className="app-container-modern">
+      {isAuthenticated && !isAuthPage && <AppBar />}
+      <main className="main-content-modern">
         {children}
       </main>
-      <footer className="footer">
-        <div className="container">
-          © 2024 KhataPe Business. All rights reserved.
-        </div>
-      </footer>
-      <ThemeToggle />
+      {isAuthenticated && !isAuthPage && <BottomNav />}
     </div>
   );
 };

@@ -1,10 +1,11 @@
 /**
- * BulkReminders Page - Send bulk reminders to customers
+ * BulkReminders Page - Modern Flat Design
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reminderAPI } from '../services/api';
-import '../styles/BulkReminders.css';
+import FlashMessage from '../components/FlashMessage';
+import '../styles/BulkRemindersModern.css';
 
 const BulkReminders = () => {
   const navigate = useNavigate();
@@ -48,65 +49,91 @@ const BulkReminders = () => {
   };
 
   return (
-    <div className="bulk-reminders-page">
-      <div className="page-header">
-        <button className="btn-back" onClick={() => navigate('/dashboard')}>
-          <i className="fas fa-arrow-left"></i> Back
-        </button>
-        <h1>Send Reminders</h1>
-      </div>
-
-      {loading && (
-        <div className="loading-state">
-          <i className="fas fa-spinner fa-spin"></i> Loading customers...
+    <div className="bulk-reminders-modern">
+      <FlashMessage 
+        messages={error ? [{type: 'error', message: error}] : []} 
+        onClose={() => setError(null)} 
+      />
+      
+      <div className="reminders-container-modern">
+        {/* Header */}
+        <div className="reminders-header-card">
+          <button className="btn-back-modern" onClick={() => navigate('/dashboard')}>
+            <i className="fas fa-arrow-left"></i>
+          </button>
+          <div className="header-content">
+            <h1 className="page-title">Send Reminders</h1>
+            <p className="page-subtitle">{businessName || 'Your Business'}</p>
+          </div>
         </div>
-      )}
 
-      {error && (
-        <div className="error-message">
-          <i className="fas fa-exclamation-circle"></i> {error}
-        </div>
-      )}
+        {loading && (
+          <div className="reminders-skeleton">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="customer-card-skeleton">
+                <div className="skeleton-circle"></div>
+                <div style={{ flex: 1 }}>
+                  <div className="skeleton-text" style={{ width: '60%', marginBottom: '8px' }}></div>
+                  <div className="skeleton-text" style={{ width: '40%', height: '10px' }}></div>
+                </div>
+                <div className="skeleton-text" style={{ width: '120px', height: '36px' }}></div>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {!loading && !error && (
+      {!loading && (
         <>
-          <div className="reminders-header">
-            <div className="header-info">
-              <h2>{businessName}</h2>
-              <p>{customers.length} customer{customers.length !== 1 ? 's' : ''} with outstanding balance</p>
+          {/* Stats Card */}
+          <div className="reminders-stats-card">
+            <div className="stat-item">
+              <div className="stat-icon">
+                <i className="fas fa-users"></i>
+              </div>
+              <div>
+                <div className="stat-value">{customers.length}</div>
+                <div className="stat-label">Customers with Balance</div>
+              </div>
             </div>
-            {customers.length > 0 && (
-              <button className="btn-send-all" onClick={handleSendAll}>
-                <i className="fab fa-whatsapp"></i> Send All Reminders
-              </button>
-            )}
           </div>
 
+          {/* Send All Button */}
+          {customers.length > 0 && (
+            <button className="btn-send-all-modern" onClick={handleSendAll}>
+              <i className="fab fa-whatsapp"></i>
+              <span>Send All Reminders</span>
+            </button>
+          )}
+
           {customers.length === 0 ? (
-            <div className="empty-state">
+            <div className="empty-state-modern">
               <i className="fas fa-check-circle"></i>
-              <p>All customers are up to date!</p>
-              <small>No outstanding balances to remind about.</small>
+              <h3>All Caught Up!</h3>
+              <p>No outstanding balances to remind about.</p>
             </div>
           ) : (
-            <div className="customers-list">
+            <div className="customers-grid-modern">
               {customers.map((customer) => (
-                <div key={customer.id} className="customer-card">
-                  <div className="customer-avatar">
-                    {customer.name.charAt(0).toUpperCase()}
+                <div key={customer.id} className="customer-card-modern">
+                  <div className="customer-header">
+                    <div className="customer-avatar-modern">
+                      {customer.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="customer-details">
+                      <h3 className="customer-name-modern">{customer.name}</h3>
+                      <p className="customer-phone-modern">{customer.phone_number}</p>
+                    </div>
                   </div>
-                  <div className="customer-info">
-                    <h3>{customer.name}</h3>
-                    <p className="customer-phone">{customer.phone_number}</p>
-                    <p className="customer-balance">
-                      Outstanding: <strong>₹{customer.balance.toFixed(2)}</strong>
-                    </p>
+                  <div className="customer-balance-info">
+                    <div className="balance-label">Outstanding</div>
+                    <div className="balance-amount">₹{customer.balance.toFixed(2)}</div>
                   </div>
                   <button 
-                    className="btn-whatsapp"
+                    className="btn-whatsapp-modern"
                     onClick={() => handleSendReminder(customer.whatsapp_url)}
                   >
-                    <i className="fab fa-whatsapp"></i> Send Reminder
+                    <i className="fab fa-whatsapp"></i>
+                    <span>Send Reminder</span>
                   </button>
                 </div>
               ))}
@@ -114,6 +141,7 @@ const BulkReminders = () => {
           )}
         </>
       )}
+      </div>
     </div>
   );
 };

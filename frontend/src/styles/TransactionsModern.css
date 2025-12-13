@@ -1,0 +1,52 @@
+.transactions-modern { background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%); min-height: 100vh; padding-bottom: 80px; }
+.transactions-container-modern { max-width: 768px; margin: 0 auto; padding: var(--space-4); }
+
+/* Skeleton Loading */
+.transaction-card-skeleton {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.skeleton-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.skeleton-text {
+  height: 14px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.transaction-item-modern { background: white; border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); display: flex; align-items: center; gap: var(--space-3); transition: all 0.2s ease; }
+.transaction-icon-modern { width: 48px; height: 48px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.transaction-icon-credit { background: #fee2e2; color: var(--credit-red); }
+.transaction-icon-payment { background: #d1fae5; color: var(--payment-green); }
+.transaction-details-modern { flex: 1; min-width: 0; }
+.transaction-customer-modern { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-primary); margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.transaction-type-modern { font-size: var(--font-size-sm); color: var(--text-secondary); margin: 0 0 2px 0; }
+.transaction-date-modern { font-size: var(--font-size-xs); color: var(--text-tertiary); margin: 0; }
+.transaction-notes-modern { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+.transaction-amount-modern { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+.amount-credit { color: var(--credit-red); }
+.amount-payment { color: var(--payment-green); }
+.empty-state-modern { text-align: center; padding: var(--space-10); background: white; border-radius: var(--radius-lg); margin-top: var(--space-8); }
+.empty-state-modern i { font-size: 64px; color: var(--text-tertiary); margin-bottom: var(--space-4); opacity: 0.5; }
+.empty-state-modern h3 { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); color: var(--text-primary); margin: 0 0 var(--space-2) 0; }
+.empty-state-modern p { font-size: var(--font-size-sm); color: var(--text-secondary); margin: 0; }

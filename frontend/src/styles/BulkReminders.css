@@ -223,6 +223,7 @@
   transition: all 0.3s;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+  text-decoration: none;
 }
 
 .btn-whatsapp:hover {

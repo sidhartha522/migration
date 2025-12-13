@@ -99,6 +99,17 @@ export const recurringAPI = {
   toggleRecurringTransaction: (id) => api.post(`/recurring-transaction/${id}/toggle`),
 };
 
+// Products / Inventory APIs
+export const productsAPI = {
+  getProducts: (params) => api.get('/products', { params }),
+  getProduct: (productId) => api.get(`/product/${productId}`),
+  addProduct: (data) => api.post('/product', data),
+  updateProduct: (productId, data) => api.put(`/product/${productId}`, data),
+  deleteProduct: (productId) => api.delete(`/product/${productId}`),
+  getCategories: () => api.get('/products/categories'),
+  getUnits: () => api.get('/products/units'),
+};
+
 // Reminder APIs
 export const reminderAPI = {
   sendReminder: (customerId) => api.post(`/customer/${customerId}/remind`),

@@ -1,12 +1,12 @@
 /**
- * Profile Page - Business profile management
+ * Profile Page - Flat Modern Design with Sectioned Cards
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { profileAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
-import '../styles/Profile.css';
+import '../styles/ProfileModern.css';
 
 function Profile() {
   const navigate = useNavigate();
@@ -20,6 +20,12 @@ function Profile() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [businessStats, setBusinessStats] = useState({
+    totalCustomers: 0,
+    totalTransactions: 0,
+    joinedDate: null
+  });
 
   useEffect(() => {
     loadProfile();
@@ -28,13 +34,21 @@ function Profile() {
   const loadProfile = async () => {
     try {
       const response = await profileAPI.getProfile();
+      const businessData = response.data.business || response.data;
+      
       setFormData({
-        name: response.data.name || '',
-        phone: response.data.phone || '',
-        description: response.data.description || '',
+        name: businessData.name || '',
+        phone: businessData.phone || '',
+        description: businessData.description || '',
         profile_photo: null
       });
-      setProfilePhotoUrl(response.data.profile_photo_url || '');
+      setProfilePhotoUrl(businessData.profile_photo_url || '');
+      setPreviewUrl(businessData.profile_photo_url || '');
+      setBusinessStats({
+        totalCustomers: businessData.total_customers || 0,
+        totalTransactions: businessData.total_transactions || 0,
+        joinedDate: businessData.created_at || businessData.$createdAt || null
+      });
     } catch (error) {
       setMessages([{
         type: 'error',
@@ -58,6 +72,13 @@ function Profile() {
         ...prev,
         profile_photo: file
       }));
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -87,103 +108,197 @@ function Profile() {
   };
 
   return (
-    <div className="customer-dashboard">
-      <div className="page-header">
-        <button className="btn-back" onClick={() => navigate('/dashboard')}>
-          <i className="fas fa-arrow-left"></i> Back
-        </button>
-        <h1>Business Profile</h1>
-      </div>
-
+    <div className="profile-modern">
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      <div className="auth-card">
-        {profilePhotoUrl && (
-          <div className="profile-photo-preview">
-            <img src={profilePhotoUrl} alt="Profile" style={{width: '100px', height: '100px', borderRadius: '50%'}} />
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name" className="form-label">
-              Business Name <span className="required">*</span>
+      <div className="profile-container-modern">
+        {/* Profile Photo Card */}
+        <div className="profile-photo-card">
+          <div className="profile-photo-wrapper">
+            {previewUrl ? (
+              <img 
+                src={previewUrl} 
+                alt="Profile" 
+                className="profile-photo-display"
+              />
+            ) : (
+              <div className="profile-photo-placeholder">
+                <i className="fas fa-camera"></i>
+              </div>
+            )}
+            <label htmlFor="profile_photo" className="profile-photo-edit">
+              <i className="fas fa-camera"></i>
             </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="form-input"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phone" className="form-label">
-              Phone Number <span className="required">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              className="form-input"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              disabled
-            />
-            <small>Phone number cannot be changed</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description" className="form-label">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              className="form-input"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Brief description of your business"
-              rows="3"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="profile_photo" className="form-label">Profile Photo</label>
             <input
               type="file"
               id="profile_photo"
               name="profile_photo"
-              className="form-input"
               onChange={handleFileChange}
               accept="image/*"
+              style={{ display: 'none' }}
             />
           </div>
+          <div className="profile-photo-info">
+            <div className="profile-name-large">{formData.name || 'Business Name'}</div>
+            <div className="profile-phone">{formData.phone || user?.phone}</div>
+          </div>
+        </div>
 
-          <button 
-            type="submit" 
-            className="btn primary-btn"
-            disabled={loading}
-          >
-            {loading ? 'Saving...' : 'Save Changes'}
-          </button>
-        </form>
+        {/* Business Stats Card */}
+        <div className="stats-card">
+          <div className="stat-item">
+            <div className="stat-value amount-large">{businessStats.totalCustomers}</div>
+            <div className="stat-label">Total Customers</div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-item">
+            <div className="stat-value amount-large">{businessStats.totalTransactions}</div>
+            <div className="stat-label">Transactions</div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-item">
+            <div className="stat-value" style={{ fontSize: businessStats.joinedDate ? '16px' : '20px' }}>
+              {businessStats.joinedDate 
+                ? new Date(businessStats.joinedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                : 'Just Joined'}
+            </div>
+            <div className="stat-label">Joined</div>
+          </div>
+        </div>
 
-        <div className="profile-actions">
+        {/* Business Information Card */}
+        <div className="profile-section-card">
+          <div className="section-header">
+            <i className="fas fa-store"></i>
+            <h2 className="section-title">Business Information</h2>
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">Business Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="input"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone" className="form-label">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="input input-disabled"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                disabled
+              />
+              <small className="input-hint">
+                <i className="fas fa-lock"></i> Phone number cannot be changed
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description" className="form-label">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                className="input"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Brief description of your business"
+                rows="3"
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn btn-primary btn-full"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> Saving...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-check"></i> Save Changes
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Account Information Card */}
+        <div className="profile-section-card">
+          <div className="section-header">
+            <i className="fas fa-user-circle"></i>
+            <h2 className="section-title">Account Information</h2>
+          </div>
+          <div className="info-grid">
+            <div className="info-item">
+              <div className="info-label">User ID</div>
+              <div className="info-value">{user?.id || 'N/A'}</div>
+            </div>
+            <div className="info-item">
+              <div className="info-label">Registered On</div>
+              <div className="info-value">
+                {user?.created_at 
+                  ? new Date(user.created_at).toLocaleDateString('en-IN', { 
+                      day: 'numeric', 
+                      month: 'long', 
+                      year: 'numeric' 
+                    })
+                  : 'N/A'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Settings Card (Placeholder for future features) */}
+        <div className="profile-section-card">
+          <div className="section-header">
+            <i className="fas fa-cog"></i>
+            <h2 className="section-title">Settings</h2>
+          </div>
+          <div className="settings-list">
+            <div className="setting-item">
+              <div className="setting-info">
+                <i className="fas fa-bell"></i>
+                <div>
+                  <div className="setting-name">Notifications</div>
+                  <div className="setting-desc">Manage notification preferences</div>
+                </div>
+              </div>
+              <div className="setting-badge">Coming Soon</div>
+            </div>
+            <div className="setting-item">
+              <div className="setting-info">
+                <i className="fas fa-shield-alt"></i>
+                <div>
+                  <div className="setting-name">Privacy</div>
+                  <div className="setting-desc">Control your data and privacy</div>
+                </div>
+              </div>
+              <div className="setting-badge">Coming Soon</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout Card */}
+        <div className="logout-card">
+          <p className="logout-text">Need to switch accounts or sign out?</p>
           <button 
-            className="btn secondary-btn"
+            className="btn btn-logout"
             onClick={handleLogout}
           >
             <i className="fas fa-sign-out-alt"></i> Logout
           </button>
-        </div>
-
-        <div className="profile-info">
-          <h3>Account Information</h3>
-          <p><strong>User ID:</strong> {user?.id}</p>
-          <p><strong>Registered:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
         </div>
       </div>
     </div>

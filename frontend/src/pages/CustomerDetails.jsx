@@ -1,10 +1,11 @@
 /**
- * CustomerDetails Page - View customer details and transactions
+ * CustomerDetails Page - Modern Flat Design
  */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { customerAPI, transactionAPI, reminderAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import '../styles/CustomerDetailsModern.css';
 
 const CustomerDetails = () => {
   const { customerId } = useParams();
@@ -69,96 +70,112 @@ const CustomerDetails = () => {
 
   if (loading) {
     return (
-      <div className="loading-spinner">
-        <div className="spinner"></div>
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
       </div>
     );
   }
 
   if (!customer) {
-    return <div>Customer not found</div>;
+    return (
+      <div className="loading-container">
+        <p>Customer not found</p>
+      </div>
+    );
   }
 
   return (
-    <div className="customer-dashboard">
-      <div className="page-header">
-        <button className="btn-back" onClick={() => navigate('/customers')}>
-          <i className="fas fa-arrow-left"></i> Back
-        </button>
-        <h1>{customer.name}</h1>
-      </div>
-
+    <div className="customer-details-modern">
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      <div className="profile-section">
-        <div className="profile-image">
-          <i className="fas fa-user"></i>
-        </div>
-        <div className="profile-info">
-          <h2>{customer.name}</h2>
-          <p className="phone-number">
+      <div className="customer-details-container">
+        {/* Customer Header Card */}
+        <div className="customer-header-card">
+          <div className="customer-avatar-large">
+            {customer.name.charAt(0).toUpperCase()}
+          </div>
+          <div className="customer-name-large">{customer.name}</div>
+          <div className="customer-phone-large">
             <i className="fas fa-phone"></i> {customer.phone}
-          </p>
-          <div className="business-balance" 
-               style={{fontSize: '1.5rem', marginTop: '10px', color: customer.balance > 0 ? 'var(--danger-color)' : 'var(--secondary-color)'}}>
-            ₹{Math.abs(customer.balance || 0).toFixed(2)} {customer.balance > 0 ? 'to receive' : 'received'}
           </div>
-        </div>
-      </div>
 
-      <div className="dashboard-section">
-        <div className="quick-links">
-          <Link to={`/customer/${customerId}/transaction`} className="quick-link-card">
-            <div className="quick-link-icon">
+          {/* Balance Display */}
+          <div className="balance-display">
+            <div className="balance-label">
+              {customer.balance > 0 ? 'Amount to Receive' : 'Amount Received'}
+            </div>
+            <div className={`balance-amount-large ${customer.balance > 0 ? 'positive' : 'negative'}`}>
+              ₹{Math.abs(customer.balance || 0).toFixed(2)}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="action-buttons-grid">
+            <Link to={`/customer/${customerId}/transaction`} className="action-btn action-btn-credit">
               <i className="fas fa-plus-circle"></i>
-            </div>
-            <div className="quick-link-text">Add Transaction</div>
-          </Link>
-          
-          <button className="quick-link-card" onClick={handleSendReminder} style={{border: 'none', background: 'rgba(255, 255, 255, 0.5)'}}>
-            <div className="quick-link-icon">
+              Add Credit
+            </Link>
+            
+            <button className="action-btn action-btn-payment" onClick={handleSendReminder}>
               <i className="fab fa-whatsapp"></i>
-            </div>
-            <div className="quick-link-text">Send Reminder</div>
-          </button>
+              Send Reminder
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="dashboard-section">
-        <div className="section-header">
-          <h3 className="section-title">Transaction History</h3>
-        </div>
-        
-        {transactions.length === 0 ? (
-          <div className="empty-state">
-            <i className="fas fa-receipt"></i>
-            <p>No transactions yet</p>
+        {/* Transaction History */}
+        <div className="transactions-section">
+          <div className="section-header">
+            <h3 className="section-title">Transaction History</h3>
+            <span style={{fontSize: '14px', color: 'var(--text-secondary)'}}>
+              {transactions.length} transaction{transactions.length !== 1 ? 's' : ''}
+            </span>
           </div>
-        ) : (
-          <div className="businesses-list">
-            {transactions.map((transaction) => (
-              <div key={transaction.id} className="business-card-inner" style={{marginBottom: '10px'}}>
-                <div className="business-icon" style={{
-                  backgroundColor: transaction.transaction_type === 'credit' ? 'var(--danger-color)' : 'var(--secondary-color)'
-                }}>
-                  <i className={`fas fa-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}`}></i>
-                </div>
-                <div className="business-info">
-                  <div className="business-name">
-                    {transaction.transaction_type === 'credit' ? 'Credit' : 'Payment'}
-                  </div>
-                  <div>{new Date(transaction.created_at).toLocaleDateString()}</div>
-                  {transaction.notes && <div style={{fontSize: '0.9rem', color: 'var(--dark-color)'}}>{transaction.notes}</div>}
-                </div>
-                <div className="business-balance" style={{
-                  color: transaction.transaction_type === 'credit' ? 'var(--danger-color)' : 'var(--secondary-color)'
-                }}>
-                  ₹{transaction.amount}
-                </div>
+          
+          {transactions.length === 0 ? (
+            <div className="empty-transactions">
+              <div style={{fontSize: '48px', color: 'var(--text-tertiary)', marginBottom: 'var(--space-3)'}}>
+                <i className="fas fa-receipt"></i>
               </div>
-            ))}
-          </div>
-        )}
+              <p>No transactions yet</p>
+              <Link to={`/customer/${customerId}/transaction`} style={{color: 'var(--primary-purple)', textDecoration: 'none', fontWeight: '600', marginTop: 'var(--space-2)', display: 'inline-block'}}>
+                Add First Transaction
+              </Link>
+            </div>
+          ) : (
+            <div>
+              {transactions.map((transaction) => (
+                <div key={transaction.id} className="transaction-item">
+                  <div className={`transaction-icon ${transaction.transaction_type}`}>
+                    <i className={`fas fa-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}`}></i>
+                  </div>
+                  <div className="transaction-info">
+                    <div className="transaction-type">
+                      {transaction.transaction_type === 'credit' ? 'Money Given (Credit)' : 'Money Received (Payment)'}
+                    </div>
+                    <div className="transaction-date">
+                      {new Date(transaction.created_at).toLocaleDateString('en-IN', { 
+                        day: 'numeric', 
+                        month: 'short', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                    {transaction.notes && (
+                      <div style={{fontSize: '13px', color: 'var(--text-tertiary)', marginTop: '4px'}}>
+                        {transaction.notes}
+                      </div>
+                    )}
+                  </div>
+                  <div className={`transaction-amount ${transaction.transaction_type}`}>
+                    {transaction.transaction_type === 'credit' ? '+' : '-'}₹{transaction.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

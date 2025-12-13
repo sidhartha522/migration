@@ -13,6 +13,8 @@ import Transactions from './pages/Transactions';
 import RecurringTransactions from './pages/RecurringTransactions';
 import Profile from './pages/Profile';
 import BulkReminders from './pages/BulkReminders';
+import Products from './pages/Products';
+import AddEditProduct from './pages/AddEditProduct';
 import './styles/App.css';
 
 function App() {
@@ -92,6 +94,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <BulkReminders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute>
+                  <Products />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add-product"
+              element={
+                <ProtectedRoute>
+                  <AddEditProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-product/:productId"
+              element={
+                <ProtectedRoute>
+                  <AddEditProduct />
                 </ProtectedRoute>
               }
             />

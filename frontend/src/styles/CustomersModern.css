@@ -1,0 +1,206 @@
+/* Customers - Flat Modern Design (Inspired by Revolut) */
+
+.customers-modern {
+  min-height: 100vh;
+  padding: var(--space-3);
+  padding-bottom: 100px;
+  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+}
+
+.customers-container-modern {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.search-section-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  min-height: 36px;
+}
+
+.search-box i {
+  color: var(--text-tertiary);
+  font-size: 16px;
+}
+
+.customer-item-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  transition: all 0.2s ease;
+}
+
+.customer-item-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+.customer-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--primary-purple);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.customer-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-name-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customer-phone-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.customer-balance-amount {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.balance-value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.balance-value.positive {
+  color: var(--credit-red);
+}
+
+.balance-value.negative {
+  color: var(--payment-green);
+}
+
+.balance-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.fab-add {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background: var(--primary-purple);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 8px 16px rgba(95, 37, 159, 0.3);
+  text-decoration: none;
+  z-index: 900;
+  transition: all 0.2s ease;
+}
+
+.fab-add:active {
+  transform: scale(0.9);
+}
+
+.empty-state-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  min-height: 50vh;
+}
+
+.empty-state-modern h3 {
+  font-size: 20px;
+  color: var(--text-primary);
+  margin: var(--space-4) 0 var(--space-2) 0;
+}
+
+.empty-state-modern p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .customers-modern {
+    padding: var(--space-3);
+  }
+  
+  .fab-add {
+    right: 16px;
+    bottom: 85px;
+  }
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(229, 231, 235, 0.8) 0%,
+    rgba(249, 250, 251, 0.8) 50%,
+    rgba(229, 231, 235, 0.8) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}

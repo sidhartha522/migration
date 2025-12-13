@@ -344,6 +344,21 @@ def dashboard():
         # Get recent transactions (last 10)
         recent_transactions = transactions[:10] if transactions else []
         
+        # Get recent customers (last 4 by creation date) with their balances
+        recent_customers_list = []
+        for customer in customers[:4]:  # Get first 4 customers (already sorted by default)
+            customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
+            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
+            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
+            customer_balance = customer_credit - customer_payment
+            
+            recent_customers_list.append({
+                'id': customer['$id'],
+                'name': customer.get('name'),
+                'phone_number': customer.get('phone_number'),
+                'balance': customer_balance
+            })
+        
         return jsonify({
             'business': {
                 'id': business['$id'],
@@ -356,7 +371,8 @@ def dashboard():
                 'total_credit': total_credit,
                 'total_payment': total_payment,
                 'outstanding_balance': outstanding_balance,
-                'pending_customers_count': len(pending_customers)
+                'pending_customers_count': len(pending_customers),
+                'recent_customers': recent_customers_list
             },
             'recent_transactions': recent_transactions,
             'pending_customers': pending_customers[:5]  # Top 5
@@ -831,11 +847,29 @@ def delete_recurring_transaction(recurring_id):
 @token_required
 @business_required
 def get_profile():
-    """Get business profile"""
+    """Get business profile with stats"""
     try:
         business_id = request.business_id
         
         business = appwrite_db.get_document('businesses', business_id)
+        
+        # Get customer count
+        customers = appwrite_db.list_documents(
+            'customers',
+            [Query.equal('business_id', business_id)]
+        )
+        total_customers = len(customers)
+        
+        # Get transaction count
+        transactions = appwrite_db.list_documents(
+            'transactions',
+            [Query.equal('business_id', business_id)]
+        )
+        total_transactions = len(transactions)
+        
+        # Add stats to business data
+        business['total_customers'] = total_customers
+        business['total_transactions'] = total_transactions
         
         return jsonify({'business': business}), 200
         
@@ -1059,6 +1093,300 @@ def remind_all_customers():
     except Exception as e:
         logger.error(f"Get bulk reminders error: {str(e)}")
         return jsonify({'error': f'Failed to get reminders: {str(e)}'}), 500
+
+# ============================================================================
+# PRODUCTS / INVENTORY MANAGEMENT
+# ============================================================================
+
+@app.route('/api/products', methods=['GET'])
+@token_required
+def get_products():
+    """Get all products for the business"""
+    try:
+        business_id = request.business_id
+        
+        # Get query parameters
+        category = request.args.get('category')
+        search = request.args.get('search')
+        is_public = request.args.get('is_public')
+        
+        # Build queries
+        queries = [Query.equal('business_id', business_id)]
+        
+        if category:
+            queries.append(Query.equal('category', category))
+        
+        if is_public is not None:
+            queries.append(Query.equal('is_public', is_public == 'true'))
+        
+        if search:
+            queries.append(Query.search('name', search))
+        
+        # Get products
+        products = appwrite_db.list_documents(
+            'products',
+            queries
+        )
+        
+        # Format products
+        products_list = []
+        for doc in products:
+            product = {
+                'id': doc['$id'],
+                'name': doc['name'],
+                'description': doc.get('description', ''),
+                'category': doc['category'],
+                'stock_quantity': doc['stock_quantity'],
+                'unit': doc['unit'],
+                'price': doc['price'],
+                'image_url': doc.get('image_url', ''),
+                'is_public': doc['is_public'],
+                'low_stock_threshold': doc.get('low_stock_threshold', 10),
+                'is_low_stock': doc['stock_quantity'] <= doc.get('low_stock_threshold', 10),
+                'created_at': doc['$createdAt'],
+                'updated_at': doc['$updatedAt']
+            }
+            products_list.append(product)
+        
+        return jsonify({
+            'products': products_list,
+            'count': len(products_list)
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Get products error: {str(e)}")
+        return jsonify({'error': f'Failed to get products: {str(e)}'}), 500
+
+@app.route('/api/product', methods=['POST'])
+@token_required
+def add_product():
+    """Add new product to inventory"""
+    try:
+        business_id = request.business_id
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['name', 'category', 'stock_quantity', 'unit', 'price']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Validate data types
+        try:
+            stock_quantity = int(data['stock_quantity'])
+            price = float(data['price'])
+            
+            if stock_quantity < 0:
+                return jsonify({'error': 'Stock quantity must be non-negative'}), 400
+            if price < 0:
+                return jsonify({'error': 'Price must be non-negative'}), 400
+                
+        except ValueError:
+            return jsonify({'error': 'Invalid number format for stock or price'}), 400
+        
+        # Create product document
+        product_data = {
+            'business_id': business_id,
+            'name': data['name'].strip(),
+            'description': data.get('description', '').strip(),
+            'category': data['category'].strip(),
+            'stock_quantity': stock_quantity,
+            'unit': data['unit'].strip(),
+            'price': price,
+            'image_url': data.get('image_url', ''),
+            'is_public': data.get('is_public', False),
+            'low_stock_threshold': data.get('low_stock_threshold', 10)
+        }
+        
+        # Save to database
+        product_id = str(uuid.uuid4())
+        result = appwrite_db.create_document('products', product_id, product_data)
+        
+        product = {
+            'id': result['$id'],
+            'name': result['name'],
+            'description': result.get('description', ''),
+            'category': result['category'],
+            'stock_quantity': result['stock_quantity'],
+            'unit': result['unit'],
+            'price': result['price'],
+            'image_url': result.get('image_url', ''),
+            'is_public': result['is_public'],
+            'low_stock_threshold': result.get('low_stock_threshold', 10),
+            'created_at': result['$createdAt']
+        }
+        
+        return jsonify({
+            'message': 'Product added successfully',
+            'product': product
+        }), 201
+        
+    except Exception as e:
+        logger.error(f"Add product error: {str(e)}")
+        return jsonify({'error': f'Failed to add product: {str(e)}'}), 500
+
+@app.route('/api/product/<product_id>', methods=['GET'])
+@token_required
+def get_product(product_id):
+    """Get single product details"""
+    try:
+        business_id = request.business_id
+        
+        # Get product
+        doc = appwrite_db.get_document('products', product_id)
+        
+        # Verify ownership
+        if doc['business_id'] != business_id:
+            return jsonify({'error': 'Unauthorized access to product'}), 403
+        
+        product = {
+            'id': doc['$id'],
+            'name': doc['name'],
+            'description': doc.get('description', ''),
+            'category': doc['category'],
+            'stock_quantity': doc['stock_quantity'],
+            'unit': doc['unit'],
+            'price': doc['price'],
+            'image_url': doc.get('image_url', ''),
+            'is_public': doc['is_public'],
+            'low_stock_threshold': doc.get('low_stock_threshold', 10),
+            'is_low_stock': doc['stock_quantity'] <= doc.get('low_stock_threshold', 10),
+            'created_at': doc['$createdAt'],
+            'updated_at': doc['$updatedAt']
+        }
+        
+        return jsonify({'product': product}), 200
+        
+    except Exception as e:
+        logger.error(f"Get product error: {str(e)}")
+        return jsonify({'error': f'Failed to get product: {str(e)}'}), 500
+
+@app.route('/api/product/<product_id>', methods=['PUT'])
+@token_required
+def update_product(product_id):
+    """Update product details"""
+    try:
+        business_id = request.business_id
+        data = request.json
+        
+        # Get existing product to verify ownership
+        doc = appwrite_db.get_document('products', product_id)
+        
+        if doc['business_id'] != business_id:
+            return jsonify({'error': 'Unauthorized access to product'}), 403
+        
+        # Validate numeric fields if provided
+        if 'stock_quantity' in data:
+            try:
+                stock_quantity = int(data['stock_quantity'])
+                if stock_quantity < 0:
+                    return jsonify({'error': 'Stock quantity must be non-negative'}), 400
+                data['stock_quantity'] = stock_quantity
+            except ValueError:
+                return jsonify({'error': 'Invalid stock quantity format'}), 400
+        
+        if 'price' in data:
+            try:
+                price = float(data['price'])
+                if price < 0:
+                    return jsonify({'error': 'Price must be non-negative'}), 400
+                data['price'] = price
+            except ValueError:
+                return jsonify({'error': 'Invalid price format'}), 400
+        
+        # Update allowed fields only
+        allowed_fields = ['name', 'description', 'category', 'stock_quantity', 
+                         'unit', 'price', 'image_url', 'is_public', 'low_stock_threshold']
+        
+        update_data = {k: v for k, v in data.items() if k in allowed_fields}
+        
+        if not update_data:
+            return jsonify({'error': 'No valid fields to update'}), 400
+        
+        # Update product
+        result = appwrite_db.update_document('products', product_id, update_data)
+        
+        product = {
+            'id': result['$id'],
+            'name': result['name'],
+            'description': result.get('description', ''),
+            'category': result['category'],
+            'stock_quantity': result['stock_quantity'],
+            'unit': result['unit'],
+            'price': result['price'],
+            'image_url': result.get('image_url', ''),
+            'is_public': result['is_public'],
+            'low_stock_threshold': result.get('low_stock_threshold', 10),
+            'updated_at': result['$updatedAt']
+        }
+        
+        return jsonify({
+            'message': 'Product updated successfully',
+            'product': product
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Update product error: {str(e)}")
+        return jsonify({'error': f'Failed to update product: {str(e)}'}), 500
+
+@app.route('/api/product/<product_id>', methods=['DELETE'])
+@token_required
+def delete_product(product_id):
+    """Delete product from inventory"""
+    try:
+        business_id = request.business_id
+        
+        # Get product to verify ownership
+        doc = appwrite_db.get_document('products', product_id)
+        
+        if doc['business_id'] != business_id:
+            return jsonify({'error': 'Unauthorized access to product'}), 403
+        
+        # Delete product
+        appwrite_db.delete_document('products', product_id)
+        
+        return jsonify({'message': 'Product deleted successfully'}), 200
+        
+    except Exception as e:
+        logger.error(f"Delete product error: {str(e)}")
+        return jsonify({'error': f'Failed to delete product: {str(e)}'}), 500
+
+@app.route('/api/products/categories', methods=['GET'])
+def get_categories():
+    """Get list of product categories"""
+    # Predefined categories
+    categories = [
+        'Food & Groceries',
+        'Beverages',
+        'Personal Care',
+        'Household Items',
+        'Electronics',
+        'Clothing & Textiles',
+        'Hardware & Tools',
+        'Stationery',
+        'Medicine & Healthcare',
+        'Other'
+    ]
+    
+    return jsonify({'categories': categories}), 200
+
+@app.route('/api/products/units', methods=['GET'])
+def get_units():
+    """Get list of measurement units"""
+    units = [
+        'piece',
+        'kg',
+        'gram',
+        'liter',
+        'ml',
+        'meter',
+        'packet',
+        'box',
+        'dozen',
+        'bag'
+    ]
+    
+    return jsonify({'units': units}), 200
 
 # Error handlers
 @app.errorhandler(404)

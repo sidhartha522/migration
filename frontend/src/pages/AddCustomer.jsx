@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { customerAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import '../styles/AddCustomerModern.css';
 
 const AddCustomer = () => {
   const navigate = useNavigate();
@@ -57,59 +58,70 @@ const AddCustomer = () => {
   };
 
   return (
-    <div className="customer-dashboard">
+    <div className="add-customer-page">
       <div className="page-header">
         <button className="btn-back" onClick={() => navigate('/customers')}>
-          <i className="fas fa-arrow-left"></i> Back
+          <i className="fas fa-arrow-left"></i>
         </button>
-        <h1>Add New Customer</h1>
+        <h1 className="page-title">Add New Customer</h1>
       </div>
 
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      <div className="auth-card">
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="customer-form">
+        <div className="form-card">
           <div className="form-group">
             <label htmlFor="name" className="form-label">Customer Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="form-input"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter customer name"
-              required
-            />
+            <div className="icon-input-wrapper">
+              <i className="fas fa-user input-icon"></i>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-input"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter customer name"
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">
             <label htmlFor="phone" className="form-label">Mobile Number *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              className="form-input"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Enter 10-digit mobile number"
-              required
-            />
+            <div className="icon-input-wrapper">
+              <i className="fas fa-phone input-icon"></i>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="form-input"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter 10-digit mobile number"
+                required
+              />
+            </div>
+            <div className="form-helper">Must be exactly 10 digits</div>
           </div>
+        </div>
 
-          <button type="submit" className="btn primary-btn" disabled={loading}>
-            <i className="fas fa-user-plus"></i> {loading ? 'Adding...' : 'Add Customer'}
-          </button>
-          
-          <button 
-            type="button" 
-            className="btn secondary-btn" 
-            onClick={() => navigate('/customers')}
-          >
-            Cancel
-          </button>
-        </form>
-      </div>
+        <div className="info-card">
+          <div className="info-card-header">
+            <div className="info-card-icon">
+              <i className="fas fa-info"></i>
+            </div>
+            <h3 className="info-card-title">Quick Tip</h3>
+          </div>
+          <p className="info-card-text">
+            You can add transactions to this customer after creating their profile.
+          </p>
+        </div>
+
+        <button type="submit" className="btn-submit" disabled={loading}>
+          {loading ? 'Adding Customer...' : 'Add Customer'}
+        </button>
+      </form>
     </div>
   );
 };
