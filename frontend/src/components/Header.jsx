@@ -1,13 +1,14 @@
 /**
  * Header Component - Navigation bar for Business app
  */
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -23,12 +24,17 @@ const Header = () => {
     setMenuOpen(false);
   };
 
+  // Only show the header title on dashboard page
+  const isDashboardPage = location.pathname === '/dashboard';
+
   return (
     <header className="app-header">
       <div className="header-content">
-        <Link to="/" className="app-title">
-          KhataPe Business
-        </Link>
+        {isDashboardPage && (
+          <Link to="/" className="app-title">
+            KhataPe Business
+          </Link>
+        )}
         
         <button 
           className="nav-toggle" 

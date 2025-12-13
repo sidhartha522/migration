@@ -1,4 +1,392 @@
-/* Dashboard Styles */
+/* Dashboard Styles - Mobile App Design */
+
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);
+  padding: 20px;
+  padding-bottom: 80px;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 0; /* make the blue area extend fully */
+}
+
+/* Business Profile Card */
+.business-profile-card {
+  background: transparent; /* make it blend with the dashboard gradient */
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 24px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: none;
+}
+
+.business-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.business-details h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px 0;
+}
+
+.business-details p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 12px 0;
+}
+
+.business-details a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #667eea;
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.business-details a:hover {
+  color: #764ba2;
+}
+
+/* Total to Receive Card */
+.total-receive-card {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: none;
+  border-left: 4px solid rgba(255,255,255,0.12);
+}
+
+.receive-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.receive-details {
+  flex: 1;
+}
+
+.receive-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.receive-amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+}
+
+/* Action Buttons Grid */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.action-button {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.action-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.action-icon.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.action-icon.red {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.action-icon.green {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.action-icon.orange {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.action-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+}
+
+/* WhatsApp Reminder Button */
+.whatsapp-reminder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: white;
+  padding: 18px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s ease;
+}
+
+.whatsapp-reminder-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-reminder-btn i {
+  font-size: 20px;
+}
+
+/* QR Code Section */
+.qr-section {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  border: none;
+}
+
+.qr-section h3 {
+  color: white;
+  margin-bottom: 12px;
+}
+
+.qr-section p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 20px;
+}
+
+.pin-display {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.pin-display strong {
+  color: white;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.pin-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #667eea;
+  margin: 10px 0;
+}
+
+.pin-display small {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.qr-code-container img {
+  max-width: 300px;
+  width: 100%;
+  border-radius: 12px;
+  background: transparent;
+  padding: 0;
+}
+
+/* Customers Section */
+.customers-section {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 20px;
+  border: none;
+}
+
+.customers-section h3 {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  display: inline-block;
+}
+
+.customers-section > a {
+  float: right;
+  color: #667eea;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.customers-section > a:hover {
+  color: #764ba2;
+}
+
+.customer-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.customer-preview-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.customer-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.customer-info {
+  flex: 1;
+}
+
+.customer-info strong {
+  color: white;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.customer-info small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.customer-balance {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.customer-balance.positive {
+  color: #10b981;
+}
+
+.customer-balance.negative {
+  color: #ef4444;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+
+  .business-profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .business-details h2 {
+    font-size: 20px;
+  }
+
+  .receive-amount {
+    font-size: 28px;
+  }
+
+  .action-button {
+    padding: 16px;
+  }
+
+  .action-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* ===== LEGACY STYLES BELOW (kept for other pages) ===== */
+
 .customer-dashboard {
     padding-bottom: 30px;
 }

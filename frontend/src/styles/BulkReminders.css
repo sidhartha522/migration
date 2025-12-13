@@ -1,0 +1,279 @@
+/* BulkReminders.css - Styles for Bulk Reminders page */
+
+.bulk-reminders-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);
+  padding: 20px;
+  padding-bottom: 80px;
+}
+
+.bulk-reminders-page .page-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.bulk-reminders-page .page-header h1 {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.bulk-reminders-page .btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulk-reminders-page .btn-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-3px);
+}
+
+.loading-state,
+.error-message {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.loading-state i {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.reminders-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-info h2 {
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.header-info p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+}
+
+.btn-send-all {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: white;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-send-all:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.btn-send-all i {
+  font-size: 18px;
+}
+
+.empty-state {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #10b981;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-state p {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.empty-state small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.customers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.customer-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s;
+}
+
+.customer-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.customer-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.customer-info {
+  flex: 1;
+}
+
+.customer-info h3 {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.customer-phone {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.customer-balance {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0;
+}
+
+.customer-balance strong {
+  color: #10b981;
+  font-size: 16px;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: white;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp i {
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bulk-reminders-page {
+    padding: 16px;
+  }
+
+  .reminders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .btn-send-all {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .customer-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .btn-whatsapp {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .bulk-reminders-page .page-header h1 {
+    font-size: 22px;
+  }
+
+  .customer-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .customer-info h3 {
+    font-size: 16px;
+  }
+}

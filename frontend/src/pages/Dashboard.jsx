@@ -53,122 +53,122 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="customer-dashboard">
+    <div className="dashboard-container">
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      {/* Business Profile Section */}
-      <div className="profile-section">
-        <div className="profile-image">
-          {business?.profile_photo_url ? (
-            <img src={business.profile_photo_url} alt="Business Profile" />
-          ) : (
-            <i className="fas fa-store"></i>
-          )}
+      {/* Business Profile Card */}
+      <div className="business-profile-card">
+        <div className="business-icon">
+          <i className="fas fa-store"></i>
         </div>
-        <div className="profile-info">
-          <h2>{business?.name || 'Your Business'}</h2>
-          <p className="phone-number">
-            <i className="fas fa-phone"></i> {business?.phone}
-          </p>
-          {business?.description && <p>{business.description}</p>}
+        <div className="business-details">
+          <h2 className="business-name">{business?.name || 'Your Business'}</h2>
+          <p className="business-subtitle">My business account</p>
+          <Link to="/profile" className="edit-profile-link">
+            <i className="fas fa-edit"></i> Edit Profile
+          </Link>
         </div>
       </div>
 
-      {/* Financial Summary */}
-      <div className="dashboard-section">
-        <div className="section-header">
-          <h3 className="section-title">Financial Summary</h3>
+      {/* Total to Receive Card */}
+      <div className="total-receive-card">
+        <div className="receive-icon">
+          <i className="fas fa-wallet"></i>
         </div>
-        <div className="summary-cards">
-          <div className="card">
-            <div className="card-icon" style={{backgroundColor: 'var(--danger-color)'}}>
-              <i className="fas fa-wallet"></i>
-            </div>
-            <div className="card-content">
-              <div className="card-label">Total to Receive</div>
-              <div className="card-amount" style={{color: 'var(--danger-color)'}}>
-                ₹{summary?.outstanding_balance?.toFixed(2) || '0.00'}
-              </div>
-            </div>
+        <div className="receive-details">
+          <div className="receive-label">TOTAL TO RECEIVE</div>
+          <div className="receive-amount">₹{summary?.outstanding_balance?.toFixed(2) || '0.00'}</div>
+        </div>
+      </div>
+
+      {/* Action Buttons Grid */}
+      <div className="action-grid">
+        <Link to="/customers" className="action-button">
+          <div className="action-icon blue">
+            <i className="fas fa-users"></i>
           </div>
-        </div>
+          <div className="action-label">View Customers</div>
+        </Link>
+
+        <Link to="/transactions" className="action-button">
+          <div className="action-icon red">
+            <i className="fas fa-receipt"></i>
+          </div>
+          <div className="action-label">View Transactions</div>
+        </Link>
+
+        <Link to="/add-customer" className="action-button">
+          <div className="action-icon green">
+            <i className="fas fa-user-plus"></i>
+          </div>
+          <div className="action-label">Add Customer</div>
+        </Link>
+
+        <button className="action-button" onClick={() => setShowQR(!showQR)}>
+          <div className="action-icon orange">
+            <i className="fas fa-qrcode"></i>
+          </div>
+          <div className="action-label">QR Code</div>
+        </button>
       </div>
 
-      {/* Action Buttons */}
-      <div className="dashboard-section">
-        <div className="section-header">
-          <h3 className="section-title">Quick Actions</h3>
-        </div>
-        <div className="quick-links">
-          <Link to="/customers" className="quick-link-card">
-            <div className="quick-link-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <div className="quick-link-text">View Customers</div>
-          </Link>
-          
-          <Link to="/transactions" className="quick-link-card">
-            <div className="quick-link-icon">
-              <i className="fas fa-receipt"></i>
-            </div>
-            <div className="quick-link-text">View Transactions</div>
-          </Link>
-          
-          <Link to="/add-customer" className="quick-link-card">
-            <div className="quick-link-icon">
-              <i className="fas fa-user-plus"></i>
-            </div>
-            <div className="quick-link-text">Add Customer</div>
-          </Link>
-          
-          <button 
-            className="quick-link-card" 
-            onClick={() => setShowQR(!showQR)}
-            style={{border: 'none', background: 'rgba(255, 255, 255, 0.5)'}}
-          >
-            <div className="quick-link-icon">
-              <i className="fas fa-qrcode"></i>
-            </div>
-            <div className="quick-link-text">QR Code</div>
-          </button>
-        </div>
-      </div>
+      {/* Send All Reminders Button */}
+      <Link to="/bulk-reminders" className="whatsapp-reminder-btn">
+        <i className="fab fa-whatsapp"></i> Send All Reminders
+      </Link>
 
       {/* QR Code Section */}
       {showQR && (
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h3 className="section-title">Customer Connection</h3>
+        <div className="qr-section">
+          <h3>Customer Connection</h3>
+          <p>Share these details with your customers to connect</p>
+          <div className="pin-display">
+            <strong>Your Business PIN:</strong>
+            <div className="pin-number">{accessPin}</div>
+            <small>Permanent identifier for your business</small>
           </div>
-          <div className="card" style={{textAlign: 'center'}}>
-            <p>Share these details with your customers to connect</p>
-            <div className="pin-display" style={{margin: '20px 0', padding: '20px', backgroundColor: 'var(--light-color)', borderRadius: '12px'}}>
-              <strong>Your Business PIN:</strong>
-              <div style={{fontSize: '2rem', color: 'var(--primary-color)', fontWeight: '700', margin: '10px 0'}}>
-                {accessPin}
-              </div>
-              <small>Permanent identifier for your business</small>
-            </div>
-            <div className="qr-code-container" style={{margin: '20px 0'}}>
-              <img 
-                src={`${import.meta.env.VITE_API_URL || 'http://localhost:5003/api'}/business/qr-code`} 
-                alt="Business QR Code" 
-                style={{maxWidth: '300px', border: '2px solid var(--input-border)', borderRadius: '12px'}}
-              />
-            </div>
+          <div className="qr-code-container">
+            <img 
+              src={`${import.meta.env.VITE_API_URL || 'http://localhost:5003/api'}/business/qr-code`} 
+              alt="Business QR Code"
+            />
           </div>
         </div>
       )}
 
-      {/* Recent Customers */}
-      <div className="dashboard-section">
+      {/* Your Customers Section */}
+      <div className="customers-section">
         <div className="section-header">
-          <h3 className="section-title">Recent Customers</h3>
-          <Link to="/customers" className="add-business-btn">
-            View All <i className="fas fa-arrow-right"></i>
-          </Link>
+          <h3>Your Customers</h3>
+          <Link to="/customers" className="view-all-link">View All</Link>
         </div>
-        {/* Customer list will be added here */}
+        {summary?.recent_customers?.length > 0 ? (
+          <div className="customers-preview">
+            {summary.recent_customers.slice(0, 3).map((customer) => (
+              <Link 
+                key={customer.id} 
+                to={`/customer/${customer.id}`}
+                className="customer-preview-item"
+              >
+                <div className="customer-avatar">
+                  {customer.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="customer-info">
+                  <div className="customer-name">{customer.name}</div>
+                  <div className="customer-phone">{customer.phone_number}</div>
+                </div>
+                <div className={`customer-balance ${customer.balance >= 0 ? 'positive' : 'negative'}`}>
+                  ₹{Math.abs(customer.balance).toFixed(2)}
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <i className="fas fa-users"></i>
+            <p>No customers yet. Add your first customer to get started!</p>
+          </div>
+        )}
       </div>
     </div>
   );

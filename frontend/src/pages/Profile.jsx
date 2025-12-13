@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { profileAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import '../styles/Profile.css';
 
 function Profile() {
   const navigate = useNavigate();

@@ -134,6 +134,23 @@ body {
     padding: 20px 16px;
 }
 
+/* When the Dashboard page is active, make the main content full-width and transparent
+   so the dashboard's blue gradient can span across the entire page. */
+.main-content.main-dashboard {
+    max-width: 100%;
+    width: 100%;
+    padding: 0; /* the dashboard provides its own padding */
+    background: transparent;
+}
+
+/* Ensure the Dashboard page container stretches and doesn't apply white background or margins */
+.main-content.main-dashboard .container,
+.main-content.main-dashboard .dashboard-container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
 .container {
     width: 100%;
     max-width: 1200px;
@@ -171,7 +188,7 @@ body {
 .nav-toggle {
     display: none;
     background: none;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
@@ -208,7 +225,7 @@ body {
     padding: 8px 14px !important;
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 24px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: white;
     cursor: pointer;
     font-weight: 600;
@@ -304,7 +321,7 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 14px 20px;
-    border: none;
+    border: 1px solid var(--input-border);
     border-radius: var(--border-radius);
     cursor: pointer;
     font-size: 16px;

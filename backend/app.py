@@ -52,13 +52,13 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-pro
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-# Enable CORS
+# Enable CORS - Allow localhost and mobile device access
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
+        "origins": "*",  # Allow all origins for mobile access
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
+        "supports_credentials": False  # Must be False when using wildcard origins
     }
 })
 
@@ -942,7 +942,7 @@ def generate_qr():
 @token_required
 @business_required
 def remind_customer(customer_id):
-    """Send reminder to specific customer"""
+    """Generate WhatsApp reminder URL for specific customer"""
     try:
         business_id = request.business_id
         
@@ -951,54 +951,114 @@ def remind_customer(customer_id):
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
-        # In production, this would integrate with SMS/WhatsApp API
-        # For now, just return success
-        logger.info(f"Reminder sent to customer {customer_id}")
+        # Get business details
+        business = appwrite_db.get_document('businesses', business_id)
         
-        return jsonify({'message': f'Reminder sent to {customer.get("name")}'}), 200
-        
-    except Exception as e:
-        logger.error(f"Send reminder error: {str(e)}")
-        return jsonify({'error': f'Failed to send reminder: {str(e)}'}), 500
-
-@app.route('/api/customers/remind-all', methods=['POST'])
-@token_required
-@business_required
-def remind_all_customers():
-    """Send reminders to all customers with pending balance"""
-    try:
-        business_id = request.business_id
-        
-        # Get all customers
-        customers = appwrite_db.list_documents('customers', [
-            Query.equal('business_id', business_id)
+        # Get credit relationship for balance
+        credit_docs = appwrite_db.list_documents('customer_credits', [
+            Query.equal('business_id', business_id),
+            Query.equal('customer_id', customer_id)
         ])
+        credit = credit_docs[0] if credit_docs else {}
+        balance = credit.get('current_balance', 0)
         
-        # Get transactions to calculate balances
-        transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id)
-        ])
+        # Clean and format phone number
+        import re
+        import urllib.parse
+        phone_number = customer.get('phone_number', '')
+        clean_phone = re.sub(r'\D', '', phone_number)
+        if clean_phone and not clean_phone.startswith('91'):
+            if clean_phone.startswith('0'):
+                clean_phone = '91' + clean_phone[1:]
+            elif len(clean_phone) == 10:
+                clean_phone = '91' + clean_phone
         
-        reminded_count = 0
-        for customer in customers:
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('type') == 'payment')
-            customer_balance = customer_credit - customer_payment
-            
-            if customer_balance > 0:
-                # In production, send SMS/WhatsApp reminder
-                logger.info(f"Reminder sent to customer {customer['$id']}")
-                reminded_count += 1
+        # Generate reminder message
+        customer_name = customer.get('name', 'Customer')
+        business_name = business.get('name', 'Business')
+        if balance > 0:
+            message = f"Hello {customer_name},\n\nJust a reminder about your outstanding balance of ₹{balance:,.2f} with {business_name}.\n\nThank you!"
+        else:
+            message = f"Hello {customer_name},\n\nThank you for keeping your account up to date with {business_name}!"
+        
+        # Create WhatsApp URL
+        encoded_message = urllib.parse.quote(message)
+        whatsapp_url = f"https://wa.me/{clean_phone}?text={encoded_message}"
+        
+        logger.info(f"WhatsApp reminder URL generated for customer {customer_id}")
         
         return jsonify({
-            'message': f'Reminders sent to {reminded_count} customers',
-            'count': reminded_count
+            'message': f'Reminder URL generated for {customer_name}',
+            'whatsapp_url': whatsapp_url,
+            'customer_name': customer_name,
+            'balance': balance
         }), 200
         
     except Exception as e:
-        logger.error(f"Send bulk reminders error: {str(e)}")
-        return jsonify({'error': f'Failed to send reminders: {str(e)}'}), 500
+        logger.error(f"Send reminder error: {str(e)}")
+        return jsonify({'error': f'Failed to generate reminder: {str(e)}'}), 500
+
+@app.route('/api/customers/remind-all', methods=['GET'])
+@token_required
+@business_required
+def remind_all_customers():
+    """Get list of all customers with WhatsApp reminder URLs"""
+    try:
+        business_id = request.business_id
+        import re
+        import urllib.parse
+        
+        # Get business details
+        business = appwrite_db.get_document('businesses', business_id)
+        business_name = business.get('name', 'Business')
+        
+        # Get all customer credits with positive balance
+        customer_credits = appwrite_db.list_documents('customer_credits', [
+            Query.equal('business_id', business_id)
+        ])
+        
+        customers_to_remind = []
+        for credit in customer_credits:
+            balance = credit.get('current_balance', 0)
+            if balance > 0:
+                customer_id = credit.get('customer_id')
+                customer = appwrite_db.get_document('customers', customer_id)
+                
+                if customer:
+                    # Clean and format phone number
+                    phone_number = customer.get('phone_number', '')
+                    clean_phone = re.sub(r'\D', '', phone_number)
+                    if clean_phone and not clean_phone.startswith('91'):
+                        if clean_phone.startswith('0'):
+                            clean_phone = '91' + clean_phone[1:]
+                        elif len(clean_phone) == 10:
+                            clean_phone = '91' + clean_phone
+                    
+                    # Generate reminder message
+                    customer_name = customer.get('name', 'Customer')
+                    message = f"Hello {customer_name},\n\nJust a reminder about your outstanding balance of ₹{balance:,.2f} with {business_name}.\n\nThank you!"
+                    
+                    # Create WhatsApp URL
+                    encoded_message = urllib.parse.quote(message)
+                    whatsapp_url = f"https://wa.me/{clean_phone}?text={encoded_message}"
+                    
+                    customers_to_remind.append({
+                        'id': customer_id,
+                        'name': customer_name,
+                        'phone_number': customer.get('phone_number', ''),
+                        'balance': balance,
+                        'whatsapp_url': whatsapp_url
+                    })
+        
+        return jsonify({
+            'customers': customers_to_remind,
+            'count': len(customers_to_remind),
+            'business_name': business_name
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Get bulk reminders error: {str(e)}")
+        return jsonify({'error': f'Failed to get reminders: {str(e)}'}), 500
 
 # Error handlers
 @app.errorhandler(404)

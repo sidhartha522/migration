@@ -102,7 +102,7 @@ export const recurringAPI = {
 // Reminder APIs
 export const reminderAPI = {
   sendReminder: (customerId) => api.post(`/customer/${customerId}/remind`),
-  sendBulkReminders: () => api.post('/reminders/bulk'),
+  getBulkReminders: () => api.get('/customers/remind-all'),
 };
 
 // Profile APIs

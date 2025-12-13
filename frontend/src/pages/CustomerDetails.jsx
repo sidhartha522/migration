@@ -38,13 +38,31 @@ const CustomerDetails = () => {
   };
 
   const handleSendReminder = async () => {
+    // Open a new window immediately to avoid popup blocker
+    const whatsappWindow = window.open('about:blank', '_blank');
+    
     try {
-      await reminderAPI.sendReminder(customerId);
-      setMessages([{ type: 'success', message: 'Reminder sent successfully!' }]);
+      const response = await reminderAPI.sendReminder(customerId);
+      const whatsappUrl = response.data.whatsapp_url;
+      
+      // Update the opened window with WhatsApp URL
+      if (whatsappWindow) {
+        whatsappWindow.location.href = whatsappUrl;
+      }
+      
+      setMessages([{ 
+        type: 'success', 
+        message: `Opening WhatsApp to send reminder to ${response.data.customer_name}` 
+      }]);
     } catch (error) {
+      // Close the blank window if there was an error
+      if (whatsappWindow) {
+        whatsappWindow.close();
+      }
+      
       setMessages([{
         type: 'error',
-        message: error.response?.data?.error || 'Failed to send reminder'
+        message: error.response?.data?.error || 'Failed to generate reminder'
       }]);
     }
   };
