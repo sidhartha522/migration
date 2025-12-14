@@ -37,6 +37,16 @@ const Products = () => {
     }
   };
 
+  const calculateTotalStockValue = () => {
+    return products.reduce((total, product) => {
+      return total + (product.price * product.stock_quantity);
+    }, 0);
+  };
+
+  const getLowStockItems = () => {
+    return products.filter(p => p.is_low_stock);
+  };
+
   const loadCategories = async () => {
     try {
       const response = await productsAPI.getCategories();
@@ -170,43 +180,36 @@ const Products = () => {
     <div className="products-modern">
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      {/* Search and Filter Section */}
-      <div className="search-section-card">
-        <div className="search-box">
-          <i className="fas fa-search search-icon"></i>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="input"
-          />
+      {/* Stock Value Header Card */}
+      <div className="stock-value-header">
+        <div className="stock-value-left">
+          <div className="label-text">TOTAL STOCK VALUE</div>
+          <div className="value-text">₹{calculateTotalStockValue().toLocaleString('en-IN')}</div>
         </div>
-        
-        {/* Category Filter Chips */}
-        <div className="filter-chips">
-          <button 
-            className={`filter-chip ${!selectedCategory ? 'active' : ''}`}
-            onClick={() => { setSelectedCategory(''); loadProducts({ search: searchTerm }); }}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className={`filter-chip ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => { setSelectedCategory(cat); loadProducts({ search: searchTerm, category: cat }); }}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="stock-alert-badge">
+          <div className="alert-label">Low stock items</div>
+          <div className="alert-count">{getLowStockItems().length}</div>
         </div>
       </div>
 
-      {/* Add Product FAB */}
-      <Link to="/add-product" className="fab-add">
-        <i className="fas fa-plus"></i>
-      </Link>
+      {/* Filter Tabs */}
+      <div className="filter-tabs">
+        <button 
+          className={`filter-tab ${!selectedCategory ? 'active' : ''}`}
+          onClick={() => { setSelectedCategory(''); loadProducts({ search: searchTerm }); }}
+        >
+          All Items
+        </button>
+        <button
+          className={`filter-tab ${selectedCategory === 'low-stock' ? 'active danger' : ''}`}
+          onClick={() => { 
+            setSelectedCategory('low-stock'); 
+            setProducts(getLowStockItems());
+          }}
+        >
+          Low Stock
+        </button>
+      </div>
 
       {/* Products List */}
       {products.length === 0 ? (
@@ -218,67 +221,42 @@ const Products = () => {
           <p>Start adding products to your inventory</p>
           <Link to="/add-product" className="btn btn-primary">
             <i className="fas fa-plus"></i> Add First Product
-          </Link>
+          </Link>>
+            <i className="fas fa-box-open"></i>
+          </div>
+          <h3>No Products Yet</h3>
+          <p>Start adding products to your inventory</p>
         </div>
       ) : (
         <div className="products-container-modern">
           {products.map((product) => (
-            <div key={product.id} className="product-item-card">
-              <div className="product-icon-circle">
-                <i className={`fas ${getCategoryIcon(product.category)}`}></i>
+            <div key={product.id} className={`product-item-card ${product.is_low_stock ? 'low-stock' : ''}`}>
+              <div className="product-left-info">
+                <div className="product-name-text">{product.name}</div>
+                <div className="product-price-text">₹{product.price}/{product.unit}</div>
               </div>
               
-              <div className="product-details">
-                <div className="product-header-row">
-                  <div className="product-name-text">
-                    {product.name}
-                    {product.is_public && (
-                      <i className="fas fa-globe" style={{ marginLeft: '8px', fontSize: '12px', color: 'var(--text-tertiary)' }}></i>
-                    )}
-                  </div>
-                  <div className="product-price-badge">₹{product.price}</div>
+              <div className="product-quantity-controls">
+                <button className="qty-btn-dark minus" onClick={() => handleQuantityChange(product, -1)}>
+                  -
+                </button>
+                <div className="quantity-display">
+                  <span className="qty-number">{product.stock_quantity}</span>
+                  <span className="qty-unit">{product.unit}</span>
                 </div>
-                
-                <div className="product-category-text">{product.category}</div>
-                
-                {product.description && (
-                  <div className="product-description-text">
-                    {product.description}
-                  </div>
-                )}
-                
-                <div className="product-stock-controls">
-                  <div className="stock-badge" style={{ 
-                    background: product.is_low_stock ? '#fee2e2' : '#d1fae5',
-                    color: product.is_low_stock ? '#ef4444' : '#10b981'
-                  }}>
-                    {product.is_low_stock && <i className="fas fa-exclamation-triangle" style={{ marginRight: '4px' }}></i>}
-                    {product.stock_quantity} {product.unit}
-                  </div>
-                  
-                  <div className="quantity-controls">
-                    <button className="qty-btn minus" onClick={() => handleQuantityChange(product, -1)}>
-                      <i className="fas fa-minus"></i>
-                    </button>
-                    <button className="qty-btn plus" onClick={() => handleQuantityChange(product, 1)}>
-                      <i className="fas fa-plus"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="product-actions-vertical">
-                <Link to={`/edit-product/${product.id}`} className="btn-action-icon">
-                  <i className="fas fa-edit"></i>
-                </Link>
-                <button onClick={() => handleDeleteClick(product)} className="btn-action-icon delete">
-                  <i className="fas fa-trash"></i>
+                <button className="qty-btn-dark plus" onClick={() => handleQuantityChange(product, 1)}>
+                  +
                 </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Add Product Button */}
+      <Link to="/add-product" className="btn-add-product">
+        <i className="fas fa-plus"></i> Add
+      </Link>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
