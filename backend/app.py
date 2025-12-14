@@ -549,14 +549,25 @@ def get_customer_transactions(customer_id):
         
         # Format transactions with proper id field
         transaction_list = []
+        cloudinary_base = f"https://res.cloudinary.com/{os.getenv('CLOUDINARY_CLOUD_NAME')}/image/upload/"
+        
         for txn in transactions:
+            receipt_url = txn.get('receipt_image_url', '')
+            logger.info(f"Transaction {txn['$id']} receipt_image_url from DB: {receipt_url}")
+            
+            # Fix partial URLs from Appwrite truncation
+            if receipt_url and not receipt_url.startswith('http'):
+                # This is a partial path, construct full URL
+                receipt_url = cloudinary_base + receipt_url
+                logger.info(f"Constructed full URL: {receipt_url}")
+            
             transaction_list.append({
                 'id': txn['$id'],
                 'amount': txn.get('amount'),
                 'transaction_type': txn.get('transaction_type'),
                 'notes': txn.get('notes'),
                 'created_at': txn.get('created_at'),
-                'receipt_image_url': txn.get('receipt_image_url'),
+                'receipt_image_url': receipt_url if receipt_url else '',
                 'created_by': txn.get('created_by')
             })
         
@@ -668,7 +679,9 @@ def create_transaction():
                         folder='bill_receipts',
                         resource_type='image'
                     )
+                    logger.info(f"Cloudinary upload result: {upload_result}")
                     bill_image_url = upload_result.get('secure_url')
+                    logger.info(f"Extracted secure_url: {bill_image_url}")
                 except Exception as upload_error:
                     logger.error(f"Image upload error: {str(upload_error)}")
         
@@ -685,7 +698,9 @@ def create_transaction():
             'created_at': datetime.utcnow().isoformat()
         }
         
+        logger.info(f"Creating transaction with receipt_image_url: {transaction_data.get('receipt_image_url')}")
         transaction = appwrite_db.create_document('transactions', transaction_id, transaction_data)
+        logger.info(f"Created transaction document: {transaction}")
         
         return jsonify({
             'message': f'{transaction_type.capitalize()} recorded successfully',

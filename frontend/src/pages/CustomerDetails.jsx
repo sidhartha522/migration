@@ -173,10 +173,14 @@ const CustomerDetails = () => {
           ) : (
             <>
               {transactions.map((transaction, index) => {
-                                // DEBUG: Log transaction for alignment issue
-                                if (index === transactions.length - 1) {
-                                  console.log('Last transaction object:', transaction);
-                                }
+                                // DEBUG: Log transaction to check receipt_image_url
+                                console.log(`Transaction ${index}:`, {
+                                  id: transaction.id,
+                                  amount: transaction.amount,
+                                  notes: transaction.notes,
+                                  receipt_image_url: transaction.receipt_image_url,
+                                  created_by: transaction.created_by
+                                });
                 const showDate = index === 0 || 
                   new Date(transactions[index-1].created_at).toDateString() !== new Date(transaction.created_at).toDateString();
                 
@@ -217,6 +221,19 @@ const CustomerDetails = () => {
                       {transaction.notes && (
                         <div className="bubble-notes">
                           {transaction.notes}
+                        </div>
+                      )}
+                      {transaction.receipt_image_url && transaction.receipt_image_url.trim() !== '' && (
+                        <div className="bubble-image">
+                          <img 
+                            src={transaction.receipt_image_url} 
+                            alt="Bill receipt" 
+                            onClick={() => window.open(transaction.receipt_image_url, '_blank')}
+                            onError={(e) => {
+                              console.error('Image failed to load:', transaction.receipt_image_url);
+                              e.target.style.display = 'none';
+                            }}
+                          />
                         </div>
                       )}
                       <div className="bubble-time">
