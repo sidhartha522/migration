@@ -10,10 +10,10 @@
    COLOR PALETTE - Professional & Flat
    ============================================ */
 :root {
-  /* Primary Colors - Teal (Ekthaa brand) */
-  --primary-purple: #5DBFB8;
-  --primary-purple-dark: #4a9d98;
-  --primary-purple-light: #7fd4cf;
+  /* Primary Colors - Purple (PhonePe inspired) */
+  --primary-purple: #5f259f;
+  --primary-purple-dark: #4a1d7a;
+  --primary-purple-light: #7c3aed;
   
   /* Accent Colors - Flat, No Gradients */
   --accent-green: #00d09c;

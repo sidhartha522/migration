@@ -49,27 +49,38 @@ const Register = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="app-logo">
-        <h1>Ekthaa</h1>
-        <p>Manage Your Business Credit Book</p>
-      </div>
+    <div className="login-ios">
+      <FlashMessage messages={messages} onClose={() => setMessages([])} />
+      
+      <div className="login-wrapper">
+        {/* Illustration */}
+        <div className="illustration-borderless">
+          <img 
+            src="/logo.png" 
+            alt="Ekthaa" 
+            className="logo-illustration"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'flex';
+            }}
+          />
+          <div className="logo-fallback" style={{ display: 'none' }}>
+            <i className="fas fa-store"></i>
+          </div>
+        </div>
 
-      <div className="auth-card">
-        <div className="tab-content">
-          <div className="user-type-display">
-            <i className="fas fa-store"></i> Business Registration
+        {/* Register Card */}
+        <div className="login-card-clean">
+          <div className="card-header-clean">
+            <h1>Create Your Business</h1>
+            <h2>Credit Book</h2>
           </div>
           
-          <FlashMessage messages={messages} onClose={() => setMessages([])} />
-          
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="name" className="form-label">Business Name</label>
+            <div className="input-clean">
+              <i className="fas fa-store"></i>
               <input
                 type="text"
-                id="name"
-                className="form-input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your business name"
@@ -77,12 +88,10 @@ const Register = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="phone" className="form-label">Mobile Number</label>
+            <div className="input-clean">
+              <i className="fas fa-phone"></i>
               <input
                 type="tel"
-                id="phone"
-                className="form-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter your 10-digit mobile number"
@@ -90,12 +99,10 @@ const Register = () => {
               />
             </div>
             
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">Password</label>
+            <div className="input-clean">
+              <i className="fas fa-lock"></i>
               <input
                 type="password"
-                id="password"
-                className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
@@ -103,11 +110,19 @@ const Register = () => {
               />
             </div>
             
-            <button type="submit" className="btn primary-btn" disabled={loading}>
-              <i className="fas fa-user-plus"></i> {loading ? 'Registering...' : 'Register'}
+            <button type="submit" className="btn-submit-clean" disabled={loading}>
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> Registering...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-user-plus"></i> Register
+                </>
+              )}
             </button>
             
-            <Link to="/login" className="btn secondary-btn">
+            <Link to="/login" className="link-switch-clean">
               <i className="fas fa-sign-in-alt"></i> Already have an account? Login
             </Link>
           </form>

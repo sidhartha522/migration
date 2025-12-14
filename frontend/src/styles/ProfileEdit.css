@@ -303,9 +303,9 @@
 }
 
 .btn-save-profile:hover:not(:disabled) {
-  background: #4a9d98;
+  background: #4a1c7a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(93, 191, 184, 0.3);
+  box-shadow: 0 6px 16px rgba(95, 37, 159, 0.3);
 }
 
 .btn-save-profile:disabled {
