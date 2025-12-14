@@ -37,7 +37,7 @@ const Register = () => {
     const result = await register(name, phone, password);
     
     if (result.success) {
-      setMessages([{ type: 'success', message: 'Registration successful! Welcome to KhataPe Business!' }]);
+      setMessages([{ type: 'success', message: 'Registration successful! Welcome to Ekthaa!' }]);
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
@@ -51,7 +51,7 @@ const Register = () => {
   return (
     <div className="login-container">
       <div className="app-logo">
-        <h1>KhataPe Business</h1>
+        <h1>Ekthaa</h1>
         <p>Manage Your Business Credit Book</p>
       </div>
 

@@ -563,7 +563,8 @@ function ProfileEdit() {
               name="linkedin"
               value={formData.linkedin}
               onChange={handleChange}
-              placeholder="https://linkedin.com/company/yourcompany"
+              placeholder="linkedin.com/company/yourcompany"
+              style={{wordBreak: 'break-all'}}
             />
           </div>
         </div>
