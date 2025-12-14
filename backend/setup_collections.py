@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup Appwrite Collections for KathaPe Business React
+Setup Appwrite Collections for Ekthaa Business React
 """
 import os
 from dotenv import load_dotenv
@@ -30,7 +30,7 @@ try:
 except AppwriteException as e:
     if e.code == 404:
         print(f"Creating database '{database_id}'...")
-        databases.create(database_id=database_id, name="KathaPe Business")
+        databases.create(database_id=database_id, name="Ekthaa Business")
         print("✅ Database created!")
     else:
         print(f"❌ Error: {e}")

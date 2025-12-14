@@ -32,7 +32,7 @@ def setup_collections():
                 print(f"Creating database '{config.database_id}'...")
                 databases.create(
                     database_id=config.database_id,
-                    name="KathaPe Business Database"
+                    name="Ekthaa Business Database"
                 )
                 print("Database created successfully!")
             else:
@@ -265,5 +265,5 @@ def setup_collections():
         sys.exit(1)
 
 if __name__ == "__main__":
-    print("🚀 Setting up Appwrite collections for KathaPe Business...")
+    print("🚀 Setting up Appwrite collections for Ekthaa Business...")
     setup_collections()

@@ -1,5 +1,5 @@
 """
-KathaPe Business - Backend API Server
+Ekthaa Business - Backend API Server
 RESTful API for React frontend
 Handles all business operations including customers, transactions, recurring transactions
 """
@@ -131,7 +131,7 @@ def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
-        'service': 'KathaPe Business API',
+        'service': 'Ekthaa Business API',
         'timestamp': datetime.utcnow().isoformat()
     }), 200
 

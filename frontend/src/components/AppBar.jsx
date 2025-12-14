@@ -1,5 +1,5 @@
 /**
- * AppBar Component - KathaPe Branding Bar (PhonePe-style)
+ * AppBar Component - Ekthaa Branding Bar (PhonePe-style)
  */
 import { useLocation } from 'react-router-dom';
 import '../styles/AppBar.css';
@@ -19,7 +19,7 @@ const AppBar = ({ title, showBack, onBack, rightAction }) => {
           </button>
         ) : (
           <div className="app-bar-logo">
-            <span className="logo-text">KathaPe</span>
+            <span className="logo-text">Ekthaa</span>
           </div>
         )}
         

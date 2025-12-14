@@ -1,5 +1,5 @@
 /**
- * Layout Component - Modern flat design with KathaPe branding
+ * Layout Component - Modern flat design with Ekthaa branding
  */
 import { useLocation } from 'react-router-dom';
 import BottomNav from './BottomNav';

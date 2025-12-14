@@ -68,6 +68,35 @@ const Products = () => {
     setShowDeleteConfirm(true);
   };
 
+  const handleQuantityChange = async (product, change) => {
+    const newQuantity = product.stock_quantity + change;
+    
+    // Don't allow negative quantities
+    if (newQuantity < 0) {
+      setMessages([{
+        type: 'error',
+        message: 'Stock quantity cannot be negative'
+      }]);
+      return;
+    }
+
+    try {
+      // Update product stock via API
+      await productsAPI.updateProduct(product.id, {
+        ...product,
+        stock_quantity: newQuantity
+      });
+      
+      // Reload products to reflect changes
+      loadProducts({ search: searchTerm, category: selectedCategory });
+    } catch (error) {
+      setMessages([{
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to update stock'
+      }]);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!productToDelete) return;
     
@@ -200,36 +229,49 @@ const Products = () => {
               </div>
               
               <div className="product-details">
-                <div className="product-name-text">
-                  {product.name}
-                  {product.is_public && (
-                    <i className="fas fa-globe" style={{ marginLeft: '8px', fontSize: '12px', color: 'var(--text-tertiary)' }}></i>
-                  )}
+                <div className="product-header-row">
+                  <div className="product-name-text">
+                    {product.name}
+                    {product.is_public && (
+                      <i className="fas fa-globe" style={{ marginLeft: '8px', fontSize: '12px', color: 'var(--text-tertiary)' }}></i>
+                    )}
+                  </div>
+                  <div className="product-price-badge">₹{product.price}</div>
                 </div>
+                
                 <div className="product-category-text">{product.category}</div>
+                
                 {product.description && (
-                  <div style={{ fontSize: '13px', color: 'var(--text-tertiary)', marginTop: 'var(--space-1)' }}>
+                  <div className="product-description-text">
                     {product.description}
                   </div>
                 )}
-                <div className="product-stock-price">
-                  <div className="stock-info">
-                    Stock: <span className={product.is_low_stock ? '' : ''}>{product.stock_quantity} {product.unit}</span>
-                    {product.is_low_stock && (
-                      <i className="fas fa-exclamation-triangle" style={{ color: 'var(--accent-red)', marginLeft: '4px' }}></i>
-                    )}
+                
+                <div className="product-stock-controls">
+                  <div className="stock-badge" style={{ 
+                    background: product.is_low_stock ? '#fee2e2' : '#d1fae5',
+                    color: product.is_low_stock ? '#ef4444' : '#10b981'
+                  }}>
+                    {product.is_low_stock && <i className="fas fa-exclamation-triangle" style={{ marginRight: '4px' }}></i>}
+                    {product.stock_quantity} {product.unit}
                   </div>
-                  <div className="price-info">
-                    Price: <span>₹{product.price}/{product.unit}</span>
+                  
+                  <div className="quantity-controls">
+                    <button className="qty-btn minus" onClick={() => handleQuantityChange(product, -1)}>
+                      <i className="fas fa-minus"></i>
+                    </button>
+                    <button className="qty-btn plus" onClick={() => handleQuantityChange(product, 1)}>
+                      <i className="fas fa-plus"></i>
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="product-actions">
-                <Link to={`/edit-product/${product.id}`} className="btn-edit">
+              <div className="product-actions-vertical">
+                <Link to={`/edit-product/${product.id}`} className="btn-action-icon">
                   <i className="fas fa-edit"></i>
                 </Link>
-                <button onClick={() => handleDeleteClick(product)} className="btn-delete">
+                <button onClick={() => handleDeleteClick(product)} className="btn-action-icon delete">
                   <i className="fas fa-trash"></i>
                 </button>
               </div>
