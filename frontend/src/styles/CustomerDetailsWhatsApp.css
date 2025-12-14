@@ -80,9 +80,10 @@
   transform: scale(0.95);
 }
 
-/* WhatsApp Style Transactions */
+/* WhatsApp Style Transactions - Add padding for fixed bottom card */
 .transactions-whatsapp {
   padding: 16px;
+  padding-bottom: 320px;
   min-height: 50vh;
 }
 
