@@ -52,7 +52,7 @@
   box-shadow: 0 2px 8px rgba(95, 37, 159, 0.1);
 }
 
-/* Colorful icon bubbles like Financy app */
+/* Colorful icon bubbles - solid colors */
 .transaction-icon-bubble { 
   width: 56px; 
   height: 56px; 
@@ -65,12 +65,12 @@
 }
 
 .transaction-icon-bubble.icon-red { 
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+  background: #fecaca; 
   color: #dc2626; 
 }
 
 .transaction-icon-bubble.icon-green { 
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+  background: #a7f3d0; 
   color: #059669; 
 }
 .transaction-details-modern { flex: 1; min-width: 0; }

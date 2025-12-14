@@ -1,7 +1,7 @@
 /**
  * AppBar Component - Ekthaa Branding Bar (PhonePe-style)
  */
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import '../styles/AppBar.css';
 
 const AppBar = ({ title, showBack, onBack, rightAction }) => {
@@ -28,7 +28,11 @@ const AppBar = ({ title, showBack, onBack, rightAction }) => {
         )}
         
         <div className="app-bar-actions">
-          {rightAction || <div style={{width: '40px'}}></div>}
+          {rightAction || (
+            <Link to="/profile" className="profile-btn-topnav">
+              <i className="fas fa-user-circle"></i>
+            </Link>
+          )}
         </div>
       </div>
     </div>

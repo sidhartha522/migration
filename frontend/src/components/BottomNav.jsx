@@ -12,31 +12,25 @@ const BottomNav = () => {
       path: '/dashboard',
       icon: 'fa-home',
       label: 'Home',
-      color: '#14b8a6' // Teal
+      color: '#5f259f'
     },
     {
       path: '/customers',
       icon: 'fa-users',
       label: 'Customers',
-      color: '#f97316' // Orange
+      color: '#f97316'
     },
     {
       path: '/products',
       icon: 'fa-box',
       label: 'Products',
-      color: '#10b981' // Emerald
+      color: '#10b981'
     },
     {
       path: '/transactions',
       icon: 'fa-receipt',
       label: 'Transactions',
-      color: '#8b5cf6' // Purple
-    },
-    {
-      path: '/profile',
-      icon: 'fa-user-circle',
-      label: 'Profile',
-      color: '#10b981' // Green
+      color: '#3b82f6'
     }
   ];
 
