@@ -173,12 +173,6 @@ const CustomerDetails = () => {
             <div className="balance-status">{customer.balance > 0 ? 'You owe' : 'Received'}</div>
           </div>
 
-          <div className="action-buttons-row">
-            <a href={`tel:${customer.phone}`} className="icon-btn-round call-btn">
-              <i className="fas fa-phone"></i>
-            </a>
-          </div>
-
           <div className="transaction-buttons">
             <Link to={`/customer/${customerId}/transaction?type=credit`} className="transaction-btn credit-btn">
               <i className="fas fa-arrow-up"></i>
