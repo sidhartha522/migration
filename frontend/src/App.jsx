@@ -12,6 +12,7 @@ import AddTransaction from './pages/AddTransaction';
 import Transactions from './pages/Transactions';
 import RecurringTransactions from './pages/RecurringTransactions';
 import Profile from './pages/Profile';
+import ProfileEdit from './pages/ProfileEdit';
 import BulkReminders from './pages/BulkReminders';
 import Products from './pages/Products';
 import AddEditProduct from './pages/AddEditProduct';
@@ -86,6 +87,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <ProfileEdit />
                 </ProtectedRoute>
               }
             />

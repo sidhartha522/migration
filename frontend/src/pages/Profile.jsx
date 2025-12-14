@@ -166,6 +166,17 @@ function Profile() {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="profile-section-card">
+          <button 
+            type="button"
+            onClick={() => navigate('/profile/edit')}
+            className="btn btn-edit-profile"
+          >
+            <i className="fas fa-edit"></i> Edit Complete Business Profile
+          </button>
+        </div>
+
         {/* Business Information Card */}
         <div className="profile-section-card">
           <div className="section-header">

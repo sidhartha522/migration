@@ -214,18 +214,14 @@ const Products = () => {
       {/* Products List */}
       {products.length === 0 ? (
         <div className="empty-state-products">
-          <div className="icon-wrapper" style={{ backgroundColor: 'var(--purple-light)', fontSize: '48px', width: '80px', height: '80px' }}>
-            <i className="fas fa-box-open" style={{ color: 'var(--primary-purple)' }}></i>
+          <div className="icon-wrapper">
+            <i className="fas fa-box-open"></i>
           </div>
           <h3>No Products Yet</h3>
           <p>Start adding products to your inventory</p>
           <Link to="/add-product" className="btn btn-primary">
             <i className="fas fa-plus"></i> Add First Product
-          </Link>>
-            <i className="fas fa-box-open"></i>
-          </div>
-          <h3>No Products Yet</h3>
-          <p>Start adding products to your inventory</p>
+          </Link>
         </div>
       ) : (
         <div className="products-container-modern">
