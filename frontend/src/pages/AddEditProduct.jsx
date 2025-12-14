@@ -161,8 +161,31 @@ const AddEditProduct = () => {
 
   if (loadingData) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className="add-edit-product-modern">
+        <div className="product-form-container">
+          <div className="product-form-card">
+            <div className="skeleton" style={{height: '32px', width: '200px', marginBottom: '32px'}}></div>
+            
+            {/* Skeleton Form Fields */}
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <div key={i} className="form-group">
+                <div className="skeleton" style={{height: '16px', width: '120px', marginBottom: '8px'}}></div>
+                <div className="skeleton" style={{height: i === 2 ? '80px' : '48px', width: '100%', borderRadius: '8px'}}></div>
+              </div>
+            ))}
+            
+            {/* Skeleton Toggle */}
+            <div className="form-group">
+              <div className="skeleton" style={{height: '24px', width: '200px'}}></div>
+            </div>
+            
+            {/* Skeleton Buttons */}
+            <div className="form-actions">
+              <div className="skeleton" style={{height: '48px', flex: 1, borderRadius: '8px'}}></div>
+              <div className="skeleton" style={{height: '48px', flex: 1, borderRadius: '8px'}}></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

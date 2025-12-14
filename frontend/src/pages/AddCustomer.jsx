@@ -109,17 +109,42 @@ const AddCustomer = () => {
         <div className="info-card">
           <div className="info-card-header">
             <div className="info-card-icon">
-              <i className="fas fa-info"></i>
+              <i className="fas fa-lightbulb"></i>
             </div>
             <h3 className="info-card-title">Quick Tip</h3>
           </div>
           <p className="info-card-text">
-            You can add transactions to this customer after creating their profile.
+            After adding a customer, you can instantly record their credit or payment transactions.
           </p>
         </div>
 
+        <div className="features-list">
+          <div className="feature-item">
+            <i className="fas fa-check-circle"></i>
+            <span>Track credit & payments</span>
+          </div>
+          <div className="feature-item">
+            <i className="fas fa-check-circle"></i>
+            <span>WhatsApp reminders</span>
+          </div>
+          <div className="feature-item">
+            <i className="fas fa-check-circle"></i>
+            <span>Transaction history</span>
+          </div>
+        </div>
+
         <button type="submit" className="btn-submit" disabled={loading}>
-          {loading ? 'Adding Customer...' : 'Add Customer'}
+          {loading ? (
+            <>
+              <i className="fas fa-spinner fa-spin"></i>
+              <span>Adding Customer...</span>
+            </>
+          ) : (
+            <>
+              <i className="fas fa-user-plus"></i>
+              <span>Add Customer</span>
+            </>
+          )}
         </button>
       </form>
     </div>

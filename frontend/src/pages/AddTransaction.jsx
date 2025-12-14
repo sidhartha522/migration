@@ -2,7 +2,7 @@
  * AddTransaction Page - Add a transaction for a customer
  */
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { transactionAPI, customerAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
 import '../styles/AddTransactionModern.css';
@@ -10,10 +10,12 @@ import '../styles/AddTransactionModern.css';
 const AddTransaction = () => {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [customer, setCustomer] = useState(null);
+  const [loadingCustomer, setLoadingCustomer] = useState(true);
   const [formData, setFormData] = useState({
     customer_id: customerId,
-    transaction_type: 'credit',
+    transaction_type: searchParams.get('type') || 'credit',
     amount: '',
     notes: '',
     bill_photo: null
@@ -27,6 +29,7 @@ const AddTransaction = () => {
 
   const loadCustomer = async () => {
     try {
+      setLoadingCustomer(true);
       const response = await customerAPI.getCustomer(customerId);
       setCustomer(response.data.customer);
     } catch (error) {
@@ -34,6 +37,8 @@ const AddTransaction = () => {
         type: 'error',
         message: 'Failed to load customer details'
       }]);
+    } finally {
+      setLoadingCustomer(false);
     }
   };
 
@@ -93,7 +98,15 @@ const AddTransaction = () => {
 
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      {customer && (
+      {loadingCustomer ? (
+        <div className="customer-info-card">
+          <div className="skeleton skeleton-circle" style={{width: '40px', height: '40px'}}></div>
+          <div style={{flex: 1}}>
+            <div className="skeleton" style={{height: '16px', width: '60%', marginBottom: '8px'}}></div>
+            <div className="skeleton" style={{height: '14px', width: '40%'}}></div>
+          </div>
+        </div>
+      ) : customer && (
         <div className="customer-info-card">
           <div className="customer-avatar-small">
             {customer.name.charAt(0)}

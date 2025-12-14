@@ -45,8 +45,26 @@ const RecurringTransactions = () => {
 
   if (loading) {
     return (
-      <div className="loading-spinner">
-        <div className="spinner"></div>
+      <div className="customer-dashboard">
+        <div className="page-header">
+          <div className="skeleton" style={{width: '100px', height: '40px', borderRadius: '8px'}}></div>
+          <div className="skeleton" style={{flex: 1, height: '32px', marginLeft: '16px'}}></div>
+        </div>
+        
+        <div className="dashboard-section">
+          <div className="businesses-list">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="business-card-inner" style={{marginBottom: '10px'}}>
+                <div className="skeleton skeleton-circle" style={{width: '48px', height: '48px'}}></div>
+                <div className="business-info" style={{flex: 1}}>
+                  <div className="skeleton" style={{height: '18px', width: '60%', marginBottom: '8px'}}></div>
+                  <div className="skeleton" style={{height: '14px', width: '40%'}}></div>
+                </div>
+                <div className="skeleton" style={{width: '60px', height: '32px', borderRadius: '16px'}}></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

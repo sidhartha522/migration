@@ -11,6 +11,7 @@ import '../styles/ProfileEdit.css';
 function ProfileEdit() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [messages, setMessages] = useState([]);
   const [formData, setFormData] = useState({
     businessName: '',
@@ -49,6 +50,7 @@ function ProfileEdit() {
 
   const loadProfile = async () => {
     try {
+      setLoadingProfile(true);
       const response = await profileAPI.getProfile();
       const data = response.data.business || response.data;
       
@@ -86,6 +88,8 @@ function ProfileEdit() {
         type: 'error',
         message: error.response?.data?.error || 'Failed to load profile'
       }]);
+    } finally {
+      setLoadingProfile(false);
     }
   };
 

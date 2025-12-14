@@ -70,8 +70,52 @@ const CustomerDetails = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className="customer-details-modern">
+        {/* Skeleton Header */}
+        <div className="customer-header-minimal">
+          <div className="skeleton" style={{width: '32px', height: '32px', borderRadius: '50%'}}></div>
+          <div className="skeleton" style={{flex: 1, height: '24px', marginLeft: '12px', marginRight: '12px'}}></div>
+          <div className="skeleton" style={{width: '80px', height: '32px', borderRadius: '8px'}}></div>
+          <div className="skeleton" style={{width: '40px', height: '40px', borderRadius: '50%', marginLeft: '8px'}}></div>
+        </div>
+        
+        {/* Skeleton Transactions */}
+        <div className="transactions-whatsapp">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i}>
+              {i === 1 && (
+                <div className="date-separator">
+                  <div className="skeleton" style={{height: '14px', width: '120px', margin: '0 auto'}}></div>
+                </div>
+              )}
+              <div className={i % 2 === 0 ? "transaction-bubble credit-bubble" : "transaction-bubble payment-bubble"}>
+                <div className="bubble-header">
+                  <div className="skeleton" style={{height: '14px', width: '80px', marginBottom: '4px'}}></div>
+                </div>
+                <div className="bubble-amount">
+                  <div className="skeleton" style={{height: '24px', width: '100px'}}></div>
+                </div>
+                {i % 3 === 0 && (
+                  <div className="bubble-notes">
+                    <div className="skeleton" style={{height: '12px', width: '90%'}}></div>
+                  </div>
+                )}
+                <div className="bubble-footer">
+                  <div className="skeleton" style={{height: '10px', width: '60px'}}></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Skeleton Bottom Actions */}
+        <div className="bottom-actions-card">
+          <div className="skeleton" style={{height: '56px', borderRadius: '12px', marginBottom: '12px'}}></div>
+          <div style={{display: 'flex', gap: '12px'}}>
+            <div className="skeleton" style={{flex: 1, height: '56px', borderRadius: '12px'}}></div>
+            <div className="skeleton" style={{flex: 1, height: '56px', borderRadius: '12px'}}></div>
+          </div>
+        </div>
       </div>
     );
   }
