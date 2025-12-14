@@ -344,10 +344,33 @@ def dashboard():
         # Get recent transactions (last 10)
         recent_transactions = transactions[:10] if transactions else []
         
-        # Get recent customers (last 4 by creation date) with their balances
+        # Get recent customers (based on last transaction date) with their balances
         recent_customers_list = []
-        for customer in customers[:4]:  # Get first 4 customers (already sorted by default)
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
+        
+        # Build a dict of customer_id -> last_transaction_date
+        customer_last_transaction = {}
+        for txn in transactions:
+            cid = txn.get('customer_id')
+            txn_date = txn.get('$createdAt', '')
+            if cid:
+                if cid not in customer_last_transaction or txn_date > customer_last_transaction[cid]:
+                    customer_last_transaction[cid] = txn_date
+        
+        # Sort customers by their last transaction date (most recent first)
+        sorted_customer_ids = sorted(
+            customer_last_transaction.keys(),
+            key=lambda cid: customer_last_transaction[cid],
+            reverse=True
+        )
+        
+        # Take the top 4 and build the response
+        for customer_id in sorted_customer_ids[:4]:
+            # Find the customer object
+            customer = next((c for c in customers if c['$id'] == customer_id), None)
+            if not customer:
+                continue
+            
+            customer_transactions = [t for t in transactions if t.get('customer_id') == customer_id]
             customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
             customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             customer_balance = customer_credit - customer_payment
