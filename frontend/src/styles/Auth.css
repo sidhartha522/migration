@@ -20,15 +20,15 @@
 
 /* Illustration - Borderless */
 .illustration-borderless {
-  padding: 20px 20px 30px;
+  padding: 16px 20px 24px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 240px;
-  height: 240px;
-  margin: 0 auto 20px;
+  width: 192px;
+  height: 192px;
+  margin: 0 auto 16px;
 }
 
 .logo-illustration {
