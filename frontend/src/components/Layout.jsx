@@ -13,6 +13,8 @@ const Layout = ({ children }) => {
   
   // Pages where bottom nav and app bar should be hidden
   const isAuthPage = ['/login', '/register'].includes(location.pathname);
+  // Hide bottom nav on customer details page
+  const isCustomerDetailsPage = location.pathname.match(/^\/customer\/[^/]+$/);
 
   return (
     <div className="app-container-modern">
@@ -20,7 +22,7 @@ const Layout = ({ children }) => {
       <main className="main-content-modern">
         {children}
       </main>
-      {isAuthenticated && !isAuthPage && (
+      {isAuthenticated && !isAuthPage && !isCustomerDetailsPage && (
         <div className="bottom-nav-fixed">
           <BottomNav />
         </div>

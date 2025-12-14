@@ -257,9 +257,8 @@ const CustomerDetails = () => {
           <div className="current-balance-section">
             <div className="balance-label-bottom">Current Balance</div>
             <div className={`balance-amount-bottom ${customer.balance > 0 ? 'positive' : 'negative'}`}>
-              ₹{customer.balance > 0 ? '+' : '-'}{Math.abs(customer.balance || 0).toFixed(0)}
+              ₹{Math.abs(customer.balance || 0).toFixed(0)}
             </div>
-            <div className="balance-status">{customer.balance > 0 ? 'You owe' : 'Received'}</div>
           </div>
 
           <div className="transaction-buttons">

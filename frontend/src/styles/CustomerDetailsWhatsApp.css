@@ -251,7 +251,7 @@
 /* Bottom Section - App-style with rounded top */
 .bottom-actions {
   position: fixed;
-  bottom: 70px;
+  bottom: 0;
   left: 0;
   right: 0;
   background: white;
@@ -265,26 +265,26 @@
 
 .current-balance-section {
   text-align: center;
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-bottom: 12px;
+  padding: 10px 16px;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-  border-radius: 16px;
-  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
 .balance-label-bottom {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .balance-amount-bottom {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 800;
-  margin-bottom: 6px;
+  margin-bottom: 0px;
   letter-spacing: -1px;
 }
 
