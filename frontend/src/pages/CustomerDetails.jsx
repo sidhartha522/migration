@@ -1,7 +1,7 @@
 /**
  * CustomerDetails Page - Modern Flat Design
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { customerAPI, transactionAPI, reminderAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
@@ -14,10 +14,18 @@ const CustomerDetails = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
+  const transactionsEndRef = useRef(null);
 
   useEffect(() => {
     loadCustomerDetails();
   }, [customerId]);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when transactions load or update
+    if (transactions.length > 0 && transactionsEndRef.current) {
+      transactionsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [transactions]);
 
   const loadCustomerDetails = async () => {
     try {
@@ -27,7 +35,9 @@ const CustomerDetails = () => {
       ]);
       
       setCustomer(customerRes.data.customer);
-      setTransactions(transactionsRes.data.transactions || []);
+      // Reverse transactions so newest appears at bottom
+      const txns = transactionsRes.data.transactions || [];
+      setTransactions(txns.reverse());
     } catch (error) {
       setMessages([{
         type: 'error',
@@ -203,6 +213,8 @@ const CustomerDetails = () => {
                   </div>
                 );
               })}
+              {/* Scroll anchor for auto-scroll to bottom */}
+              <div ref={transactionsEndRef} />
             </>
           )}
         </div>
