@@ -9,12 +9,6 @@ const BottomNav = () => {
   
   const navItems = [
     {
-      path: '/dashboard',
-      icon: 'fa-home',
-      label: 'Home',
-      color: '#5f259f'
-    },
-    {
       path: '/customers',
       icon: 'fa-users',
       label: 'Customers',
@@ -25,6 +19,19 @@ const BottomNav = () => {
       icon: 'fa-box',
       label: 'Products',
       color: '#10b981'
+    },
+    {
+      path: '/dashboard',
+      icon: 'fa-home',
+      label: 'Home',
+      color: '#5f259f'
+    },
+    {
+      path: '#',
+      icon: 'fa-file-invoice',
+      label: 'Invoices',
+      color: '#6b7280',
+      disabled: true
     },
     {
       path: '/transactions',
@@ -41,17 +48,30 @@ const BottomNav = () => {
   return (
     <nav className="bottom-nav">
       {navItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-          style={{
-            '--nav-color': item.color
-          }}
-        >
-          <i className={`fas ${item.icon}`}></i>
-          <span>{item.label}</span>
-        </Link>
+        item.disabled ? (
+          <div
+            key={item.path}
+            className="nav-item nav-item-disabled"
+            style={{
+              '--nav-color': item.color
+            }}
+          >
+            <i className={`fas ${item.icon}`}></i>
+            <span>{item.label}</span>
+          </div>
+        ) : (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+            style={{
+              '--nav-color': item.color
+            }}
+          >
+            <i className={`fas ${item.icon}`}></i>
+            <span>{item.label}</span>
+          </Link>
+        )
       ))}
     </nav>
   );

@@ -42,10 +42,11 @@
 }
 
 .logo-text {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -1px;
   color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 }
 
 /* Back Button */
