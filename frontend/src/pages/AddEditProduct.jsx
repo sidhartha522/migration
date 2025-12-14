@@ -116,6 +116,7 @@ const AddEditProduct = () => {
 
     try {
       setLoading(true);
+      setMessages([]);
       
       const productData = {
         ...formData,
@@ -124,14 +125,18 @@ const AddEditProduct = () => {
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 10
       };
 
+      console.log('Submitting product data:', productData);
+
       if (isEditMode) {
-        await productsAPI.updateProduct(productId, productData);
+        const response = await productsAPI.updateProduct(productId, productData);
+        console.log('Update response:', response);
         setMessages([{
           type: 'success',
           message: 'Product updated successfully'
         }]);
       } else {
-        await productsAPI.addProduct(productData);
+        const response = await productsAPI.addProduct(productData);
+        console.log('Add response:', response);
         setMessages([{
           type: 'success',
           message: 'Product added successfully'
@@ -143,9 +148,11 @@ const AddEditProduct = () => {
       }, 1500);
 
     } catch (error) {
+      console.error('Error submitting product:', error);
+      console.error('Error response:', error.response);
       setMessages([{
         type: 'error',
-        message: error.response?.data?.error || `Failed to ${isEditMode ? 'update' : 'add'} product`
+        message: error.response?.data?.error || error.message || `Failed to ${isEditMode ? 'update' : 'add'} product`
       }]);
     } finally {
       setLoading(false);
