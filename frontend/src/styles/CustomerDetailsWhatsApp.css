@@ -77,17 +77,17 @@
 }
 
 .credit-bubble {
-  background: #ffe8e8;
-  border-left: 4px solid #ef4444;
-  margin-left: 0;
-  margin-right: auto;
-}
-
-.payment-bubble {
   background: #d1fae5;
   border-right: 4px solid #10b981;
   margin-left: auto;
   margin-right: 0;
+}
+
+.payment-bubble {
+  background: #ffe8e8;
+  border-left: 4px solid #ef4444;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .bubble-header {

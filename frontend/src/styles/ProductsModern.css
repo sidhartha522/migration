@@ -8,14 +8,15 @@
 
 .stock-value-header {
   background: white;
-  border-radius: 16px;
-  padding: var(--space-5);
+  border-radius: 20px;
+  padding: 24px;
   margin-bottom: var(--space-4);
-  box-shadow: 0 2px 12px rgba(95, 37, 159, 0.08);
+  box-shadow: 0 4px 16px rgba(95, 37, 159, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-3);
+  border: 2px solid #f3f4f6;
 }
 
 .stock-value-left {
@@ -24,16 +25,21 @@
 
 .label-text {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
   color: #6b7280;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 
 .value-text {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
   color: var(--primary-purple);
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .stock-alert-badge {
@@ -52,9 +58,12 @@
 }
 
 .alert-count {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: #dc2626;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .filter-tabs {
@@ -213,10 +222,13 @@
 }
 
 .qty-number {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: #111827;
   line-height: 1;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .qty-unit {

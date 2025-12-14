@@ -124,7 +124,7 @@ const CustomerDetails = () => {
                         })}
                       </div>
                     )}
-                    <div className={`transaction-bubble ${transaction.transaction_type === 'credit' ? 'credit-bubble' : 'payment-bubble'}`}>
+                    <div className={`transaction-bubble ${transaction.transaction_type === 'credit' ? 'payment-bubble' : 'credit-bubble'}`}>
                       <div className="bubble-header">
                         <span className="bubble-name">
                           {transaction.transaction_type === 'credit' ? customer.name : 'You'}
