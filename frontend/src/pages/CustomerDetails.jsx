@@ -95,8 +95,18 @@ const CustomerDetails = () => {
             <i className="fas fa-arrow-left"></i>
           </button>
           <div className="customer-name-header">{customer.name}</div>
-          <div className="customer-balance-header">
-            ₹{Math.abs(customer.balance || 0).toFixed(0)}
+          <div className="header-right-section">
+            <div className="customer-balance-header">
+              ₹{Math.abs(customer.balance || 0).toFixed(0)}
+            </div>
+            <a 
+              href={`https://wa.me/91${customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whatsapp-btn-header"
+            >
+              <i className="fab fa-whatsapp"></i>
+            </a>
           </div>
         </div>
 
@@ -166,14 +176,6 @@ const CustomerDetails = () => {
           <div className="action-buttons-row">
             <a href={`tel:${customer.phone}`} className="icon-btn-round call-btn">
               <i className="fas fa-phone"></i>
-            </a>
-            <a 
-              href={`https://wa.me/91${customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="icon-btn-round whatsapp-btn"
-            >
-              <i className="fab fa-whatsapp"></i>
             </a>
           </div>
 
