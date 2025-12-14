@@ -1,4 +1,4 @@
-/* Bottom Navigation - Revolut Inspired */
+/* Bottom Navigation - Sticky Footer Style (Always Visible) */
 
 .bottom-nav {
   position: fixed;
@@ -12,10 +12,11 @@
   align-items: center;
   padding: 12px 0;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-  max-width: 768px;
+  max-width: 100%;
   margin: 0 auto;
+  height: 70px;
 }
 
 .bottom-nav .nav-item {

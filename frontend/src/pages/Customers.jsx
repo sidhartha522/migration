@@ -119,28 +119,38 @@ const Customers = () => {
       ) : (
         <div className="customers-container-modern">
           {customers.map((customer) => (
-            <Link
-              key={customer.id}
-              to={`/customer/${customer.id}`}
-              className="customer-item-card"
-            >
-              <div className="customer-avatar-circle">
-                {customer.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="customer-details">
-                <div className="customer-name-text">{customer.name}</div>
-                <div className="customer-phone-text">{customer.phone_number}</div>
-              </div>
-              <div className="customer-balance-amount">
-                <div className={`balance-value ${customer.balance > 0 ? 'positive' : 'negative'}`}>
-                  ₹{Math.abs(customer.balance || 0).toFixed(2)}
+            <div key={customer.id} className="customer-item-card">
+              <Link
+                to={`/customer/${customer.id}`}
+                className="customer-link-wrapper"
+              >
+                <div className="customer-avatar-circle">
+                  {customer.name.charAt(0).toUpperCase()}
                 </div>
-                <div className="balance-label">
-                  {customer.balance > 0 ? 'to receive' : 'received'}
+                <div className="customer-details">
+                  <div className="customer-name-text">{customer.name}</div>
+                  <div className="customer-phone-text">{customer.phone_number}</div>
                 </div>
-              </div>
-              <i className="fas fa-chevron-right" style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}></i>
-            </Link>
+                <div className="customer-balance-amount">
+                  <div className={`balance-value ${customer.balance > 0 ? 'positive' : 'negative'}`}>
+                    ₹{Math.abs(customer.balance || 0).toFixed(2)}
+                  </div>
+                  <div className="balance-label">
+                    {customer.balance > 0 ? 'TO RECEIVE' : 'RECEIVED'}
+                  </div>
+                </div>
+                <i className="fas fa-chevron-right" style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}></i>
+              </Link>
+              <a
+                href={`https://wa.me/91${customer.phone_number}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="whatsapp-btn-customer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <i className="fab fa-whatsapp"></i>
+              </a>
+            </div>
           ))}
         </div>
       )}
