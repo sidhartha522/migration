@@ -15,7 +15,7 @@
 
 /* Header - Fixed at top */
 .customer-header-minimal {
-  background: var(--primary-purple);
+  background: #5DBFB8;
   padding: 16px;
   display: flex;
   align-items: center;
