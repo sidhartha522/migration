@@ -623,11 +623,19 @@ def create_transaction():
     try:
         business_id = request.business_id
         
-        # Handle multipart form data for file upload
-        customer_id = request.form.get('customer_id')
-        transaction_type = request.form.get('type')
-        amount = request.form.get('amount')
-        notes = request.form.get('notes', '')
+        # Handle both JSON and multipart form data
+        if request.is_json:
+            data = request.json
+            customer_id = data.get('customer_id')
+            transaction_type = data.get('type')
+            amount = data.get('amount')
+            notes = data.get('notes', '')
+        else:
+            # Handle multipart form data for file upload
+            customer_id = request.form.get('customer_id')
+            transaction_type = request.form.get('type')
+            amount = request.form.get('amount')
+            notes = request.form.get('notes', '')
         
         if not customer_id or not transaction_type or not amount:
             return jsonify({'error': 'Customer ID, type, and amount are required'}), 400
@@ -668,7 +676,7 @@ def create_transaction():
         transaction_data = {
             'business_id': business_id,
             'customer_id': customer_id,
-            'type': transaction_type,
+            'transaction_type': transaction_type,
             'amount': amount,
             'notes': notes,
             'receipt_image_url': bill_image_url or '',

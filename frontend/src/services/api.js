@@ -71,18 +71,24 @@ export const transactionAPI = {
     if (data.bill_photo) {
       const formData = new FormData();
       formData.append('customer_id', data.customer_id);
-      formData.append('transaction_type', data.transaction_type);
+      formData.append('type', data.transaction_type);
       formData.append('amount', data.amount);
       formData.append('notes', data.notes || '');
-      formData.append('bill_photo', data.bill_photo);
+      formData.append('bill_image', data.bill_photo);
       
-      return api.post('/transaction/create', formData, {
+      return api.post('/transaction', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
     }
-    return api.post('/transaction/create', data);
+    // When no file, send JSON but map transaction_type to type
+    return api.post('/transaction', {
+      customer_id: data.customer_id,
+      type: data.transaction_type,
+      amount: data.amount,
+      notes: data.notes || ''
+    });
   },
   getTransactions: () => api.get('/transactions'),
   getTransaction: (id) => api.get(`/transaction/${id}`),
