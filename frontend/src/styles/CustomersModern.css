@@ -3,7 +3,6 @@
 .customers-modern {
   min-height: 100vh;
   padding: var(--space-3);
-  padding-bottom: 120px;
   background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
 }
 

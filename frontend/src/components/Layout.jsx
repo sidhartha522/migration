@@ -20,7 +20,11 @@ const Layout = ({ children }) => {
       <main className="main-content-modern">
         {children}
       </main>
-      {isAuthenticated && !isAuthPage && <BottomNav />}
+      {isAuthenticated && !isAuthPage && (
+        <div className="bottom-nav-fixed">
+          <BottomNav />
+        </div>
+      )}
     </div>
   );
 };
