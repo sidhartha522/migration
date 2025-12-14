@@ -129,6 +129,31 @@
   margin-right: auto;
 }
 
+/* Color overrides based on transaction type */
+.credit-color {
+  background: #ffe8e8 !important;
+}
+
+.credit-color.credit-bubble {
+  border-right: 4px solid #ef4444 !important;
+}
+
+.credit-color.payment-bubble {
+  border-left: 4px solid #ef4444 !important;
+}
+
+.payment-color {
+  background: #d1fae5 !important;
+}
+
+.payment-color.credit-bubble {
+  border-right: 4px solid #10b981 !important;
+}
+
+.payment-color.payment-bubble {
+  border-left: 4px solid #10b981 !important;
+}
+
 .bubble-header {
   display: flex;
   align-items: center;

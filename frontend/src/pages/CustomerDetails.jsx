@@ -173,9 +173,20 @@ const CustomerDetails = () => {
           ) : (
             <>
               {transactions.map((transaction, index) => {
+                                // DEBUG: Log transaction for alignment issue
+                                if (index === transactions.length - 1) {
+                                  console.log('Last transaction object:', transaction);
+                                }
                 const showDate = index === 0 || 
                   new Date(transactions[index-1].created_at).toDateString() !== new Date(transaction.created_at).toDateString();
                 
+                // Align right if created_by is 'business', else left
+                const isBusinessCreated = transaction.created_by === 'business';
+                const alignmentClass = isBusinessCreated ? 'credit-bubble' : 'payment-bubble';
+
+                // Determine color: credit = red, payment = green
+                const colorClass = transaction.transaction_type === 'credit' ? 'credit-color' : 'payment-color';
+
                 return (
                   <div key={transaction.id}>
                     {showDate && (
@@ -188,10 +199,10 @@ const CustomerDetails = () => {
                         })}
                       </div>
                     )}
-                    <div className={`transaction-bubble ${transaction.transaction_type === 'credit' ? 'payment-bubble' : 'credit-bubble'}`}>
+                    <div className={`transaction-bubble ${alignmentClass} ${colorClass}`}>
                       <div className="bubble-header">
                         <span className="bubble-name">
-                          {transaction.transaction_type === 'credit' ? customer.name : 'You'}
+                          {isBusinessCreated ? 'You' : customer.name}
                         </span>
                         <span className="bubble-type">
                           {transaction.transaction_type === 'credit' ? 'credit taken' : 'payment made'}
@@ -203,6 +214,11 @@ const CustomerDetails = () => {
                         </div>
                         <span>₹{transaction.amount}</span>
                       </div>
+                      {transaction.notes && (
+                        <div className="bubble-notes">
+                          {transaction.notes}
+                        </div>
+                      )}
                       <div className="bubble-time">
                         {new Date(transaction.created_at).toLocaleTimeString('en-IN', { 
                           hour: '2-digit', 

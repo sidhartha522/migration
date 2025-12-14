@@ -556,7 +556,8 @@ def get_customer_transactions(customer_id):
                 'transaction_type': txn.get('transaction_type'),
                 'notes': txn.get('notes'),
                 'created_at': txn.get('created_at'),
-                'receipt_image_url': txn.get('receipt_image_url')
+                'receipt_image_url': txn.get('receipt_image_url'),
+                'created_by': txn.get('created_by')
             })
         
         return jsonify({'transactions': transaction_list}), 200
@@ -680,6 +681,7 @@ def create_transaction():
             'amount': amount,
             'notes': notes,
             'receipt_image_url': bill_image_url or '',
+            'created_by': 'business',  # All web transactions are created by business
             'created_at': datetime.utcnow().isoformat()
         }
         
