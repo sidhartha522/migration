@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { customerAPI, transactionAPI, reminderAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
-import '../styles/CustomerDetailsModern.css';
+import '../styles/CustomerDetailsWhatsApp.css';
 
 const CustomerDetails = () => {
   const { customerId } = useParams();
@@ -89,92 +89,104 @@ const CustomerDetails = () => {
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
       <div className="customer-details-container">
-        {/* Customer Header Card */}
-        <div className="customer-header-card">
-          <div className="customer-avatar-large">
-            {customer.name.charAt(0).toUpperCase()}
-          </div>
-          <div className="customer-name-large">{customer.name}</div>
-          <div className="customer-phone-large">
-            <i className="fas fa-phone"></i> {customer.phone}
-          </div>
-
-          {/* Balance Display */}
-          <div className="balance-display">
-            <div className="balance-label">
-              {customer.balance > 0 ? 'Amount to Receive' : 'Amount Received'}
-            </div>
-            <div className={`balance-amount-large ${customer.balance > 0 ? 'positive' : 'negative'}`}>
-              ₹{Math.abs(customer.balance || 0).toFixed(2)}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="action-buttons-grid">
-            <Link to={`/customer/${customerId}/transaction`} className="action-btn action-btn-credit">
-              <i className="fas fa-plus-circle"></i>
-              Add Credit
-            </Link>
-            
-            <button className="action-btn action-btn-payment" onClick={handleSendReminder}>
-              <i className="fab fa-whatsapp"></i>
-              Send Reminder
-            </button>
+        {/* Customer Header */}
+        <div className="customer-header-minimal">
+          <button onClick={() => navigate('/customers')} className="back-btn-minimal">
+            <i className="fas fa-arrow-left"></i>
+          </button>
+          <div className="customer-name-header">{customer.name}</div>
+          <div className="customer-balance-header">
+            ₹{Math.abs(customer.balance || 0).toFixed(0)}
           </div>
         </div>
 
-        {/* Transaction History */}
-        <div className="transactions-section">
-          <div className="section-header">
-            <h3 className="section-title">Transaction History</h3>
-            <span style={{fontSize: '14px', color: 'var(--text-secondary)'}}>
-              {transactions.length} transaction{transactions.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-          
+        {/* Transaction History - WhatsApp Style */}
+        <div className="transactions-whatsapp">
           {transactions.length === 0 ? (
             <div className="empty-transactions">
-              <div style={{fontSize: '48px', color: 'var(--text-tertiary)', marginBottom: 'var(--space-3)'}}>
-                <i className="fas fa-receipt"></i>
-              </div>
               <p>No transactions yet</p>
-              <Link to={`/customer/${customerId}/transaction`} style={{color: 'var(--primary-purple)', textDecoration: 'none', fontWeight: '600', marginTop: 'var(--space-2)', display: 'inline-block'}}>
-                Add First Transaction
-              </Link>
             </div>
           ) : (
-            <div>
-              {transactions.map((transaction) => (
-                <div key={transaction.id} className="transaction-item">
-                  <div className={`transaction-icon ${transaction.transaction_type}`}>
-                    <i className={`fas fa-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}`}></i>
-                  </div>
-                  <div className="transaction-info">
-                    <div className="transaction-type">
-                      {transaction.transaction_type === 'credit' ? 'Money Given (Credit)' : 'Money Received (Payment)'}
-                    </div>
-                    <div className="transaction-date">
-                      {new Date(transaction.created_at).toLocaleDateString('en-IN', { 
-                        day: 'numeric', 
-                        month: 'short', 
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                    {transaction.notes && (
-                      <div style={{fontSize: '13px', color: 'var(--text-tertiary)', marginTop: '4px'}}>
-                        {transaction.notes}
+            <>
+              {transactions.map((transaction, index) => {
+                const showDate = index === 0 || 
+                  new Date(transactions[index-1].created_at).toDateString() !== new Date(transaction.created_at).toDateString();
+                
+                return (
+                  <div key={transaction.id}>
+                    {showDate && (
+                      <div className="date-separator">
+                        {new Date(transaction.created_at).toLocaleDateString('en-IN', { 
+                          weekday: 'short',
+                          day: 'numeric', 
+                          month: 'short', 
+                          year: 'numeric'
+                        })}
                       </div>
                     )}
+                    <div className={`transaction-bubble ${transaction.transaction_type === 'credit' ? 'credit-bubble' : 'payment-bubble'}`}>
+                      <div className="bubble-header">
+                        <span className="bubble-name">
+                          {transaction.transaction_type === 'credit' ? customer.name : 'You'}
+                        </span>
+                        <span className="bubble-type">
+                          {transaction.transaction_type === 'credit' ? 'credit taken' : 'payment made'}
+                        </span>
+                      </div>
+                      <div className="bubble-amount">
+                        <div className={`amount-icon ${transaction.transaction_type}`}>
+                          <i className={`fas fa-arrow-${transaction.transaction_type === 'credit' ? 'up' : 'down'}`}></i>
+                        </div>
+                        <span>₹{transaction.amount}</span>
+                      </div>
+                      <div className="bubble-time">
+                        {new Date(transaction.created_at).toLocaleTimeString('en-IN', { 
+                          hour: '2-digit', 
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <div className={`transaction-amount ${transaction.transaction_type}`}>
-                    {transaction.transaction_type === 'credit' ? '+' : '-'}₹{transaction.amount}
-                  </div>
-                </div>
-              ))}
-            </div>
+                );
+              })}
+            </>
           )}
+        </div>
+
+        {/* Bottom Section - Balance and Actions */}
+        <div className="bottom-actions">
+          <div className="current-balance-section">
+            <div className="balance-label-bottom">Current Balance</div>
+            <div className={`balance-amount-bottom ${customer.balance > 0 ? 'positive' : 'negative'}`}>
+              ₹{customer.balance > 0 ? '+' : '-'}{Math.abs(customer.balance || 0).toFixed(0)}
+            </div>
+            <div className="balance-status">{customer.balance > 0 ? 'You owe' : 'Received'}</div>
+          </div>
+
+          <div className="action-buttons-row">
+            <a href={`tel:${customer.phone}`} className="icon-btn-round call-btn">
+              <i className="fas fa-phone"></i>
+            </a>
+            <a 
+              href={`https://wa.me/91${customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-btn-round whatsapp-btn"
+            >
+              <i className="fab fa-whatsapp"></i>
+            </a>
+          </div>
+
+          <div className="transaction-buttons">
+            <Link to={`/customer/${customerId}/transaction?type=credit`} className="transaction-btn credit-btn">
+              <i className="fas fa-arrow-up"></i>
+              Take Credit
+            </Link>
+            <Link to={`/customer/${customerId}/transaction?type=payment`} className="transaction-btn payment-btn">
+              <i className="fas fa-arrow-down"></i>
+              Pay Back
+            </Link>
+          </div>
         </div>
       </div>
     </div>

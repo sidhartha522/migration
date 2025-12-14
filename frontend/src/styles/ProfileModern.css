@@ -348,6 +348,7 @@ textarea.input {
   padding: var(--space-5);
   box-shadow: var(--shadow-sm);
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .logout-text {

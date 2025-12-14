@@ -1,0 +1,265 @@
+/* Customer Details - WhatsApp Style */
+
+.customer-details-modern {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+  padding-bottom: 90px;
+}
+
+.customer-details-container {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+/* Header */
+.customer-header-minimal {
+  background: var(--primary-purple);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn-minimal {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.customer-name-header {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.customer-balance-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+/* WhatsApp Style Transactions */
+.transactions-whatsapp {
+  padding: 16px;
+  min-height: 50vh;
+}
+
+.date-separator {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 16px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 16px auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.transaction-bubble {
+  max-width: 75%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.credit-bubble {
+  background: #ffe8e8;
+  border-left: 4px solid #ef4444;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.payment-bubble {
+  background: #d1fae5;
+  border-right: 4px solid #10b981;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.bubble-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.bubble-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bubble-type {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.bubble-amount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.amount-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.amount-icon.credit {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.amount-icon.payment {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.bubble-amount span {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bubble-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.empty-transactions {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+/* Bottom Section */
+.bottom-actions {
+  position: fixed;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--border-light);
+  padding: 16px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.current-balance-section {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.balance-label-bottom {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.balance-amount-bottom {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.balance-amount-bottom.positive {
+  color: #ef4444;
+}
+
+.balance-amount-bottom.negative {
+  color: #10b981;
+}
+
+.balance-status {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.action-buttons-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.icon-btn-round {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.call-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.whatsapp-btn {
+  background: #25d366;
+  color: white;
+}
+
+.icon-btn-round:active {
+  transform: scale(0.95);
+}
+
+.transaction-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.transaction-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.credit-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.payment-btn {
+  background: #10b981;
+  color: white;
+}
+
+.transaction-btn:active {
+  transform: scale(0.98);
+}
