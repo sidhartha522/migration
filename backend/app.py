@@ -312,23 +312,28 @@ def dashboard():
             Query.equal('business_id', business_id)
         ])
         
-        # Get all transactions
+        # Get ALL transactions for accurate calculations (no limit)
+        all_transactions = appwrite_db.list_documents('transactions', [
+            Query.equal('business_id', business_id)
+        ])
+        
+        # Get recent transactions for display (limited to 100)
         transactions = appwrite_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at'),
             Query.limit(100)
         ])
         
-        # Calculate statistics
+        # Calculate statistics using ALL transactions
         total_customers = len(customers)
-        total_credit = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'credit')
-        total_payment = sum(float(t.get('amount', 0)) for t in transactions if t.get('transaction_type') == 'payment')
+        total_credit = sum(float(t.get('amount', 0)) for t in all_transactions if t.get('transaction_type') == 'credit')
+        total_payment = sum(float(t.get('amount', 0)) for t in all_transactions if t.get('transaction_type') == 'payment')
         outstanding_balance = total_credit - total_payment
         
-        # Get pending payments (customers with positive balance)
+        # Get pending payments (customers with positive balance) - use ALL transactions
         pending_customers = []
         for customer in customers:
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
+            customer_transactions = [t for t in all_transactions if t.get('customer_id') == customer['$id']]
             customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
             customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             customer_balance = customer_credit - customer_payment
@@ -363,14 +368,14 @@ def dashboard():
             reverse=True
         )
         
-        # Take the top 4 and build the response
+        # Take the top 4 and build the response - use ALL transactions for accurate balance
         for customer_id in sorted_customer_ids[:4]:
             # Find the customer object
             customer = next((c for c in customers if c['$id'] == customer_id), None)
             if not customer:
                 continue
             
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer_id]
+            customer_transactions = [t for t in all_transactions if t.get('customer_id') == customer_id]
             customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
             customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             customer_balance = customer_credit - customer_payment
