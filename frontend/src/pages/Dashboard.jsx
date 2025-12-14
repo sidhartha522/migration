@@ -142,7 +142,7 @@ const Dashboard = () => {
             </div>
             <div style={{background: 'white', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'center'}}>
               <img 
-                src={`${import.meta.env.VITE_API_URL || 'http://localhost:5003/api'}/business/qr-code`} 
+                src={`${import.meta.env.VITE_API_URL || 'https://kathape-react-business.onrender.com/api'}/business/qr-code`} 
                 alt="Business QR Code"
                 style={{maxWidth: '100%', height: 'auto'}}
               />
