@@ -443,23 +443,37 @@ def get_customers():
         
         # Get transactions to calculate balances
         transactions = appwrite_db.list_documents('transactions', [
-            Query.equal('business_id', business_id)
+            Query.equal('business_id', business_id),
+            Query.order_desc('created_at')
         ])
+        
+        # Build a dict of customer_id -> last_transaction_date
+        customer_last_transaction = {}
+        for txn in transactions:
+            cid = txn.get('customer_id')
+            txn_date = txn.get('$createdAt', '')
+            if cid and cid not in customer_last_transaction:
+                customer_last_transaction[cid] = txn_date
         
         # Calculate balance for each customer
         customer_list = []
         for customer in customers:
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer['$id']]
+            customer_id = customer['$id']
+            customer_transactions = [t for t in transactions if t.get('customer_id') == customer_id]
             customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
             customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             
             customer_list.append({
-                'id': customer['$id'],
+                'id': customer_id,
                 'name': customer.get('name'),
                 'phone': customer.get('phone_number'),
                 'balance': customer_credit - customer_payment,
-                'transaction_count': len(customer_transactions)
+                'transaction_count': len(customer_transactions),
+                'last_transaction_date': customer_last_transaction.get(customer_id, '')
             })
+        
+        # Sort by last transaction date (most recent first)
+        customer_list.sort(key=lambda c: c.get('last_transaction_date', ''), reverse=True)
         
         return jsonify({'customers': customer_list}), 200
         
