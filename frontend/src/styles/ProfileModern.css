@@ -3,7 +3,7 @@
 .profile-modern {
   min-height: 100vh;
   padding: var(--space-4);
-  padding-bottom: 90px;
+  padding-bottom: 120px;
   background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
 }
 
@@ -348,7 +348,7 @@ textarea.input {
   padding: var(--space-5);
   box-shadow: var(--shadow-sm);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .logout-text {

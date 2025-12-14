@@ -232,17 +232,22 @@ const Products = () => {
                 <div className="product-price-text">₹{product.price}/{product.unit}</div>
               </div>
               
-              <div className="product-quantity-controls">
-                <button className="qty-btn-dark minus" onClick={() => handleQuantityChange(product, -1)}>
-                  -
-                </button>
-                <div className="quantity-display">
-                  <span className="qty-number">{product.stock_quantity}</span>
-                  <span className="qty-unit">{product.unit}</span>
+              <div className="product-right-actions">
+                <Link to={`/edit-product/${product.id}`} className="btn-edit-icon">
+                  <i className="fas fa-edit"></i>
+                </Link>
+                <div className="product-quantity-controls">
+                  <button className="qty-btn-dark minus" onClick={() => handleQuantityChange(product, -1)}>
+                    -
+                  </button>
+                  <div className="quantity-display">
+                    <span className="qty-number">{product.stock_quantity}</span>
+                    <span className="qty-unit">{product.unit}</span>
+                  </div>
+                  <button className="qty-btn-dark plus" onClick={() => handleQuantityChange(product, 1)}>
+                    +
+                  </button>
                 </div>
-                <button className="qty-btn-dark plus" onClick={() => handleQuantityChange(product, 1)}>
-                  +
-                </button>
               </div>
             </div>
           ))}

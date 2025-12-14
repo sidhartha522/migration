@@ -1,4 +1,4 @@
-.transactions-modern { background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%); min-height: 100vh; padding-bottom: 90px; }
+.transactions-modern { background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%); min-height: 100vh; padding-bottom: 120px; }
 .transactions-container-modern { max-width: 768px; margin: 0 auto; padding: var(--space-4); }
 
 /* Skeleton Loading */
