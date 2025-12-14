@@ -162,6 +162,68 @@
   font-size: 18px;
 }
 
+/* Submit Button (Register) */
+.btn-submit-clean {
+  width: 100%;
+  padding: 17px;
+  background: #5f259f;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-submit-clean:hover:not(:disabled) {
+  background: #4a1d7a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(95, 37, 159, 0.3);
+}
+
+.btn-submit-clean:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-submit-clean:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-submit-clean i {
+  font-size: 18px;
+}
+
+/* Switch Link (Login/Register) */
+.link-switch-clean {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: #5f259f;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.link-switch-clean:hover {
+  color: #4a1d7a;
+  text-decoration: underline;
+}
+
+.link-switch-clean i {
+  font-size: 16px;
+}
+
 /* Success Message */
 .success-message-inline {
   display: flex;
