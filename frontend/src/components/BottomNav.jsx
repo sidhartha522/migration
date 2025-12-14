@@ -34,9 +34,9 @@ const BottomNav = () => {
     },
     {
       path: '/profile',
-      icon: 'fa-user',
+      icon: 'fa-user-circle',
       label: 'Profile',
-      color: '#6366f1' // Indigo
+      color: '#10b981' // Green
     }
   ];
 

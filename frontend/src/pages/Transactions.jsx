@@ -67,7 +67,7 @@ const Transactions = () => {
           <div>
             {transactions.map((transaction) => (
               <div key={transaction.id} className="transaction-item-modern">
-                <div className={`transaction-icon-modern ${transaction.transaction_type === 'credit' ? 'transaction-icon-credit' : 'transaction-icon-payment'}`}>
+                <div className={`transaction-icon-bubble ${transaction.transaction_type === 'credit' ? 'icon-red' : 'icon-green'}`}>
                   <i className={`fas fa-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}`}></i>
                 </div>
                 <div className="transaction-details-modern">
@@ -75,7 +75,7 @@ const Transactions = () => {
                     {transaction.customer_name || 'Customer'}
                   </div>
                   <div className="transaction-type-modern">
-                    {transaction.transaction_type === 'credit' ? 'Credit' : 'Payment'}
+                    {transaction.transaction_type === 'credit' ? 'Credit taken' : 'Payment made'}
                   </div>
                   <div className="transaction-date-modern">
                     {new Date(transaction.created_at).toLocaleDateString('en-IN', { 

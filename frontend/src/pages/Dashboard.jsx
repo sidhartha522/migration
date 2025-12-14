@@ -80,86 +80,49 @@ const Dashboard = () => {
           <div className="hero-amount">₹{summary?.outstanding_balance?.toFixed(2) || '0.00'}</div>
         </div>
 
-        {/* Quick Stats - Fintech Style */}
-        <div className="quick-stats-grid">
-          <div className="stat-card-modern stat-card-green">
-            <div className="stat-icon-circle">
-              <i className="fas fa-arrow-down"></i>
-            </div>
-            <div className="stat-content">
-              <div className="stat-label">Total Credit</div>
-              <div className="stat-value">₹{summary?.total_credit?.toFixed(2) || '0.00'}</div>
-            </div>
-          </div>
-
-          <div className="stat-card-modern stat-card-red">
-            <div className="stat-icon-circle">
-              <i className="fas fa-arrow-up"></i>
-            </div>
-            <div className="stat-content">
-              <div className="stat-label">Total Payment</div>
-              <div className="stat-value">₹{summary?.total_payment?.toFixed(2) || '0.00'}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions - Bill Payment Style */}
-        <div className="quick-actions-section">
-          <h3 className="section-title-compact">Quick Actions</h3>
-          <div className="quick-actions-row">
-            <Link to="/add-customer" className="quick-action-btn">
-              <div className="quick-action-icon icon-purple-gradient">
-                <i className="fas fa-user-plus"></i>
-              </div>
-              <div className="quick-action-label">Add Customer</div>
-            </Link>
-
-            <Link to="/add-product" className="quick-action-btn">
-              <div className="quick-action-icon icon-green-gradient">
-                <i className="fas fa-plus-circle"></i>
-              </div>
-              <div className="quick-action-label">Add Product</div>
-            </Link>
-
-            <Link to="/transactions" className="quick-action-btn">
-              <div className="quick-action-icon icon-blue-gradient">
-                <i className="fas fa-receipt"></i>
-              </div>
-              <div className="quick-action-label">History</div>
-            </Link>
-
-            <button className="quick-action-btn" onClick={() => setShowQR(!showQR)}>
-              <div className="quick-action-icon icon-orange-gradient">
-                <i className="fas fa-qrcode"></i>
-              </div>
-              <div className="quick-action-label">QR Code</div>
-            </button>
-          </div>
-        </div>
-
-        {/* Main Navigation Grid */}
-        <div className="main-nav-cards">
-          <Link to="/customers" className="main-nav-card card-purple">
-            <div className="main-nav-icon">
+        {/* Action Grid - Revolut Style */}
+        <div className="action-grid-modern">
+          <Link to="/customers" className="action-card">
+            <div className="action-icon-modern icon-purple">
               <i className="fas fa-users"></i>
             </div>
-            <div className="main-nav-info">
-              <div className="main-nav-title">Customers</div>
-              <div className="main-nav-count">{summary?.customer_count || 0} Active</div>
-            </div>
-            <i className="fas fa-chevron-right main-nav-arrow"></i>
+            <div className="action-label-modern">Customers</div>
           </Link>
 
-          <Link to="/products" className="main-nav-card card-green">
-            <div className="main-nav-icon">
+          <Link to="/products" className="action-card">
+            <div className="action-icon-modern icon-green">
               <i className="fas fa-box"></i>
             </div>
-            <div className="main-nav-info">
-              <div className="main-nav-title">Products</div>
-              <div className="main-nav-count">{summary?.product_count || 0} Items</div>
-            </div>
-            <i className="fas fa-chevron-right main-nav-arrow"></i>
+            <div className="action-label-modern">Products</div>
           </Link>
+
+          <Link to="/transactions" className="action-card">
+            <div className="action-icon-modern icon-blue">
+              <i className="fas fa-receipt"></i>
+            </div>
+            <div className="action-label-modern">Transactions</div>
+          </Link>
+
+          <Link to="/add-customer" className="action-card">
+            <div className="action-icon-modern icon-purple">
+              <i className="fas fa-user-plus"></i>
+            </div>
+            <div className="action-label-modern">Add Customer</div>
+          </Link>
+
+          <Link to="/add-product" className="action-card">
+            <div className="action-icon-modern icon-green">
+              <i className="fas fa-plus-circle"></i>
+            </div>
+            <div className="action-label-modern">Add Product</div>
+          </Link>
+
+          <button className="action-card" onClick={() => setShowQR(!showQR)} style={{border: '1px solid var(--border-light)', background: 'white', cursor: 'pointer'}}>
+            <div className="action-icon-modern icon-orange">
+              <i className="fas fa-qrcode"></i>
+            </div>
+            <div className="action-label-modern">QR Code</div>
+          </button>
         </div>
 
         {/* WhatsApp Button */}
