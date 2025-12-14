@@ -17,6 +17,9 @@
   max-width: 100%;
   margin: 0 auto;
   height: 70px;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .bottom-nav .nav-item {
