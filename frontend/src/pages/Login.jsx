@@ -93,9 +93,30 @@ const Login = () => {
             </div>
             
             <button type="submit" className="btn-login-clean" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i>
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                'Login'
+              )}
             </button>
           </form>
+
+          {messages.length > 0 && messages[0].type === 'success' && (
+            <div className="success-message-inline">
+              <i className="fas fa-check-circle"></i>
+              <span>Login successful! Redirecting...</span>
+            </div>
+          )}
+
+          {messages.length > 0 && messages[0].type === 'error' && (
+            <div className="error-message-inline">
+              <i className="fas fa-exclamation-circle"></i>
+              <span>{messages[0].message}</span>
+            </div>
+          )}
 
           <div className="divider-clean">
             <span>Or login as</span>
