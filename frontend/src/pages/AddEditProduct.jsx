@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { productsAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
 import { getAllLevel1InventoryCategories, getLevel2InventoryOptions } from '../data/inventoryCategories';
-import '../styles/AddEditProductModern.css';
+import '../styles/AddEditProductMaterial.css';
 
 const AddEditProduct = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const AddEditProduct = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    category: '',
     subcategory: '',
     stock_quantity: '',
     unit: '',
@@ -28,6 +29,7 @@ const AddEditProduct = () => {
   const [imagePreview, setImagePreview] = useState('');
 
   const categories = getAllLevel1InventoryCategories();
+  const [subcategories, setSubcategories] = useState([]);
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -39,6 +41,22 @@ const AddEditProduct = () => {
       loadProductData();
     }
   }, []);
+
+  // Update subcategories when category changes
+  const handleCategoryChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value, subcategory: '' }));
+    
+    if (value) {
+      const selectedCat = categories.find(cat => cat.id === value);
+      console.log('Selected category:', selectedCat);
+      const subcats = selectedCat?.level2Options || selectedCat?.level2 || [];
+      console.log('Subcategories:', subcats);
+      setSubcategories(subcats);
+    } else {
+      setSubcategories([]);
+    }
+  };
 
   const loadDropdownData = async () => {
     try {
@@ -108,7 +126,7 @@ const AddEditProduct = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.name || !formData.subcategory || !formData.unit) {
+    if (!formData.name || !formData.category || !formData.subcategory || !formData.unit) {
       setMessages([{
         type: 'error',
         message: 'Please fill all required fields'
@@ -216,230 +234,239 @@ const AddEditProduct = () => {
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
       <div className="product-form-container">
-        <div className="product-form-card">
-          <h1 className="form-title">
-            {isEditMode ? 'Edit Product' : 'Add New Product'}
-          </h1>
+        {/* Header */}
+        <div className="modern-header">
+          <button onClick={() => navigate('/products')} className="back-button">
+            <i className="fas fa-arrow-left"></i>
+          </button>
+          <h1 className="header-title">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
+          <div style={{width: '40px'}}></div>
+        </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Product Name */}
-            <div className="form-group">
-              <label htmlFor="name" className="form-label">
-                Product Name <span className="required">*</span>
-              </label>
+        <form onSubmit={handleSubmit}>
+          {/* Image Upload Card - Premium Style */}
+          <div className="image-upload-card">
+            <input
+              type="file"
+              id="product_image"
+              name="product_image"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{display: 'none'}}
+            />
+            <label htmlFor="product_image" className="image-upload-area">
+              {imagePreview ? (
+                <div className="image-preview-container">
+                  <img src={imagePreview} alt="Product" className="product-image-preview" />
+                  <div className="image-overlay">
+                    <i className="fas fa-camera"></i>
+                    <span>Change Photo</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="image-placeholder">
+                  <div className="camera-icon-circle">
+                    <i className="fas fa-camera"></i>
+                  </div>
+                  <p className="upload-text">Add Product Photo</p>
+                  <p className="upload-subtext">Tap to upload</p>
+                </div>
+              )}
+            </label>
+          </div>
+
+          {/* Product Details Section */}
+          <div className="section-card">
+            <h3 className="section-title">
+              <i className="fas fa-info-circle section-icon"></i>
+              Product Details
+            </h3>
+            
+            <div className="material-input-group">
               <input
                 type="text"
                 id="name"
                 name="name"
-                className="input"
+                className="material-input"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g., Rice, Cooking Oil"
+                placeholder=" "
                 required
               />
+              <label htmlFor="name" className="material-label">Product Name *</label>
             </div>
 
-            {/* Description */}
-            <div className="form-group">
-              <label htmlFor="description" className="form-label">Description</label>
+            <div className="material-input-group">
               <textarea
                 id="description"
                 name="description"
+                className="material-input material-textarea"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Optional product description"
+                placeholder=" "
                 rows="3"
               />
+              <label htmlFor="description" className="material-label">Description (optional)</label>
             </div>
 
-            {/* Product Image */}
-            <div className="form-group">
-              <label htmlFor="product_image" className="form-label">
-                Product Image
-              </label>
-              {imagePreview && (
-                <div style={{marginBottom: '12px'}}>
-                  <img 
-                    src={imagePreview} 
-                    alt="Product preview" 
-                    style={{
-                      width: '120px', 
-                      height: '120px', 
-                      objectFit: 'cover', 
-                      borderRadius: '12px',
-                      border: '2px solid #e5e7eb'
-                    }}
-                  />
-                </div>
-              )}
-              <input
-                type="file"
-                id="product_image"
-                name="product_image"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{
-                  padding: '10px',
-                  border: '2px dashed #d1d5db',
-                  borderRadius: '8px',
-                  width: '100%',
-                  cursor: 'pointer'
-                }}
-              />
-              <p style={{fontSize: '13px', color: '#6b7280', marginTop: '8px'}}>
-                Upload a product image (optional)
-              </p>
-            </div>
-
-            {/* Category (Subcategory with grouped options) */}
-            <div className="form-group">
-              <label htmlFor="subcategory" className="form-label">
-                Category <span className="required">*</span>
-              </label>
+            <div className="material-input-group">
               <select
-                id="subcategory"
-                name="subcategory"
-                value={formData.subcategory}
-                onChange={handleChange}
+                id="category"
+                name="category"
+                className="material-input material-select"
+                value={formData.category}
+                onChange={handleCategoryChange}
                 required
               >
-                <option value="">Select Category</option>
+                <option value="" disabled hidden></option>
                 {categories.map((cat) => (
-                  <optgroup key={cat.id} label={cat.name}>
-                    {cat.level2.map((subcat) => (
-                      <option key={`${cat.id}-${subcat}`} value={subcat}>
-                        {subcat}
-                      </option>
-                    ))}
-                  </optgroup>
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
               </select>
+              <label htmlFor="category" className="material-label">Main Category *</label>
             </div>
 
-            {/* Stock Quantity */}
-            <div className="form-group">
-              <label htmlFor="stock_quantity" className="form-label">
-                Stock Quantity <span className="required">*</span>
-              </label>
-              <input
-                type="number"
-                id="stock_quantity"
-                name="stock_quantity"
-                className="input"
-                value={formData.stock_quantity}
-                onChange={handleChange}
-                placeholder="100"
-                min="0"
-                step="1"
-                required
-              />
-            </div>
-
-            {/* Unit */}
-            <div className="form-group">
-              <label htmlFor="unit" className="form-label">
-                Unit <span className="required">*</span>
-              </label>
-              <select
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Unit</option>
-                {units.map((unit) => (
-                  <option key={unit} value={unit}>{unit}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Price */}
-            <div className="form-group">
-              <label htmlFor="price" className="form-label">
-                Price per Unit (₹) <span className="required">*</span>
-              </label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                className="input"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="50.00"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div>
-
-            {/* Low Stock Threshold */}
-            <div className="form-group">
-              <label htmlFor="low_stock_threshold" className="form-label">
-                Low Stock Alert Threshold
-              </label>
-              <input
-                type="number"
-                id="low_stock_threshold"
-                name="low_stock_threshold"
-                className="input"
-                value={formData.low_stock_threshold}
-                onChange={handleChange}
-                placeholder="10"
-                min="0"
-                step="1"
-              />
-              <small style={{fontSize: '12px', color: 'var(--text-tertiary)', marginTop: 'var(--space-1)', display: 'block'}}>
-                Get alerted when stock falls below this number
-              </small>
-            </div>
-
-            {/* Make Public Toggle */}
-            <div className="form-group">
-              <div className="checkbox-wrapper">
-                <input
-                  type="checkbox"
-                  id="is_public"
-                  name="is_public"
-                  checked={formData.is_public}
+            {formData.category && (
+              <div className="material-input-group">
+                <select
+                  id="subcategory"
+                  name="subcategory"
+                  className="material-input material-select"
+                  value={formData.subcategory}
                   onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled hidden></option>
+                  {subcategories.map((subcat) => (
+                    <option key={subcat} value={subcat}>
+                      {subcat}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor="subcategory" className="material-label">Subcategory *</label>
+              </div>
+            )}
+          </div>
+
+          {/* Pricing & Stock Section */}
+          <div className="section-card">
+            <h3 className="section-title">
+              <i className="fas fa-tag section-icon"></i>
+              Pricing & Stock
+            </h3>
+            
+            <div className="row-inputs">
+              <div className="material-input-group">
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  className="material-input"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder=" "
+                  min="0"
+                  step="0.01"
+                  required
                 />
-                <label htmlFor="is_public">
-                  Make Public (Show in Customer Catalogue)
-                </label>
+                <label htmlFor="price" className="material-label">Price (₹) *</label>
+              </div>
+
+              <div className="material-input-group">
+                <select
+                  id="unit"
+                  name="unit"
+                  className="material-input material-select"
+                  value={formData.unit}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled hidden></option>
+                  {units.map((unit) => (
+                    <option key={unit} value={unit}>{unit}</option>
+                  ))}
+                </select>
+                <label htmlFor="unit" className="material-label">Unit *</label>
               </div>
             </div>
 
-            {/* Submit Buttons */}
-            <div className="form-actions">
-              <button
-                type="button"
-                onClick={() => navigate('/products')}
-                className="btn btn-secondary"
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin"></i>
-                    {isEditMode ? 'Updating...' : 'Adding...'}
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-check"></i>
-                    {isEditMode ? 'Update Product' : 'Add Product'}
-                  </>
-                )}
-              </button>
+            <div className="row-inputs">
+              <div className="material-input-group">
+                <input
+                  type="number"
+                  id="stock_quantity"
+                  name="stock_quantity"
+                  className="material-input"
+                  value={formData.stock_quantity}
+                  onChange={handleChange}
+                  placeholder=" "
+                  min="0"
+                  step="1"
+                  required
+                />
+                <label htmlFor="stock_quantity" className="material-label">Stock Quantity *</label>
+              </div>
+
+              <div className="material-input-group">
+                <input
+                  type="number"
+                  id="low_stock_threshold"
+                  name="low_stock_threshold"
+                  className="material-input"
+                  value={formData.low_stock_threshold}
+                  onChange={handleChange}
+                  placeholder=" "
+                  min="0"
+                  step="1"
+                />
+                <label htmlFor="low_stock_threshold" className="material-label">Alert Threshold</label>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Settings Section */}
+          <div className="section-card">
+            <h3 className="section-title">
+              <i className="fas fa-cog section-icon"></i>
+              Settings
+            </h3>
+            
+            <div className="toggle-item" onClick={() => setFormData(prev => ({...prev, is_public: !prev.is_public}))}>
+              <div className="toggle-content">
+                <div className="toggle-icon">
+                  <i className="fas fa-globe"></i>
+                </div>
+                <div>
+                  <div className="toggle-title">Make Public</div>
+                  <div className="toggle-subtitle">Show in customer catalogue</div>
+                </div>
+              </div>
+              <div className={`modern-toggle ${formData.is_public ? 'active' : ''}`}>
+                <div className="toggle-circle"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button - Material FAB Style */}
+          <div className="submit-actions">
+            <button
+              type="submit"
+              className="fab-submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <i className="fas fa-spinner fa-spin"></i>
+              ) : (
+                <>
+                  <i className="fas fa-check"></i>
+                  <span>{isEditMode ? 'Update Product' : 'Add Product'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

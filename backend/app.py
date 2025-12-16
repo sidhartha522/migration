@@ -1239,8 +1239,8 @@ def add_product():
             data = request.json
             product_image = None
         
-        # Validate required fields (changed category to subcategory)
-        required_fields = ['name', 'subcategory', 'stock_quantity', 'unit', 'price']
+        # Validate required fields
+        required_fields = ['name', 'category', 'subcategory', 'stock_quantity', 'unit', 'price']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -1277,6 +1277,7 @@ def add_product():
             'business_id': business_id,
             'name': data['name'].strip(),
             'description': data.get('description', '').strip(),
+            'category': data['category'].strip(),
             'subcategory': data['subcategory'].strip(),
             'stock_quantity': stock_quantity,
             'unit': data['unit'].strip(),
@@ -1294,6 +1295,7 @@ def add_product():
             'id': result['$id'],
             'name': result['name'],
             'description': result.get('description', ''),
+            'category': result['category'],
             'subcategory': result['subcategory'],
             'stock_quantity': result['stock_quantity'],
             'unit': result['unit'],
