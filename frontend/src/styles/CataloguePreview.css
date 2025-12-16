@@ -255,6 +255,7 @@
   margin-bottom: var(--space-2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -283,10 +284,7 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* Product Details */
-.product-details-catalogue {
-  /* Border handled by product-top-section */
-}
+/* Product Details - Border handled by product-top-section */
 
 .product-price-catalogue {
   font-size: var(--font-size-2xl);
