@@ -109,8 +109,36 @@ export const recurringAPI = {
 export const productsAPI = {
   getProducts: (params) => api.get('/products', { params }),
   getProduct: (productId) => api.get(`/product/${productId}`),
-  addProduct: (data) => api.post('/product', data),
-  updateProduct: (productId, data) => api.put(`/product/${productId}`, data),
+  addProduct: (data) => {
+    // Convert to FormData if image is present
+    if (data.product_image instanceof File) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      return api.post('/product', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.post('/product', data);
+  },
+  updateProduct: (productId, data) => {
+    // Convert to FormData if image is present
+    if (data.product_image instanceof File) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      return api.put(`/product/${productId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.put(`/product/${productId}`, data);
+  },
   deleteProduct: (productId) => api.delete(`/product/${productId}`),
   getCategories: () => api.get('/products/categories'),
   getUnits: () => api.get('/products/units'),

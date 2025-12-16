@@ -1230,10 +1230,17 @@ def add_product():
     """Add new product to inventory"""
     try:
         business_id = request.business_id
-        data = request.json
         
-        # Validate required fields
-        required_fields = ['name', 'category', 'stock_quantity', 'unit', 'price']
+        # Handle form data with file upload
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            data = request.form.to_dict()
+            product_image = request.files.get('product_image')
+        else:
+            data = request.json
+            product_image = None
+        
+        # Validate required fields (changed category to subcategory)
+        required_fields = ['name', 'subcategory', 'stock_quantity', 'unit', 'price']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -1251,18 +1258,32 @@ def add_product():
         except ValueError:
             return jsonify({'error': 'Invalid number format for stock or price'}), 400
         
+        # Upload image to Cloudinary if provided
+        product_image_url = ''
+        if product_image:
+            try:
+                upload_result = cloudinary.uploader.upload(
+                    product_image,
+                    folder=f"kathape/products/{business_id}",
+                    resource_type="image"
+                )
+                product_image_url = upload_result['secure_url']
+                logger.info(f"Product image uploaded: {product_image_url}")
+            except Exception as e:
+                logger.error(f"Cloudinary upload error: {str(e)}")
+        
         # Create product document
         product_data = {
             'business_id': business_id,
             'name': data['name'].strip(),
             'description': data.get('description', '').strip(),
-            'category': data['category'].strip(),
+            'subcategory': data['subcategory'].strip(),
             'stock_quantity': stock_quantity,
             'unit': data['unit'].strip(),
             'price': price,
-            'image_url': data.get('image_url', ''),
-            'is_public': data.get('is_public', False),
-            'low_stock_threshold': data.get('low_stock_threshold', 10)
+            'product_image_url': product_image_url,
+            'is_public': data.get('is_public', 'false').lower() == 'true',
+            'low_stock_threshold': int(data.get('low_stock_threshold', 10))
         }
         
         # Save to database
@@ -1273,11 +1294,11 @@ def add_product():
             'id': result['$id'],
             'name': result['name'],
             'description': result.get('description', ''),
-            'category': result['category'],
+            'subcategory': result['subcategory'],
             'stock_quantity': result['stock_quantity'],
             'unit': result['unit'],
             'price': result['price'],
-            'image_url': result.get('image_url', ''),
+            'product_image_url': result.get('product_image_url', ''),
             'is_public': result['is_public'],
             'low_stock_threshold': result.get('low_stock_threshold', 10),
             'created_at': result['$createdAt']

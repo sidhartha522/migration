@@ -16,16 +16,16 @@ const AddEditProduct = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
     subcategory: '',
     stock_quantity: '',
     unit: '',
     price: '',
     is_public: false,
-    low_stock_threshold: '10'
+    low_stock_threshold: '10',
+    product_image: null
   });
-
-  const [level2Options, setLevel2Options] = useState([]);
+  
+  const [imagePreview, setImagePreview] = useState('');
 
   const categories = getAllLevel1InventoryCategories();
   const [units, setUnits] = useState([]);
@@ -39,20 +39,6 @@ const AddEditProduct = () => {
       loadProductData();
     }
   }, []);
-
-  useEffect(() => {
-    // Update Level 2 options when Level 1 category changes
-    if (formData.category) {
-      const options = getLevel2InventoryOptions(formData.category);
-      setLevel2Options(options);
-      // Reset subcategory if it's not in the new options
-      if (formData.subcategory && !options.includes(formData.subcategory)) {
-        setFormData(prev => ({ ...prev, subcategory: '' }));
-      }
-    } else {
-      setLevel2Options([]);
-    }
-  }, [formData.category]);
 
   const loadDropdownData = async () => {
     try {
@@ -74,14 +60,18 @@ const AddEditProduct = () => {
       setFormData({
         name: product.name,
         description: product.description || '',
-        category: product.category,
         subcategory: product.subcategory || '',
         stock_quantity: product.stock_quantity.toString(),
         unit: product.unit,
         price: product.price.toString(),
         is_public: product.is_public,
-        low_stock_threshold: product.low_stock_threshold?.toString() || '10'
+        low_stock_threshold: product.low_stock_threshold?.toString() || '10',
+        product_image: null
       });
+      
+      if (product.product_image_url) {
+        setImagePreview(product.product_image_url);
+      }
     } catch (error) {
       setMessages([{
         type: 'error',
@@ -100,11 +90,25 @@ const AddEditProduct = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, product_image: file }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validation
-    if (!formData.name || !formData.category || !formData.unit) {
+    if (!formData.name || !formData.subcategory || !formData.unit) {
       setMessages([{
         type: 'error',
         message: 'Please fill all required fields'
@@ -248,46 +252,69 @@ const AddEditProduct = () => {
               />
             </div>
 
-            {/* Category - Level 1 */}
+            {/* Product Image */}
             <div className="form-group">
-              <label htmlFor="category" className="form-label">
-                Category (Level 1) <span className="required">*</span>
+              <label htmlFor="product_image" className="form-label">
+                Product Image
+              </label>
+              {imagePreview && (
+                <div style={{marginBottom: '12px'}}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Product preview" 
+                    style={{
+                      width: '120px', 
+                      height: '120px', 
+                      objectFit: 'cover', 
+                      borderRadius: '12px',
+                      border: '2px solid #e5e7eb'
+                    }}
+                  />
+                </div>
+              )}
+              <input
+                type="file"
+                id="product_image"
+                name="product_image"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{
+                  padding: '10px',
+                  border: '2px dashed #d1d5db',
+                  borderRadius: '8px',
+                  width: '100%',
+                  cursor: 'pointer'
+                }}
+              />
+              <p style={{fontSize: '13px', color: '#6b7280', marginTop: '8px'}}>
+                Upload a product image (optional)
+              </p>
+            </div>
+
+            {/* Category (Subcategory with grouped options) */}
+            <div className="form-group">
+              <label htmlFor="subcategory" className="form-label">
+                Category <span className="required">*</span>
               </label>
               <select
-                id="category"
-                name="category"
-                value={formData.category}
+                id="subcategory"
+                name="subcategory"
+                value={formData.subcategory}
                 onChange={handleChange}
                 required
               >
-                <option value="">Select Main Category</option>
+                <option value="">Select Category</option>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
+                  <optgroup key={cat.id} label={cat.name}>
+                    {cat.level2.map((subcat) => (
+                      <option key={`${cat.id}-${subcat}`} value={subcat}>
+                        {subcat}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
-
-            {/* Subcategory - Level 2 */}
-            {formData.category && level2Options.length > 0 && (
-              <div className="form-group">
-                <label htmlFor="subcategory" className="form-label">
-                  Subcategory (Level 2)
-                </label>
-                <select
-                  id="subcategory"
-                  name="subcategory"
-                  value={formData.subcategory}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Subcategory (Optional)</option>
-                  {level2Options.map((subcat) => (
-                    <option key={subcat} value={subcat}>{subcat}</option>
-                  ))}
-                </select>
-              </div>
-            )}
 
             {/* Stock Quantity */}
             <div className="form-group">
