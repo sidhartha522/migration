@@ -36,14 +36,14 @@ const Transactions = () => {
           {/* Skeleton Loading */}
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="transaction-card-skeleton">
-              <div className="skeleton-circle"></div>
+              <div className="skeleton-circle" style={{width: '56px', height: '56px'}}></div>
               <div style={{ flex: 1 }}>
-                <div className="skeleton-text" style={{ width: '60%', marginBottom: '8px' }}></div>
-                <div className="skeleton-text" style={{ width: '40%', height: '10px' }}></div>
+                <div className="skeleton-text" style={{ width: '65%', marginBottom: '10px', borderRadius: '8px', height: '16px' }}></div>
+                <div className="skeleton-text" style={{ width: '45%', height: '12px', borderRadius: '6px' }}></div>
               </div>
               <div>
-                <div className="skeleton-text" style={{ width: '80px', marginBottom: '4px' }}></div>
-                <div className="skeleton-text" style={{ width: '60px', height: '10px' }}></div>
+                <div className="skeleton-text" style={{ width: '90px', marginBottom: '6px', borderRadius: '8px', height: '18px' }}></div>
+                <div className="skeleton-text" style={{ width: '70px', height: '12px', borderRadius: '6px' }}></div>
               </div>
             </div>
           ))}
@@ -127,7 +127,9 @@ const Transactions = () => {
                           color: '#111827',
                           marginBottom: '4px'
                         }}>
-                          {transaction.transaction_type === 'credit' ? 'Payment to you' : 'Payment to ' + (transaction.customer_name || 'Customer')}
+                          {transaction.transaction_type === 'credit' 
+                            ? `Payment from ${transaction.customer_name || 'Customer'}` 
+                            : `Payment to ${transaction.customer_name || 'Customer'}`}
                         </div>
                         
                         {/* Amount */}
