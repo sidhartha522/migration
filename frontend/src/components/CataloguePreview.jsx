@@ -110,7 +110,9 @@ const CataloguePreview = ({
                 )}
                 
                 <div className="product-meta-catalogue">
-                  {product.category && (
+                  {product.subcategory ? (
+                    <span className="product-category-badge">{product.subcategory}</span>
+                  ) : product.category && (
                     <span className="product-category-badge">{product.category}</span>
                   )}
                   {product.unit && (
