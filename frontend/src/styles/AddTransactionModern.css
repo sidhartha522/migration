@@ -1,10 +1,10 @@
 /**
- * AddTransaction Page - Modern Cash App Style
+ * AddTransaction Page - Material Design UPI Style
  */
 
 .add-transaction-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+  background: linear-gradient(180deg, #f5f3ff 0%, #faf5ff 50%, #fdf4ff 100%);
   padding-bottom: 0;
 }
 
@@ -14,12 +14,11 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  background: white;
-  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.2);
 }
 
 .add-transaction-page .btn-back {
@@ -28,7 +27,8 @@
   border-radius: 50%;
   border: none;
   background: rgba(95, 37, 159, 0.1);
-  color: var(--primary-purple);
+  color: var(--prim255, 255, 255, 0.2);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +39,7 @@
 }
 
 .add-transaction-page .btn-back:hover {
-  background: rgba(95, 37, 159, 0.15);
+  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
 }
 
@@ -50,21 +50,19 @@
 .add-transaction-page .page-title {
   font-size: 22px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
+  color: white
 }
 
-/* Customer Info Card - UPI Style */
+/* Customer Info Card - Material Design */
 .customer-info-card {
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 20px;
   margin: var(--space-4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 16px;
-  border: 2px solid #f1f5f9;
 }
 
 .customer-avatar-small {
@@ -113,6 +111,7 @@
 }
 
 /* Type Selector - UPI Style */
+.type-selector-upi Material Design UPI Style */
 .type-selector-upi {
   display: flex;
   flex-direction: column;
@@ -122,17 +121,15 @@
 
 .type-card-upi {
   position: relative;
-  padding: 20px 24px;
-  border-radius: 16px;
+  padding: 22px 24px;
+  border-radius: 20px;
   background: white;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 2px solid transparent;
-}
+  gap: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04)
 
 .type-card-upi input[type="radio"] {
   position: absolute;
@@ -143,17 +140,19 @@
 .type-card-upi:active {
   transform: scale(0.98);
 }
+6);
+}
 
 .type-card-upi.active-credit {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, #fff5f5 0%, white 100%);
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.8) 0%, white 100%);
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.2), 0 2px 8px rgba(239, 68, 68, 0.1);
+  transform: translateY(-2px);
 }
 
 .type-card-upi.active-payment {
-  border-color: #10b981;
-  background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
-}
-
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.8) 0%, white 100%);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.2), 0 2px 8px rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px
 .type-icon-circle {
   width: 56px;
   height: 56px;
@@ -206,14 +205,13 @@
   color: var(--text-secondary);
 }
 
-/* Amount Input Card - UPI Style */
+/* Amount Input Card - Material Design */
 .amount-input-card {
   background: white;
-  border-radius: 20px;
-  padding: 32px 24px;
+  border-radius: 24px;
+  padding: 36px 24px;
   margin-bottom: var(--space-4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border: 2px solid #f1f5f9;
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .amount-label {
@@ -261,14 +259,13 @@
   color: #cbd5e1;
 }
 
-/* Form Card - UPI Style */
+/* Form Card - Material Design */
 .form-card {
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 24px;
   margin-bottom: var(--space-4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border: 2px solid #f1f5f9;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .form-group {
@@ -291,72 +288,74 @@
   width: 100%;
   padding: 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border-rnone;
+  background: #f8fafc;
+  border-radius: 16px;
   font-size: 16px;
   font-family: var(--font-sans);
   color: var(--text-primary);
   resize: vertical;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-textarea:focus {
   outline: none;
-  border-color: var(--primary-purple);
-  box-shadow: 0 0 0 4px rgba(95, 37, 159, 0.1);
-}
+  background: white;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15), 0 0 0 3px rgba(124, 58, 237
 
 .form-textarea::placeholder {
   color: #94a3b8;
 }
 
 .form-file-input {
-  width: 100%;
-  padding: 16px;
-  border: 2px dashed #cbd5e1;
-  border-radius: 12px;
+  width: 1008px;
+  border: none;
+  border-radius: 16px;
   font-size: 15px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
-  background: #f8fafc;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
 }
 
 .form-file-input:hover {
-  border-color: var(--primary-purple);
-  background: rgba(95, 37, 159, 0.04);
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+  transform: translateY(-1px);
 }
 
 .form-file-input:focus {
   outline: none;
-  border-color: var(--primary-purple);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.2), 0 0 0 3px rgba(124, 58, 237
   box-shadow: 0 0 0 4px rgba(95, 37, 159, 0.1);
 }
-
-/* Submit Button - UPI Style */
+Material Design */
 .btn-submit {
   width: 100%;
   padding: 20px;
   background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
   border: none;
-  border-radius: 16px;
+  border-radius: 20px;
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35), 0 2px 8px rgba(124, 58, 237, 0.2);
 }
 
 .btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
+  box-shadow: 0 10px 32px rgba(124, 58, 237, 0.45), 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-submit:active {
   transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
 }
 
 .btn-submit:disabled {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%){
   background: #94a3b8;
   cursor: not-allowed;
   transform: none;
