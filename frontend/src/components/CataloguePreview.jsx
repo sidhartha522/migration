@@ -99,7 +99,20 @@ const CataloguePreview = ({
             >
               {/* Product Image/Icon */}
               <div className="product-icon-catalogue">
-                <i className={`fas ${getCategoryIcon(product.category)}`}></i>
+                {product.product_image_url ? (
+                  <img 
+                    src={product.product_image_url} 
+                    alt={product.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '12px'
+                    }}
+                  />
+                ) : (
+                  <i className={`fas ${getCategoryIcon(product.subcategory || product.category)}`}></i>
+                )}
               </div>
               
               {/* Product Info */}
