@@ -112,44 +112,46 @@ const CataloguePreview = ({
                 </button>
               )}
               
-              {/* Left Side: Icon + Details */}
-              <div className="product-left-section">
-                {/* Category Icon */}
-                <div className="product-icon-catalogue">
-                  <i className={`fas ${getCategoryIcon(product.subcategory || product.category)}`}></i>
-                </div>
-                
-                {/* Product Info */}
-                <div className="product-info-catalogue">
-                  <h4 className="product-name-catalogue">{product.name}</h4>
-                  {product.description && (
-                    <p className="product-description-catalogue">{product.description}</p>
-                  )}
+              {/* Top Section: Icon + Details + Image */}
+              <div className="product-top-section">
+                <div className="product-left-section">
+                  {/* Category Icon */}
+                  <div className="product-icon-catalogue">
+                    <i className={`fas ${getCategoryIcon(product.subcategory || product.category)}`}></i>
+                  </div>
                   
-                  <div className="product-meta-catalogue">
-                    {product.subcategory ? (
-                      <span className="product-category-badge">{product.subcategory}</span>
-                    ) : product.category && (
-                      <span className="product-category-badge">{product.category}</span>
+                  {/* Product Info */}
+                  <div className="product-info-catalogue">
+                    <h4 className="product-name-catalogue">{product.name}</h4>
+                    {product.description && (
+                      <p className="product-description-catalogue">{product.description}</p>
                     )}
-                    {product.unit && (
-                      <span className="product-unit">per {product.unit}</span>
-                    )}
+                    
+                    <div className="product-meta-catalogue">
+                      {product.subcategory ? (
+                        <span className="product-category-badge">{product.subcategory}</span>
+                      ) : product.category && (
+                        <span className="product-category-badge">{product.category}</span>
+                      )}
+                      {product.unit && (
+                        <span className="product-unit">per {product.unit}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
+                
+                {/* Right Side: Product Image */}
+                {product.product_image_url && (
+                  <div className="product-image-right">
+                    <img 
+                      src={product.product_image_url} 
+                      alt={product.name}
+                    />
+                  </div>
+                )}
               </div>
               
-              {/* Right Side: Product Image */}
-              {product.product_image_url && (
-                <div className="product-image-right">
-                  <img 
-                    src={product.product_image_url} 
-                    alt={product.name}
-                  />
-                </div>
-              )}
-              
-              {/* Product Details */}
+              {/* Bottom Section: Price, Stock, Controls */}
               <div className="product-details-catalogue">
                 {showPrice && (
                   <div className="product-price-catalogue">

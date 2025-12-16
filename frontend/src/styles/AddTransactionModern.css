@@ -54,30 +54,32 @@
   margin: 0;
 }
 
-/* Customer Info Card */
+/* Customer Info Card - UPI Style */
 .customer-info-card {
   background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  border-radius: 20px;
+  padding: 20px;
   margin: var(--space-4);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 16px;
+  border: 2px solid #f1f5f9;
 }
 
 .customer-avatar-small {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: var(--primary-purple);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .customer-info-text {
@@ -85,24 +87,24 @@
 }
 
 .customer-name {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
 }
 
 .customer-balance {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
 }
 
 .customer-balance.positive {
-  color: var(--payment-green);
+  color: #ef4444;
 }
 
 .customer-balance.negative {
-  color: var(--credit-red);
+  color: #10b981;
 }
 
 /* Transaction Form */
@@ -110,136 +112,145 @@
   padding: 0 var(--space-4) var(--space-4);
 }
 
-/* Type Selector */
-.type-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+/* Type Selector - UPI Style */
+.type-selector-upi {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: var(--space-5);
 }
 
-.type-option {
+.type-card-upi {
   position: relative;
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--border-light);
+  padding: 20px 24px;
+  border-radius: 16px;
   background: white;
   cursor: pointer;
-  text-align: center;
   transition: all 0.2s ease;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
-  box-shadow: var(--shadow-sm);
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
 }
 
-.type-option input[type="radio"] {
+.type-card-upi input[type="radio"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.type-option:active {
-  transform: scale(0.97);
+.type-card-upi:active {
+  transform: scale(0.98);
 }
 
-.type-option.type-credit.active {
-  border-color: var(--credit-red);
-  background: rgba(239, 68, 68, 0.05);
+.type-card-upi.active-credit {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fff5f5 0%, white 100%);
 }
 
-.type-option.type-payment.active {
-  border-color: var(--payment-green);
-  background: rgba(16, 185, 129, 0.05);
+.type-card-upi.active-payment {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
 }
 
-.type-icon {
+.type-icon-circle {
   width: 56px;
   height: 56px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 24px;
+  flex-shrink: 0;
   transition: all 0.2s;
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
 }
 
-.type-option.active .type-icon {
-  transform: scale(1.1);
+.red-circle {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
 }
 
-.type-option.type-credit.active .type-icon {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--credit-red);
+.green-circle {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
 }
 
-.type-option.type-payment.active .type-icon {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--payment-green);
+.type-card-upi.active-credit .red-circle {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
-.type-label {
-  font-size: 16px;
-  font-weight: 800;
+.type-card-upi.active-payment .green-circle {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.type-text {
+  flex: 1;
+  text-align: left;
+}
+
+.type-main-label {
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0;
+  margin-bottom: 4px;
 }
 
-.type-sublabel {
-  font-size: 13px;
-  font-weight: 600;
+.type-sub-label {
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-secondary);
-  margin: 0;
 }
 
-/* Amount Input Card */
+/* Amount Input Card - UPI Style */
 .amount-input-card {
   background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
+  border-radius: 20px;
+  padding: 32px 24px;
   margin-bottom: var(--space-4);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f1f5f9;
 }
 
 .amount-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #64748b;
   text-align: center;
-  margin-bottom: var(--space-3);
+  margin-bottom: 20px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .amount-input-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .currency-symbol {
-  font-size: 36px;
+  font-size: 40px;
   font-weight: 800;
-  color: var(--text-secondary);
+  color: #475569;
 }
 
 .amount-input {
   width: 100%;
   max-width: 300px;
-  padding: var(--space-2);
+  padding: 12px;
   border: none;
-  font-size: 52px;
+  font-size: 56px;
   font-weight: 800;
   color: var(--text-primary);
   text-align: center;
   background: transparent;
   font-family: var(--font-sans);
-  letter-spacing: -0.02em;
+  letter-spacing: -2px;
 }
 
 .amount-input:focus {
@@ -247,20 +258,21 @@
 }
 
 .amount-input::placeholder {
-  color: var(--text-tertiary);
+  color: #cbd5e1;
 }
 
-/* Form Card */
+/* Form Card - UPI Style */
 .form-card {
   background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  border-radius: 20px;
+  padding: 24px;
   margin-bottom: var(--space-4);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f1f5f9;
 }
 
 .form-group {
-  margin-bottom: var(--space-4);
+  margin-bottom: 24px;
 }
 
 .form-group:last-child {
@@ -269,18 +281,18 @@
 
 .form-label {
   display: block;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-2);
+  color: #475569;
+  margin-bottom: 12px;
 }
 
 .form-textarea {
   width: 100%;
-  padding: var(--space-3);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 15px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
   font-family: var(--font-sans);
   color: var(--text-primary);
   resize: vertical;
@@ -290,54 +302,54 @@
 .form-textarea:focus {
   outline: none;
   border-color: var(--primary-purple);
-  box-shadow: 0 0 0 3px rgba(95, 37, 159, 0.1);
+  box-shadow: 0 0 0 4px rgba(95, 37, 159, 0.1);
 }
 
 .form-textarea::placeholder {
-  color: var(--text-muted);
+  color: #94a3b8;
 }
 
 .form-file-input {
   width: 100%;
-  padding: var(--space-3);
-  border: 1px dashed var(--border-medium);
-  border-radius: var(--radius-md);
-  font-size: 14px;
+  padding: 16px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
+  background: #f8fafc;
 }
 
 .form-file-input:hover {
   border-color: var(--primary-purple);
-  background: rgba(95, 37, 159, 0.02);
+  background: rgba(95, 37, 159, 0.04);
 }
 
 .form-file-input:focus {
   outline: none;
   border-color: var(--primary-purple);
-  box-shadow: 0 0 0 3px rgba(95, 37, 159, 0.1);
+  box-shadow: 0 0 0 4px rgba(95, 37, 159, 0.1);
 }
 
-/* Submit Button */
+/* Submit Button - UPI Style */
 .btn-submit {
   width: 100%;
-  padding: var(--space-4);
-  background: var(--primary-purple);
+  padding: 20px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
   border: none;
-  border-radius: var(--radius-lg);
-  font-size: 17px;
+  border-radius: 16px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
 
 .btn-submit:hover {
-  background: var(--primary-purple-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
 }
 
 .btn-submit:active {
@@ -345,10 +357,10 @@
 }
 
 .btn-submit:disabled {
-  background: var(--text-tertiary);
+  background: #94a3b8;
   cursor: not-allowed;
   transform: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive */

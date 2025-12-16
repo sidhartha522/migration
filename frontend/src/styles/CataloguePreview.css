@@ -130,8 +130,18 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: relative;
   display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Top Section: Icon + Details + Image */
+.product-top-section {
+  display: flex;
   gap: var(--space-3);
   align-items: flex-start;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: var(--space-3);
 }
 
 /* Left Section: Icon + Details */
@@ -275,8 +285,7 @@
 
 /* Product Details */
 .product-details-catalogue {
-  border-top: 1px solid var(--border-light);
-  padding-top: var(--space-3);
+  /* Border handled by product-top-section */
 }
 
 .product-price-catalogue {

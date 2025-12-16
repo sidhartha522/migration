@@ -121,8 +121,8 @@ const AddTransaction = () => {
       )}
 
       <form onSubmit={handleSubmit} className="transaction-form">
-        <div className="type-selector">
-          <label className={`type-option type-credit ${formData.transaction_type === 'credit' ? 'active' : ''}`}>
+        <div className="type-selector-upi">
+          <label className={`type-card-upi ${formData.transaction_type === 'credit' ? 'active-credit' : ''}`}>
             <input
               type="radio"
               name="transaction_type"
@@ -130,13 +130,15 @@ const AddTransaction = () => {
               checked={formData.transaction_type === 'credit'}
               onChange={handleChange}
             />
-            <div className="type-icon">
+            <div className="type-icon-circle red-circle">
               <i className="fas fa-arrow-up"></i>
             </div>
-            <div className="type-label">Credit</div>
-            <div className="type-sublabel">You Gave</div>
+            <div className="type-text">
+              <div className="type-main-label">Take Credit</div>
+              <div className="type-sub-label">{customer?.name || 'Customer'} took</div>
+            </div>
           </label>
-          <label className={`type-option type-payment ${formData.transaction_type === 'payment' ? 'active' : ''}`}>
+          <label className={`type-card-upi ${formData.transaction_type === 'payment' ? 'active-payment' : ''}`}>
             <input
               type="radio"
               name="transaction_type"
@@ -144,11 +146,13 @@ const AddTransaction = () => {
               checked={formData.transaction_type === 'payment'}
               onChange={handleChange}
             />
-            <div className="type-icon">
+            <div className="type-icon-circle green-circle">
               <i className="fas fa-arrow-down"></i>
             </div>
-            <div className="type-label">Payment</div>
-            <div className="type-sublabel">You Received</div>
+            <div className="type-text">
+              <div className="type-main-label">Received Payment</div>
+              <div className="type-sub-label">{customer?.name || 'Customer'} paid</div>
+            </div>
           </label>
         </div>
 
