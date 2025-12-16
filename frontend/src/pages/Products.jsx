@@ -182,6 +182,7 @@ const Products = () => {
           isEditable={true}
           onProductClick={handleProductClick}
           onQuantityChange={handleQuantityChange}
+          onDeleteClick={handleDeleteClick}
           showPrice={true}
           showStock={true}
           viewMode="grid"

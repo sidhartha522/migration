@@ -26,10 +26,10 @@ def add_subcategory_field():
     database_id = os.getenv('APPWRITE_DATABASE_ID')
     collection_id = 'products'
     
+    print(f"Checking and adding required fields to products collection...")
+    
+    # Add subcategory string attribute
     try:
-        print(f"Adding 'subcategory' field to products collection...")
-        
-        # Add subcategory string attribute
         databases.create_string_attribute(
             database_id=database_id,
             collection_id=collection_id,
@@ -39,20 +39,36 @@ def add_subcategory_field():
             default=None,
             array=False
         )
-        
-        print("✅ Successfully added 'subcategory' field to products collection!")
-        print("You can now use both 'category' and 'subcategory' fields in products.")
-        
+        print("✅ Added 'subcategory' field")
     except AppwriteException as e:
-        if 'Attribute already exists' in str(e):
-            print("ℹ️  'subcategory' field already exists in products collection")
+        if 'already exists' in str(e):
+            print("ℹ️  'subcategory' field already exists")
         else:
-            print(f"❌ Error adding subcategory field: {e}")
+            print(f"❌ Error adding subcategory: {e}")
             sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        sys.exit(1)
+    
+    # Add product_image_url string attribute
+    try:
+        databases.create_string_attribute(
+            database_id=database_id,
+            collection_id=collection_id,
+            key='product_image_url',
+            size=500,
+            required=False,
+            default=None,
+            array=False
+        )
+        print("✅ Added 'product_image_url' field")
+    except AppwriteException as e:
+        if 'already exists' in str(e):
+            print("ℹ️  'product_image_url' field already exists")
+        else:
+            print(f"❌ Error adding product_image_url: {e}")
+            sys.exit(1)
+    
+    print("\n✅ All required fields are now available in products collection!")
+    print("You can now use: category, subcategory, and product_image_url fields.")
 
 if __name__ == "__main__":
-    print("🚀 Adding subcategory field to Appwrite products collection...")
+    print("🚀 Setting up required fields in Appwrite products collection...")
     add_subcategory_field()

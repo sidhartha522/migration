@@ -11,6 +11,7 @@ const CataloguePreview = ({
   isEditable = false, 
   onProductClick = null,
   onQuantityChange = null,
+  onDeleteClick = null,
   showPrice = true,
   showStock = true,
   viewMode = 'grid' // 'grid' or 'list'
@@ -97,6 +98,20 @@ const CataloguePreview = ({
               className={`product-card-catalogue ${onProductClick ? 'clickable' : ''}`}
               onClick={() => handleProductClick(product)}
             >
+              {/* Delete Button (if editable) */}
+              {isEditable && onDeleteClick && (
+                <button
+                  className="delete-product-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick(product);
+                  }}
+                  title="Delete product"
+                >
+                  <i className="fas fa-trash"></i>
+                </button>
+              )}
+              
               {/* Product Image/Icon */}
               <div className="product-icon-catalogue">
                 {product.product_image_url ? (
