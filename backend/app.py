@@ -1203,10 +1203,11 @@ def get_products():
                 'name': doc['name'],
                 'description': doc.get('description', ''),
                 'category': doc['category'],
+                'subcategory': doc.get('subcategory', ''),
                 'stock_quantity': doc['stock_quantity'],
                 'unit': doc['unit'],
                 'price': doc['price'],
-                'image_url': doc.get('image_url', ''),
+                'product_image_url': doc.get('product_image_url', ''),
                 'is_public': doc['is_public'],
                 'low_stock_threshold': doc.get('low_stock_threshold', 10),
                 'is_low_stock': doc['stock_quantity'] <= doc.get('low_stock_threshold', 10),
@@ -1334,10 +1335,11 @@ def get_product(product_id):
             'name': doc['name'],
             'description': doc.get('description', ''),
             'category': doc['category'],
+            'subcategory': doc.get('subcategory', ''),
             'stock_quantity': doc['stock_quantity'],
             'unit': doc['unit'],
             'price': doc['price'],
-            'image_url': doc.get('image_url', ''),
+            'product_image_url': doc.get('product_image_url', ''),
             'is_public': doc['is_public'],
             'low_stock_threshold': doc.get('low_stock_threshold', 10),
             'is_low_stock': doc['stock_quantity'] <= doc.get('low_stock_threshold', 10),
@@ -1385,8 +1387,8 @@ def update_product(product_id):
                 return jsonify({'error': 'Invalid price format'}), 400
         
         # Update allowed fields only
-        allowed_fields = ['name', 'description', 'category', 'stock_quantity', 
-                         'unit', 'price', 'image_url', 'is_public', 'low_stock_threshold']
+        allowed_fields = ['name', 'description', 'category', 'subcategory', 'stock_quantity', 
+                         'unit', 'price', 'product_image_url', 'is_public', 'low_stock_threshold']
         
         update_data = {k: v for k, v in data.items() if k in allowed_fields}
         
@@ -1401,10 +1403,11 @@ def update_product(product_id):
             'name': result['name'],
             'description': result.get('description', ''),
             'category': result['category'],
+            'subcategory': result.get('subcategory', ''),
             'stock_quantity': result['stock_quantity'],
             'unit': result['unit'],
             'price': result['price'],
-            'image_url': result.get('image_url', ''),
+            'product_image_url': result.get('product_image_url', ''),
             'is_public': result['is_public'],
             'low_stock_threshold': result.get('low_stock_threshold', 10),
             'updated_at': result['$updatedAt']
