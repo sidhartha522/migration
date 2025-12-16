@@ -1,25 +1,24 @@
 /**
- * Products Page - Flat Modern Design
+ * Products Page - Flat Modern Design with Catalogue Preview
  */
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { productsAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import CataloguePreview from '../components/CataloguePreview';
 import '../styles/ProductsModern.css';
 
 const Products = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [categories, setCategories] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('catalogue'); // 'catalogue' or 'list'
 
   useEffect(() => {
     loadProducts();
-    loadCategories();
   }, []);
 
   const loadProducts = async (params = {}) => {
@@ -47,30 +46,9 @@ const Products = () => {
     return products.filter(p => p.is_low_stock);
   };
 
-  const loadCategories = async () => {
-    try {
-      const response = await productsAPI.getCategories();
-      setCategories(response.data.categories);
-    } catch (error) {
-      console.error('Failed to load categories', error);
-    }
-  };
-
-  const handleSearch = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    
-    // Debounce search
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(() => {
-      loadProducts({ search: term, category: selectedCategory });
-    }, 500);
-  };
-
-  const handleCategoryChange = (e) => {
-    const category = e.target.value;
-    setSelectedCategory(category);
-    loadProducts({ search: searchTerm, category });
+  const handleProductClick = (product) => {
+    // Navigate to edit product page
+    navigate(`/edit-product/${product.id}`);
   };
 
   const handleDeleteClick = (product) => {
@@ -98,7 +76,7 @@ const Products = () => {
       });
       
       // Reload products to reflect changes
-      loadProducts({ search: searchTerm, category: selectedCategory });
+      loadProducts();
     } catch (error) {
       setMessages([{
         type: 'error',
@@ -116,7 +94,7 @@ const Products = () => {
         type: 'success',
         message: 'Product deleted successfully'
       }]);
-      loadProducts({ search: searchTerm, category: selectedCategory });
+      loadProducts();
     } catch (error) {
       setMessages([{
         type: 'error',
@@ -126,22 +104,6 @@ const Products = () => {
       setShowDeleteConfirm(false);
       setProductToDelete(null);
     }
-  };
-
-  const getCategoryIcon = (category) => {
-    const icons = {
-      'Food & Groceries': 'fa-shopping-basket',
-      'Beverages': 'fa-coffee',
-      'Personal Care': 'fa-spray-can',
-      'Household Items': 'fa-home',
-      'Electronics': 'fa-plug',
-      'Clothing & Textiles': 'fa-tshirt',
-      'Hardware & Tools': 'fa-wrench',
-      'Stationery': 'fa-pen',
-      'Medicine & Healthcare': 'fa-pills',
-      'Other': 'fa-box'
-    };
-    return icons[category] || 'fa-box';
   };
 
   if (loading) {
@@ -180,7 +142,28 @@ const Products = () => {
     <div className="products-modern">
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
 
-      {/* Stock Value Header Card */}
+      {/* Header with View Toggle */}
+      <div className="products-header">
+        <h1 className="page-title">Products</h1>
+        <div className="view-toggle">
+          <button
+            className={`toggle-btn ${viewMode === 'catalogue' ? 'active' : ''}`}
+            onClick={() => setViewMode('catalogue')}
+            title="Catalogue View"
+          >
+            <i className="fas fa-th"></i>
+          </button>
+          <button
+            className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+            title="List View"
+          >
+            <i className="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Stock Value Header Card - Shown in both views */}
       <div className="stock-value-header">
         <div className="stock-value-left">
           <div className="label-text">TOTAL STOCK VALUE</div>
@@ -192,71 +175,68 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button 
-          className={`filter-tab ${!selectedCategory ? 'active' : ''}`}
-          onClick={() => { setSelectedCategory(''); loadProducts({ search: searchTerm }); }}
-        >
-          All Items
-        </button>
-        <button
-          className={`filter-tab ${selectedCategory === 'low-stock' ? 'active danger' : ''}`}
-          onClick={() => { 
-            setSelectedCategory('low-stock'); 
-            setProducts(getLowStockItems());
-          }}
-        >
-          Low Stock
-        </button>
-      </div>
-
-      {/* Products List */}
-      {products.length === 0 ? (
-        <div className="empty-state-products">
-          <div className="icon-wrapper">
-            <i className="fas fa-box-open"></i>
-          </div>
-          <h3>No Products Yet</h3>
-          <p>Start adding products to your inventory</p>
-          <Link to="/add-product" className="btn btn-primary">
-            <i className="fas fa-plus"></i> Add First Product
-          </Link>
-        </div>
+      {/* Catalogue Preview Component */}
+      {viewMode === 'catalogue' ? (
+        <CataloguePreview
+          products={products}
+          isEditable={true}
+          onProductClick={handleProductClick}
+          onQuantityChange={handleQuantityChange}
+          showPrice={true}
+          showStock={true}
+          viewMode="grid"
+        />
       ) : (
-        <div className="products-container-modern">
-          {products.map((product) => (
-            <div key={product.id} className={`product-item-card ${product.is_low_stock ? 'low-stock' : ''}`}>
-              <div className="product-left-info">
-                <div className="product-name-text">{product.name}</div>
-                <div className="product-price-text">₹{product.price}/{product.unit}</div>
+        /* Original List View */
+        <>
+          {/* Products List */}
+          {products.length === 0 ? (
+            <div className="empty-state-products">
+              <div className="icon-wrapper">
+                <i className="fas fa-box-open"></i>
               </div>
-              
-              <div className="product-right-actions">
-                <Link to={`/edit-product/${product.id}`} className="btn-edit-icon">
-                  <i className="fas fa-edit"></i>
-                </Link>
-                <div className="product-quantity-controls">
-                  <button className="qty-btn-dark minus" onClick={() => handleQuantityChange(product, -1)}>
-                    -
-                  </button>
-                  <div className="quantity-display">
-                    <span className="qty-number">{product.stock_quantity}</span>
-                    <span className="qty-unit">{product.unit}</span>
-                  </div>
-                  <button className="qty-btn-dark plus" onClick={() => handleQuantityChange(product, 1)}>
-                    +
-                  </button>
-                </div>
-              </div>
+              <h3>No Products Yet</h3>
+              <p>Start adding products to your inventory</p>
+              <Link to="/add-product" className="btn btn-primary">
+                <i className="fas fa-plus"></i> Add First Product
+              </Link>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className="products-container-modern">
+              {products.map((product) => (
+                <div key={product.id} className={`product-item-card ${product.is_low_stock ? 'low-stock' : ''}`}>
+                  <div className="product-left-info">
+                    <div className="product-name-text">{product.name}</div>
+                    <div className="product-price-text">₹{product.price}/{product.unit}</div>
+                  </div>
+                  
+                  <div className="product-right-actions">
+                    <Link to={`/edit-product/${product.id}`} className="btn-edit-icon">
+                      <i className="fas fa-edit"></i>
+                    </Link>
+                    <div className="product-quantity-controls">
+                      <button className="qty-btn-dark minus" onClick={() => handleQuantityChange(product, -1)}>
+                        -
+                      </button>
+                      <div className="quantity-display">
+                        <span className="qty-number">{product.stock_quantity}</span>
+                        <span className="qty-unit">{product.unit}</span>
+                      </div>
+                      <button className="qty-btn-dark plus" onClick={() => handleQuantityChange(product, 1)}>
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Add Product Button */}
-      <Link to="/add-product" className="btn-add-product">
-        <i className="fas fa-plus"></i> Add
+      {/* Add Product FAB */}
+      <Link to="/add-product" className="fab-add">
+        <i className="fas fa-plus"></i>
       </Link>
 
       {/* Delete Confirmation Modal */}

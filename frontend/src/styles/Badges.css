@@ -1,0 +1,190 @@
+/**
+ * Badge and Status Indicators - UPI App Style
+ * For "New", "Verified", "Pending", etc.
+ */
+
+/* Base Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Badge Variants */
+.badge-new {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-verified {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-premium {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+/* Status Indicator with Icon */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-indicator i {
+  font-size: 16px;
+}
+
+.status-indicator.verified {
+  color: #10b981;
+}
+
+.status-indicator.verified i {
+  color: #10b981;
+}
+
+.status-indicator.pending {
+  color: #f59e0b;
+}
+
+.status-indicator.error {
+  color: #ef4444;
+}
+
+/* Checkmark Badge (like GPay verified) */
+.checkmark-badge {
+  width: 24px;
+  height: 24px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.checkmark-badge-large {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+}
+
+/* Counter Badge (notification style) */
+.counter-badge {
+  min-width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+/* Dot Indicator */
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse-dot 2s infinite;
+}
+
+.dot-indicator.offline {
+  background: #9ca3af;
+  animation: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Pill Badge (like UPI ID) */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.pill-badge-icon {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Tag Badge */
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tag-badge i {
+  font-size: 14px;
+}
+
+/* Reward Badge (like cashback) */
+.reward-badge {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reward-badge i {
+  font-size: 16px;
+}

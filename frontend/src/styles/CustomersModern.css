@@ -1,9 +1,11 @@
-/* Customers - Flat Modern Design (Inspired by Revolut) */
+/* Customers - App-like Modern Design */
+@import './AvatarSystem.css';
 
 .customers-modern {
   min-height: 100vh;
   padding: var(--space-3);
-  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+  background: var(--bg-secondary);
+  padding-bottom: 100px;
 }
 
 .customers-container-modern {
@@ -12,11 +14,12 @@
 }
 
 .search-section-card {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-3);
-  margin-bottom: var(--space-3);
-  box-shadow: var(--shadow-sm);
+  background: transparent;
+  border-radius: 20px;
+  padding: 0;
+  margin-bottom: var(--space-4);
+  box-shadow: none;
+  border: none;
 }
 
 .search-box {
@@ -25,8 +28,8 @@
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  border: none;
 }
 
 .search-box input {
@@ -49,12 +52,12 @@
   border-radius: 20px;
   padding: 18px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 12px rgba(95, 37, 159, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: none;
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
@@ -67,15 +70,20 @@
   color: inherit;
 }
 
+.customer-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
 .customer-item-card:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(95, 37, 159, 0.1);
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .whatsapp-btn-customer {
   width: 48px;
   height: 48px;
-  border-radius: 16px;
+  border-radius: 50%;
   background: #25d366;
   color: white;
   display: flex;
@@ -85,21 +93,30 @@
   flex-shrink: 0;
   text-decoration: none;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
 }
 
-/* Rounded avatars with solid color */
+.whatsapp-btn-customer:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn-customer:active {
+  transform: scale(0.95);
+}
+
+/* Circular avatars with varied colors (UPI app style) */
 .customer-avatar-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: #5f259f;
-  color: white;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   flex-shrink: 0;
+  /* Color will be applied via .avatar-color-X classes */
 }
 
 .customer-details {
@@ -151,23 +168,29 @@
   position: fixed;
   bottom: 90px;
   right: 20px;
-  width: 56px;
-  height: 56px;
-  background: var(--primary-purple);
-  border-radius: var(--radius-full);
+  width: 68px;
+  height: 68px;
+  background: #7c3aed;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 24px;
-  box-shadow: 0 8px 16px rgba(95, 37, 159, 0.3);
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
   text-decoration: none;
   z-index: 900;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab-add:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.4);
 }
 
 .fab-add:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
 }
 
 .empty-state-modern {

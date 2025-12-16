@@ -1,10 +1,11 @@
 /**
- * Customers Page - Flat Modern Design
+ * Customers Page - Modern App Design
  */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { customerAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import SearchBar from '../components/SearchBar';
 import '../styles/CustomersModern.css';
 
 const Customers = () => {
@@ -79,25 +80,15 @@ const Customers = () => {
 
       {/* Search Section */}
       <div className="search-section-card">
-        <div className="search-box">
-          <i className="fas fa-search search-icon"></i>
-          <input
-            type="text"
-            placeholder="Search customers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            className="input"
-          />
-          {searchQuery && (
-            <button className="btn-icon" onClick={() => {
-              setSearchQuery('');
-              loadCustomers();
-            }}>
-              <i className="fas fa-times"></i>
-            </button>
-          )}
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search customers..."
+          onClear={() => {
+            setSearchQuery('');
+            loadCustomers();
+          }}
+        />
       </div>
 
       {/* Add Customer FAB */}
@@ -118,40 +109,46 @@ const Customers = () => {
         </div>
       ) : (
         <div className="customers-container-modern">
-          {customers.map((customer) => (
-            <div key={customer.id} className="customer-item-card">
-              <Link
-                to={`/customer/${customer.id}`}
-                className="customer-link-wrapper"
-              >
-                <div className="customer-avatar-circle">
-                  {customer.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="customer-details">
-                  <div className="customer-name-text">{customer.name}</div>
-                  <div className="customer-phone-text">{customer.phone_number}</div>
-                </div>
-                <div className="customer-balance-amount">
-                  <div className={`balance-value ${customer.balance > 0 ? 'positive' : 'negative'}`}>
-                    ₹{Math.abs(customer.balance || 0).toFixed(2)}
+          {customers.map((customer, index) => {
+            // Ensure balance is properly parsed as a number
+            const balance = parseFloat(customer.balance) || 0;
+            // Assign varied colors to avatars using modulo for rotation
+            const colorClass = `avatar-color-${index % 10}`;
+            return (
+              <div key={customer.id} className="customer-item-card">
+                <Link
+                  to={`/customer/${customer.id}`}
+                  className="customer-link-wrapper"
+                >
+                  <div className={`customer-avatar-circle ${colorClass}`}>
+                    {customer.name.charAt(0).toUpperCase()}
                   </div>
-                  <div className="balance-label">
-                    {customer.balance > 0 ? 'TO RECEIVE' : 'RECEIVED'}
+                  <div className="customer-details">
+                    <div className="customer-name-text">{customer.name}</div>
+                    <div className="customer-phone-text">{customer.phone_number || customer.phone}</div>
                   </div>
-                </div>
-                <i className="fas fa-chevron-right" style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}></i>
-              </Link>
-              <a
-                href={`https://wa.me/91${customer.phone_number}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="whatsapp-btn-customer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <i className="fab fa-whatsapp"></i>
-              </a>
-            </div>
-          ))}
+                  <div className="customer-balance-amount">
+                    <div className={`balance-value ${balance > 0 ? 'positive' : 'negative'}`}>
+                      ₹{Math.abs(balance).toFixed(2)}
+                    </div>
+                    <div className="balance-label">
+                      {balance > 0 ? 'TO RECEIVE' : 'RECEIVED'}
+                    </div>
+                  </div>
+                  <i className="fas fa-chevron-right" style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}></i>
+                </Link>
+                <a
+                  href={`https://wa.me/91${customer.phone_number || customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(balance).toFixed(2)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whatsapp-btn-customer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <i className="fab fa-whatsapp"></i>
+                </a>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

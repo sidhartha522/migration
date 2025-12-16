@@ -4,7 +4,7 @@
 
 export const businessCategories = {
   "Manufacturing & Production": {
-    icon: "🏭",
+    icon: "factory",
     subcategories: {
       "Automobile": [
         "Passenger Vehicles",
@@ -55,7 +55,7 @@ export const businessCategories = {
     }
   },
   "Agriculture & Allied": {
-    icon: "🧑‍🌾",
+    icon: "agriculture",
     subcategories: {
       "Agriculture & Farming": [
         "Crop Farming (Cereals, Pulses)",
@@ -76,7 +76,7 @@ export const businessCategories = {
     }
   },
   "Services & Technology": {
-    icon: "💻",
+    icon: "laptop",
     subcategories: {
       "Information Technology (IT) & BPM": [
         "Software Development (Web/Mobile Apps)",
@@ -122,7 +122,7 @@ export const businessCategories = {
     }
   },
   "Trade, Logistics & Retail": {
-    icon: "🚚",
+    icon: "truck",
     subcategories: {
       "Retail Trade": [
         "Grocery Store/Supermarket (Kirana)",
@@ -147,7 +147,7 @@ export const businessCategories = {
     }
   },
   "Real Estate & Construction": {
-    icon: "🏡",
+    icon: "building",
     subcategories: {
       "Real Estate": [
         "Property Brokerage & Consulting",
@@ -164,7 +164,7 @@ export const businessCategories = {
     }
   },
   "Venue, Rental & Hospitality": {
-    icon: "🎬",
+    icon: "venue",
     subcategories: {
       "Recreational Venue Rental": [
         "Private Theatres / Mini-Cinemas",
@@ -187,7 +187,7 @@ export const businessCategories = {
     }
   },
   "Personal & Local Services": {
-    icon: "🛠️",
+    icon: "tools",
     subcategories: {
       "Maintenance & Repair": [
         "Auto Repair & Garage Services",

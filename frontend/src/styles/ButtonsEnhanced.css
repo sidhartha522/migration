@@ -1,0 +1,260 @@
+/**
+ * Enhanced Button Styles - UPI App Inspired
+ * Larger, more prominent buttons like GPay/PhonePe
+ */
+
+/* Primary Button - Enhanced */
+.btn-primary-enhanced {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-primary-enhanced:hover {
+  background: #2563eb;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-primary-enhanced:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Purple Button (Kathape Brand) */
+.btn-purple-enhanced {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-purple-enhanced:hover {
+  background: #6d28d9;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-purple-enhanced:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+/* Secondary Button */
+.btn-secondary-enhanced {
+  background: white;
+  color: #111827;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-secondary-enhanced:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary-enhanced:active {
+  transform: scale(0.98);
+}
+
+/* Floating Action Button (FAB) - "New Payment" Style */
+.fab-enhanced {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 64px;
+  height: 64px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+.fab-enhanced:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.5);
+}
+
+.fab-enhanced:active {
+  transform: scale(1.05);
+}
+
+/* FAB with text */
+.fab-extended {
+  width: auto;
+  padding: 0 24px;
+  border-radius: 32px;
+  gap: 12px;
+}
+
+.fab-extended-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Pill Button (rounded) */
+.btn-pill {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-pill:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-pill.active {
+  background: #7c3aed;
+  color: white;
+}
+
+/* Icon Button */
+.btn-icon {
+  width: 48px;
+  height: 48px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+/* Success Button */
+.btn-success-enhanced {
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-success-enhanced:hover {
+  background: #059669;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Danger/Delete Button */
+.btn-danger-enhanced {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-danger-enhanced:hover {
+  background: #dc2626;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Full Width Button */
+.btn-full {
+  width: 100%;
+}
+
+/* Button Group */
+.btn-group {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.btn-group.vertical {
+  flex-direction: column;
+}
+
+/* Disabled Button */
+.btn-enhanced:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}

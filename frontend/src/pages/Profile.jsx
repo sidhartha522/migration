@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { profileAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
 import '../styles/ProfileModern.css';
+import '../styles/SettingsModern.css';
 
 function Profile() {
   const navigate = useNavigate();
@@ -166,15 +167,79 @@ function Profile() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="profile-section-card">
-          <button 
-            type="button"
-            onClick={() => navigate('/profile/edit')}
-            className="btn btn-edit-profile"
-          >
-            <i className="fas fa-edit"></i> Edit Complete Business Profile
-          </button>
+        {/* Settings Section - Google Style */}
+        <div style={{marginTop: '20px', marginBottom: '20px'}}>
+          <h3 style={{fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '16px', padding: '0 4px'}}>Settings</h3>
+          
+          {/* Settings List */}
+          <div className="settings-section" style={{background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'}}>
+            <div className="settings-item" onClick={() => navigate('/profile/edit')}>
+              <div className="settings-icon blue">
+                <i className="fas fa-user"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">Your info</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+            
+            <div className="settings-item" onClick={() => navigate('/customers')}>
+              <div className="settings-icon purple">
+                <i className="fas fa-users"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">Customers</div>
+                <div className="settings-subtitle">{businessStats.totalCustomers} total customers</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+            
+            <div className="settings-item" onClick={() => navigate('/transactions')}>
+              <div className="settings-icon green">
+                <i className="fas fa-receipt"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">Transactions</div>
+                <div className="settings-subtitle">{businessStats.totalTransactions} total transactions</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+          </div>
+          
+          <div style={{height: '8px'}}></div>
+          
+          <div className="settings-section" style={{background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'}}>
+            <div className="settings-item">
+              <div className="settings-icon orange">
+                <i className="fas fa-info-circle"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">About</div>
+                <div className="settings-subtitle">Version 1.0.0</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+            
+            <div className="settings-item">
+              <div className="settings-icon blue">
+                <i className="fas fa-question-circle"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">Help & feedback</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+            
+            <div className="settings-item" onClick={handleLogout}>
+              <div className="settings-icon red">
+                <i className="fas fa-sign-out-alt"></i>
+              </div>
+              <div className="settings-content">
+                <div className="settings-title">Sign out</div>
+              </div>
+              <i className="fas fa-chevron-right settings-arrow"></i>
+            </div>
+          </div>
         </div>
 
         {/* Business Information Card */}

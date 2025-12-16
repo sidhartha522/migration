@@ -1,11 +1,11 @@
 /**
- * Business Profile Edit - Comprehensive Business Information Form
+ * Business Profile Edit - Comprehensive Business Information Form with 2-Level Categories
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
-import { businessCategories } from '../data/businessCategories';
+import { getAllLevel1Categories, getLevel2Options } from '../data/businessCategoriesLevels';
 import '../styles/ProfileEdit.css';
 
 function ProfileEdit() {
@@ -41,12 +41,28 @@ function ProfileEdit() {
   const [keywordInput, setKeywordInput] = useState('');
   const [logoPreview, setLogoPreview] = useState('');
   const [logoFile, setLogoFile] = useState(null);
+  const [level2Options, setLevel2Options] = useState([]);
 
   const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const businessCategoriesLevel1 = getAllLevel1Categories();
 
   useEffect(() => {
     loadProfile();
   }, []);
+
+  // Update Level 2 options when category changes
+  useEffect(() => {
+    if (formData.category) {
+      const options = getLevel2Options(formData.category);
+      setLevel2Options(options);
+      // Reset subcategory if not in new options
+      if (formData.subcategory && !options.includes(formData.subcategory)) {
+        setFormData(prev => ({ ...prev, subcategory: '' }));
+      }
+    } else {
+      setLevel2Options([]);
+    }
+  }, [formData.category]);
 
   const loadProfile = async () => {
     try {
@@ -344,57 +360,36 @@ function ProfileEdit() {
           </h3>
           
           <div className="form-group">
-            <label>Industry Category *</label>
+            <label>Business Category (Level 1) *</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               required
             >
-              <option value="">Select category</option>
-              {Object.keys(businessCategories).map(cat => (
-                <option key={cat} value={cat}>
-                  {businessCategories[cat].icon} {cat}
+              <option value="">Select main category</option>
+              {businessCategoriesLevel1.map(cat => (
+                <option key={cat.categoryId} value={cat.categoryId}>
+                  {cat.categoryName}
                 </option>
               ))}
             </select>
           </div>
 
-          {formData.category && (
+          {formData.category && level2Options.length > 0 && (
             <div className="form-group">
-              <label>Subcategory *</label>
+              <label>Business Specialization (Level 2)</label>
               <select
                 name="subcategory"
                 value={formData.subcategory}
                 onChange={handleChange}
-                required
               >
-                <option value="">Select subcategory</option>
-                {Object.keys(businessCategories[formData.category].subcategories).map(subcat => (
-                  <option key={subcat} value={subcat}>
-                    {subcat}
+                <option value="">Select specialization (Optional)</option>
+                {level2Options.map(subType => (
+                  <option key={subType} value={subType}>
+                    {subType}
                   </option>
                 ))}
-              </select>
-            </div>
-          )}
-
-          {formData.subcategory && (
-            <div className="form-group">
-              <label>Specific Business Type *</label>
-              <select
-                name="businessType"
-                value={formData.businessType}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select business type</option>
-                {businessCategories[formData.category].subcategories[formData.subcategory].map(type => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-                <option value="custom">Other (Custom)</option>
               </select>
             </div>
           )}

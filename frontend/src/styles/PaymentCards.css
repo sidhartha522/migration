@@ -1,0 +1,163 @@
+/**
+ * Payment Method Cards - Dashed Border Style
+ * For "Add payment method" and payment account cards
+ */
+
+/* Payment Method Grid */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+/* Payment Card Base */
+.payment-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid transparent;
+}
+
+.payment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Add Payment Card - Dashed Border */
+.payment-card-add {
+  background: #fafafa;
+  border: 2px dashed #d1d5db;
+  box-shadow: none;
+}
+
+.payment-card-add:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+/* Payment Card Icon */
+.payment-card-icon {
+  width: 56px;
+  height: 56px;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #3b82f6;
+  margin-bottom: 12px;
+}
+
+.payment-card-add .payment-card-icon {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* Payment Card Content */
+.payment-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.payment-card-add .payment-card-title {
+  color: #6b7280;
+}
+
+.payment-card-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+/* Payment Card with Badge */
+.payment-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* Payment Card Selected State */
+.payment-card.selected {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.payment-card.selected .payment-card-icon {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Bank Account Card */
+.bank-account-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bank-account-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.bank-account-icon {
+  width: 48px;
+  height: 48px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.bank-account-content {
+  flex: 1;
+}
+
+.bank-account-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.bank-account-number {
+  font-size: 13px;
+  color: #9ca3af;
+  font-feature-settings: 'tnum' 1;
+  margin-bottom: 0;
+}
+
+.bank-account-check {
+  color: #10b981;
+  font-size: 20px;
+}

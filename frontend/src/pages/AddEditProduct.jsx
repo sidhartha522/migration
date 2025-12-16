@@ -1,10 +1,11 @@
 /**
- * AddEditProduct Page - Modern Flat Design
+ * AddEditProduct Page - Modern Flat Design with Two-Level Categories
  */
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productsAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import { getAllLevel1InventoryCategories, getLevel2InventoryOptions } from '../data/inventoryCategories';
 import '../styles/AddEditProductModern.css';
 
 const AddEditProduct = () => {
@@ -16,6 +17,7 @@ const AddEditProduct = () => {
     name: '',
     description: '',
     category: '',
+    subcategory: '',
     stock_quantity: '',
     unit: '',
     price: '',
@@ -23,7 +25,9 @@ const AddEditProduct = () => {
     low_stock_threshold: '10'
   });
 
-  const [categories, setCategories] = useState([]);
+  const [level2Options, setLevel2Options] = useState([]);
+
+  const categories = getAllLevel1InventoryCategories();
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -36,16 +40,28 @@ const AddEditProduct = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Update Level 2 options when Level 1 category changes
+    if (formData.category) {
+      const options = getLevel2InventoryOptions(formData.category);
+      setLevel2Options(options);
+      // Reset subcategory if it's not in the new options
+      if (formData.subcategory && !options.includes(formData.subcategory)) {
+        setFormData(prev => ({ ...prev, subcategory: '' }));
+      }
+    } else {
+      setLevel2Options([]);
+    }
+  }, [formData.category]);
+
   const loadDropdownData = async () => {
     try {
-      const [categoriesRes, unitsRes] = await Promise.all([
-        productsAPI.getCategories(),
-        productsAPI.getUnits()
-      ]);
-      setCategories(categoriesRes.data.categories);
+      const unitsRes = await productsAPI.getUnits();
       setUnits(unitsRes.data.units);
     } catch (error) {
-      console.error('Failed to load dropdown data', error);
+      console.error('Failed to load units data', error);
+      // Fallback units
+      setUnits(['Piece', 'Kg', 'Litre', 'Meter', 'Box', 'Packet']);
     }
   };
 
@@ -59,6 +75,7 @@ const AddEditProduct = () => {
         name: product.name,
         description: product.description || '',
         category: product.category,
+        subcategory: product.subcategory || '',
         stock_quantity: product.stock_quantity.toString(),
         unit: product.unit,
         price: product.price.toString(),
@@ -231,10 +248,10 @@ const AddEditProduct = () => {
               />
             </div>
 
-            {/* Category */}
+            {/* Category - Level 1 */}
             <div className="form-group">
               <label htmlFor="category" className="form-label">
-                Category <span className="required">*</span>
+                Category (Level 1) <span className="required">*</span>
               </label>
               <select
                 id="category"
@@ -243,12 +260,34 @@ const AddEditProduct = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="">Select Category</option>
+                <option value="">Select Main Category</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
               </select>
             </div>
+
+            {/* Subcategory - Level 2 */}
+            {formData.category && level2Options.length > 0 && (
+              <div className="form-group">
+                <label htmlFor="subcategory" className="form-label">
+                  Subcategory (Level 2)
+                </label>
+                <select
+                  id="subcategory"
+                  name="subcategory"
+                  value={formData.subcategory}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Subcategory (Optional)</option>
+                  {level2Options.map((subcat) => (
+                    <option key={subcat} value={subcat}>{subcat}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Stock Quantity */}
             <div className="form-group">

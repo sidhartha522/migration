@@ -158,24 +158,30 @@ const Dashboard = () => {
           </div>
           {(summary?.recent_customers && summary.recent_customers.length > 0) ? (
             <div>
-              {summary.recent_customers.slice(0, 3).map((customer) => (
-                <Link 
-                  key={customer.id} 
-                  to={`/customer/${customer.id}`}
-                  className="customer-item-modern"
-                >
-                  <div className="customer-avatar-modern">
-                    {customer.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="customer-info-modern">
-                    <div className="customer-name-modern">{customer.name}</div>
-                    <div className="customer-phone-modern">{customer.phone_number}</div>
-                  </div>
-                  <div className={`customer-balance-modern ${customer.balance >= 0 ? 'balance-positive' : 'balance-negative'}`}>
-                    ₹{Math.abs(customer.balance).toFixed(2)}
-                  </div>
-                </Link>
-              ))}
+              {summary.recent_customers.slice(0, 3).map((customer, index) => {
+                // Ensure balance is a number and handle properly
+                const balance = parseFloat(customer.balance) || 0;
+                // Assign varied avatar colors using modulo rotation
+                const colorClass = `avatar-color-${index % 10}`;
+                return (
+                  <Link 
+                    key={customer.id} 
+                    to={`/customer/${customer.id}`}
+                    className="customer-item-modern"
+                  >
+                    <div className={`customer-avatar-modern ${colorClass}`}>
+                      {customer.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="customer-info-modern">
+                      <div className="customer-name-modern">{customer.name}</div>
+                      <div className="customer-phone-modern">{customer.phone_number}</div>
+                    </div>
+                    <div className={`customer-balance-modern ${balance >= 0 ? 'balance-positive' : 'balance-negative'}`}>
+                      ₹{Math.abs(balance).toFixed(2)}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="empty-state">

@@ -1,9 +1,13 @@
-/* Dashboard - Revolut-Inspired Flat Modern Design */
+/* Dashboard - Modern App UI Design */
+@import './AvatarSystem.css';
+@import './TransactionCards.css';
+@import './PromoBanner.css';
 
 .dashboard-modern {
   min-height: 100vh;
-  padding: var(--space-4);
-  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+  padding: var(--space-4) var(--space-3);
+  background: var(--bg-secondary);
+  padding-bottom: 100px;
 }
 
 .dashboard-container-modern {
@@ -11,27 +15,42 @@
   margin: 0 auto;
 }
 
-/* Hero Card - Inspired by Revolut balance card */
+/* Hero Card - Solid Lighter Purple with Decorative Circles */
 .hero-card {
-  background: linear-gradient(135deg, #5f259f 0%, #7c3aed 100%);
-  border-radius: 20px;
+  background: #7c3aed;
+  border-radius: 24px;
   padding: var(--space-8) var(--space-6);
-  margin-bottom: var(--space-4);
-  box-shadow: 0 8px 24px rgba(95, 37, 159, 0.25);
+  margin-bottom: var(--space-5);
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2);
   text-align: center;
+  border: none;
   position: relative;
   overflow: hidden;
 }
 
+/* Decorative Background Circles */
 .hero-card::before {
   content: '';
   position: absolute;
-  top: -50%;
-  right: -20%;
   width: 200px;
   height: 200px;
-  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  top: -80px;
+  right: -60px;
+  pointer-events: none;
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  bottom: -60px;
+  left: -40px;
+  pointer-events: none;
 }
 
 .hero-label {
@@ -67,24 +86,24 @@
 
 .stat-card {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: var(--space-4);
   display: flex;
   align-items: center;
   gap: var(--space-3);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  border: none;
   transition: all 0.2s ease;
 }
 
 .stat-card:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,18 +112,18 @@
 }
 
 .stat-icon-purple {
-  background: rgba(95, 37, 159, 0.1);
-  color: var(--primary-purple);
+  background: var(--bg-light-purple);
+  color: var(--primary);
 }
 
 .stat-icon-green {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--accent-green);
+  background: var(--bg-light-green);
+  color: #059669;
 }
 
 .stat-icon-blue {
-  background: rgba(0, 102, 255, 0.1);
-  color: var(--accent-blue);
+  background: var(--bg-light-blue);
+  color: #2563eb;
 }
 
 .stat-content {
@@ -207,40 +226,46 @@
   color: var(--text-primary);
 }
 
-/* Action Grid - Clean white cards with colored icons */
+/* Action Grid - App-like icon buttons */
 .action-grid-modern {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: var(--space-5);
+  gap: 12px;
+  margin-bottom: var(--space-6);
 }
 
-/* Action Cards - Fintech style with rounded corners */
+/* Action Cards - PhonePe/GPay Style */
 .action-card {
   background: white;
   border: none;
   border-radius: 20px;
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-5) var(--space-2);
   text-align: center;
   text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 12px rgba(95, 37, 159, 0.06);
+  gap: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-height: 118px;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .action-card:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 8px rgba(95, 37, 159, 0.1);
+  transform: scale(0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .action-icon-modern {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,66 +274,74 @@
 }
 
 .action-icon-modern.icon-purple {
-  background: #5f259f;
-  color: white;
+  background: var(--bg-light-purple);
+  color: var(--primary);
 }
 
 .action-icon-modern.icon-green {
-  background: #10b981;
-  color: white;
+  background: var(--bg-light-green);
+  color: #059669;
 }
 
 .action-icon-modern.icon-blue {
-  background: #3b82f6;
-  color: white;
+  background: var(--bg-light-blue);
+  color: #2563eb;
 }
 
 .action-icon-modern.icon-orange {
-  background: #f97316;
-  color: white;
+  background: #fff7ed;
+  color: #ea580c;
 }
 
 .action-label-modern {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
-/* WhatsApp Button */
+/* WhatsApp Send All Reminders Button - App Style */
 .whatsapp-btn-modern {
-  background: var(--accent-green);
+  background: #25d366;
   color: white;
   border: none;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  border-radius: 16px;
+  padding: 18px var(--space-4);
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: var(--space-4);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: var(--space-5);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 208, 156, 0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
+  min-height: 60px;
+}
+
+.whatsapp-btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
 }
 
 .whatsapp-btn-modern:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(37, 211, 102, 0.25);
 }
 
 /* Section Cards */
 .section-modern {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: var(--space-5);
   margin-bottom: var(--space-4);
   box-shadow: var(--shadow-sm);
+  border: none;
 }
 
 .section-header-modern {
@@ -319,17 +352,23 @@
 }
 
 .section-title-modern {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .view-all-link-modern {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--primary-purple);
+  color: #7c3aed;
   text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.view-all-link-modern:hover {
+  color: #5f259f;
 }
 
 /* Customer Items */
@@ -337,31 +376,32 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) 0;
+  padding: 16px 0;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--radius-md);
 }
 
 .customer-item-modern:not(:last-child) {
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .customer-item-modern:active {
-  background: var(--bg-secondary);
+  background: rgba(124, 58, 237, 0.02);
+  transform: scale(0.99);
 }
 
 .customer-avatar-modern {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  background: var(--primary-purple);
-  color: white;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg-light-purple);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   flex-shrink: 0;
 }
 
@@ -371,8 +411,8 @@
 }
 
 .customer-name-modern {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 4px 0;
   overflow: hidden;
@@ -382,6 +422,7 @@
 
 .customer-phone-modern {
   font-size: 14px;
+  font-weight: 500;
   color: var(--text-secondary);
   margin: 0;
 }
@@ -390,6 +431,7 @@
   font-size: 18px;
   font-weight: 700;
   flex-shrink: 0;
+  text-align: right;
 }
 
 .balance-positive {
