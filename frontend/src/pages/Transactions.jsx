@@ -134,7 +134,7 @@ const Transactions = () => {
                         <div style={{
                           fontSize: '24px',
                           fontWeight: '700',
-                          color: '#111827',
+                          color: transaction.transaction_type === 'credit' ? '#ef4444' : '#10b981',
                           marginBottom: '8px'
                         }}>
                           ₹{transaction.amount}
@@ -146,12 +146,12 @@ const Transactions = () => {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '4px',
-                            color: '#10b981',
+                            color: transaction.transaction_type === 'credit' ? '#ef4444' : '#10b981',
                             fontSize: '14px',
                             fontWeight: '500'
                           }}>
-                            <i className="fas fa-check-circle"></i>
-                            {transaction.transaction_type === 'credit' ? 'Received' : 'Paid'}
+                            <i className={`fas fa-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'check-circle'}`}></i>
+                            {transaction.transaction_type === 'credit' ? 'Credit taken' : 'Paid'}
                           </span>
                           <span style={{color: '#9ca3af', fontSize: '14px'}}>•</span>
                           <span style={{color: '#6b7280', fontSize: '14px'}}>
