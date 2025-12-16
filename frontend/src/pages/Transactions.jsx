@@ -176,13 +176,6 @@ const Transactions = () => {
                           </div>
                         )}
                       </div>
-                      
-                      {/* Arrow */}
-                      <i className="fas fa-chevron-right" style={{
-                        color: '#d1d5db',
-                        fontSize: '14px',
-                        marginTop: '4px'
-                      }}></i>
                     </div>
                   </div>
                 </div>
