@@ -27,6 +27,10 @@ const AddEditProduct = () => {
   });
   
   const [imagePreview, setImagePreview] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+  const [customSubcategory, setCustomSubcategory] = useState('');
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [showCustomSubcategory, setShowCustomSubcategory] = useState(false);
 
   const categories = getAllLevel1InventoryCategories();
   const [subcategories, setSubcategories] = useState([]);
@@ -47,14 +51,33 @@ const AddEditProduct = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value, subcategory: '' }));
     
-    if (value) {
+    if (value === 'other') {
+      setShowCustomCategory(true);
+      setShowCustomSubcategory(false);
+      setSubcategories(['Other']);
+    } else if (value) {
+      setShowCustomCategory(false);
+      setShowCustomSubcategory(false);
       const selectedCat = categories.find(cat => cat.id === value);
       console.log('Selected category:', selectedCat);
       const subcats = selectedCat?.level2Options || selectedCat?.level2 || [];
       console.log('Subcategories:', subcats);
-      setSubcategories(subcats);
+      setSubcategories([...subcats, 'Other']);
     } else {
+      setShowCustomCategory(false);
+      setShowCustomSubcategory(false);
       setSubcategories([]);
+    }
+  };
+
+  const handleSubcategoryChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (value === 'Other') {
+      setShowCustomSubcategory(true);
+    } else {
+      setShowCustomSubcategory(false);
     }
   };
 
@@ -134,6 +157,23 @@ const AddEditProduct = () => {
       return;
     }
 
+    // Validate custom category/subcategory if "Other" is selected
+    if (showCustomCategory && !customCategory.trim()) {
+      setMessages([{
+        type: 'error',
+        message: 'Please enter a custom category name'
+      }]);
+      return;
+    }
+
+    if (showCustomSubcategory && !customSubcategory.trim()) {
+      setMessages([{
+        type: 'error',
+        message: 'Please enter a custom subcategory name'
+      }]);
+      return;
+    }
+
     const stock = parseInt(formData.stock_quantity);
     const price = parseFloat(formData.price);
 
@@ -159,6 +199,8 @@ const AddEditProduct = () => {
       
       const productData = {
         ...formData,
+        category: showCustomCategory ? customCategory : formData.category,
+        subcategory: showCustomSubcategory ? customSubcategory : formData.subcategory,
         stock_quantity: stock,
         price: price,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 10
@@ -202,28 +244,31 @@ const AddEditProduct = () => {
     return (
       <div className="add-edit-product-modern">
         <div className="product-form-container">
-          <div className="product-form-card">
-            <div className="skeleton" style={{height: '32px', width: '200px', marginBottom: '32px'}}></div>
-            
-            {/* Skeleton Form Fields */}
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <div key={i} className="form-group">
-                <div className="skeleton" style={{height: '16px', width: '120px', marginBottom: '8px'}}></div>
-                <div className="skeleton" style={{height: i === 2 ? '80px' : '48px', width: '100%', borderRadius: '8px'}}></div>
+          {/* Skeleton Header */}
+          <div className="modern-header">
+            <div className="skeleton" style={{height: '44px', width: '44px', borderRadius: '50%', marginRight: '16px'}}></div>
+            <div className="skeleton" style={{height: '28px', width: '180px', borderRadius: '12px'}}></div>
+          </div>
+          
+          {/* Skeleton Image Upload Card */}
+          <div className="section-card">
+            <div className="skeleton" style={{height: '180px', width: '180px', borderRadius: '16px', margin: '0 auto 16px'}}></div>
+            <div className="skeleton" style={{height: '20px', width: '140px', margin: '0 auto', borderRadius: '8px'}}></div>
+          </div>
+          
+          {/* Skeleton Form Sections */}
+          <div className="section-card">
+            <div className="skeleton" style={{height: '24px', width: '150px', marginBottom: '24px', borderRadius: '10px'}}></div>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="form-group" style={{marginBottom: '20px'}}>
+                <div className="skeleton" style={{height: '14px', width: '100px', marginBottom: '10px', borderRadius: '6px'}}></div>
+                <div className="skeleton" style={{height: i === 2 ? '100px' : '56px', width: '100%', borderRadius: '16px'}}></div>
               </div>
             ))}
-            
-            {/* Skeleton Toggle */}
-            <div className="form-group">
-              <div className="skeleton" style={{height: '24px', width: '200px'}}></div>
-            </div>
-            
-            {/* Skeleton Buttons */}
-            <div className="form-actions">
-              <div className="skeleton" style={{height: '48px', flex: 1, borderRadius: '8px'}}></div>
-              <div className="skeleton" style={{height: '48px', flex: 1, borderRadius: '8px'}}></div>
-            </div>
           </div>
+          
+          {/* Skeleton FAB */}
+          <div className="skeleton" style={{position: 'fixed', bottom: '32px', right: '32px', width: '64px', height: '64px', borderRadius: '50%'}}></div>
         </div>
       </div>
     );
@@ -324,18 +369,34 @@ const AddEditProduct = () => {
                     {cat.name}
                   </option>
                 ))}
+                <option value="other">Other (Add Custom)</option>
               </select>
               <label htmlFor="category" className="material-label">Main Category *</label>
             </div>
 
-            {formData.category && (
+            {showCustomCategory && (
+              <div className="material-input-group">
+                <input
+                  type="text"
+                  id="customCategory"
+                  className="material-input"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder=" "
+                  required
+                />
+                <label htmlFor="customCategory" className="material-label">Enter Custom Category Name *</label>
+              </div>
+            )}
+
+            {formData.category && !showCustomCategory && (
               <div className="material-input-group">
                 <select
                   id="subcategory"
                   name="subcategory"
                   className="material-input material-select"
                   value={formData.subcategory}
-                  onChange={handleChange}
+                  onChange={handleSubcategoryChange}
                   required
                 >
                   <option value="" disabled hidden></option>
@@ -346,6 +407,21 @@ const AddEditProduct = () => {
                   ))}
                 </select>
                 <label htmlFor="subcategory" className="material-label">Subcategory *</label>
+              </div>
+            )}
+
+            {showCustomSubcategory && (
+              <div className="material-input-group">
+                <input
+                  type="text"
+                  id="customSubcategory"
+                  className="material-input"
+                  value={customSubcategory}
+                  onChange={(e) => setCustomSubcategory(e.target.value)}
+                  placeholder=" "
+                  required
+                />
+                <label htmlFor="customSubcategory" className="material-label">Enter Custom Subcategory Name *</label>
               </div>
             )}
           </div>
