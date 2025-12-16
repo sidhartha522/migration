@@ -50,11 +50,12 @@ const AddEditProduct = () => {
   const handleCategoryChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value, subcategory: '' }));
+    setCustomSubcategory('');
     
     if (value === 'other') {
       setShowCustomCategory(true);
-      setShowCustomSubcategory(false);
-      setSubcategories(['Other']);
+      setShowCustomSubcategory(true);
+      setSubcategories([]);
     } else if (value) {
       setShowCustomCategory(false);
       setShowCustomSubcategory(false);
@@ -375,54 +376,71 @@ const AddEditProduct = () => {
             </div>
 
             {showCustomCategory && (
-              <div className="material-input-group">
-                <input
-                  type="text"
-                  id="customCategory"
-                  className="material-input"
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                  placeholder=" "
-                  required
-                />
-                <label htmlFor="customCategory" className="material-label">Enter Custom Category Name *</label>
-              </div>
+              <>
+                <div className="material-input-group">
+                  <input
+                    type="text"
+                    id="customCategory"
+                    className="material-input"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    placeholder=" "
+                    required
+                  />
+                  <label htmlFor="customCategory" className="material-label">Enter Custom Category Name *</label>
+                </div>
+                
+                <div className="material-input-group">
+                  <input
+                    type="text"
+                    id="customSubcategory"
+                    className="material-input"
+                    value={customSubcategory}
+                    onChange={(e) => setCustomSubcategory(e.target.value)}
+                    placeholder=" "
+                    required
+                  />
+                  <label htmlFor="customSubcategory" className="material-label">Enter Custom Subcategory Name *</label>
+                </div>
+              </>
             )}
 
             {formData.category && !showCustomCategory && (
-              <div className="material-input-group">
-                <select
-                  id="subcategory"
-                  name="subcategory"
-                  className="material-input material-select"
-                  value={formData.subcategory}
-                  onChange={handleSubcategoryChange}
-                  required
-                >
-                  <option value="" disabled hidden></option>
-                  {subcategories.map((subcat) => (
-                    <option key={subcat} value={subcat}>
-                      {subcat}
-                    </option>
-                  ))}
-                </select>
-                <label htmlFor="subcategory" className="material-label">Subcategory *</label>
-              </div>
-            )}
+              <>
+                <div className="material-input-group">
+                  <select
+                    id="subcategory"
+                    name="subcategory"
+                    className="material-input material-select"
+                    value={formData.subcategory}
+                    onChange={handleSubcategoryChange}
+                    required
+                  >
+                    <option value="" disabled hidden></option>
+                    {subcategories.map((subcat) => (
+                      <option key={subcat} value={subcat}>
+                        {subcat}
+                      </option>
+                    ))}
+                  </select>
+                  <label htmlFor="subcategory" className="material-label">Subcategory *</label>
+                </div>
 
-            {showCustomSubcategory && (
-              <div className="material-input-group">
-                <input
-                  type="text"
-                  id="customSubcategory"
-                  className="material-input"
-                  value={customSubcategory}
-                  onChange={(e) => setCustomSubcategory(e.target.value)}
-                  placeholder=" "
-                  required
-                />
-                <label htmlFor="customSubcategory" className="material-label">Enter Custom Subcategory Name *</label>
-              </div>
+                {showCustomSubcategory && (
+                  <div className="material-input-group">
+                    <input
+                      type="text"
+                      id="customSubcategoryOnly"
+                      className="material-input"
+                      value={customSubcategory}
+                      onChange={(e) => setCustomSubcategory(e.target.value)}
+                      placeholder=" "
+                      required
+                    />
+                    <label htmlFor="customSubcategoryOnly" className="material-label">Enter Custom Subcategory Name *</label>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
