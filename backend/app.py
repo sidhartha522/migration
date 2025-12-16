@@ -555,11 +555,22 @@ def get_customer_transactions(customer_id):
             receipt_url = txn.get('receipt_image_url', '')
             logger.info(f"Transaction {txn['$id']} receipt_image_url from DB: {receipt_url}")
             
-            # Fix partial URLs from Appwrite truncation
+            # Only construct URL if it's a valid Cloudinary public_id (starts with folder name like 'bill_receipts/')
             if receipt_url and not receipt_url.startswith('http'):
-                # This is a partial path, construct full URL
-                receipt_url = cloudinary_base + receipt_url
-                logger.info(f"Constructed full URL: {receipt_url}")
+                # Check if it looks like a valid Cloudinary public_id
+                if receipt_url.startswith('bill_receipts/') or '/' in receipt_url:
+                    # This is a Cloudinary public_id, construct full URL
+                    receipt_url = cloudinary_base + receipt_url
+                    logger.info(f"Constructed full URL: {receipt_url}")
+                else:
+                    # This is invalid data (base64 or corrupted), ignore it
+                    logger.warning(f"Invalid receipt_image_url format, ignoring: {receipt_url[:50]}...")
+                    receipt_url = ''
+            elif receipt_url and receipt_url.startswith('http'):
+                # Already a full URL, use as is
+                pass
+            else:
+                receipt_url = ''
             
             transaction_list.append({
                 'id': txn['$id'],
@@ -567,7 +578,7 @@ def get_customer_transactions(customer_id):
                 'transaction_type': txn.get('transaction_type'),
                 'notes': txn.get('notes'),
                 'created_at': txn.get('created_at'),
-                'receipt_image_url': receipt_url if receipt_url else '',
+                'receipt_image_url': receipt_url,
                 'created_by': txn.get('created_by')
             })
         
@@ -669,19 +680,39 @@ def create_transaction():
         
         # Handle bill image upload
         bill_image_url = None
-        if 'bill_image' in request.files:
-            file = request.files['bill_image']
+        if 'bill_photo' in request.files:
+            file = request.files['bill_photo']
             if file and file.filename and allowed_file(file.filename):
                 try:
+                    # Generate unique filename
+                    bill_id = f"bill_{transaction_id}_{uuid.uuid4().hex[:8]}"
+                    
                     # Upload to Cloudinary
                     upload_result = cloudinary.uploader.upload(
                         file,
                         folder='bill_receipts',
+                        public_id=bill_id,
                         resource_type='image'
                     )
                     logger.info(f"Cloudinary upload result: {upload_result}")
-                    bill_image_url = upload_result.get('secure_url')
-                    logger.info(f"Extracted secure_url: {bill_image_url}")
+                    # Store the public_id (not secure_url) so we can construct URL dynamically
+                    bill_image_url = upload_result.get('public_id')
+                    logger.info(f"Stored public_id: {bill_image_url}")
+                except Exception as upload_error:
+                    logger.error(f"Image upload error: {str(upload_error)}")
+        elif 'bill_image' in request.files:
+            # Fallback for old field name
+            file = request.files['bill_image']
+            if file and file.filename and allowed_file(file.filename):
+                try:
+                    bill_id = f"bill_{transaction_id}_{uuid.uuid4().hex[:8]}"
+                    upload_result = cloudinary.uploader.upload(
+                        file,
+                        folder='bill_receipts',
+                        public_id=bill_id,
+                        resource_type='image'
+                    )
+                    bill_image_url = upload_result.get('public_id')
                 except Exception as upload_error:
                     logger.error(f"Image upload error: {str(upload_error)}")
         
@@ -732,7 +763,20 @@ def get_all_transactions():
         
         # Format transactions
         transaction_list = []
+        cloudinary_base = f"https://res.cloudinary.com/{os.getenv('CLOUDINARY_CLOUD_NAME')}/image/upload/"
+        
         for txn in transactions:
+            receipt_url = txn.get('receipt_image_url', '')
+            
+            # Only construct URL if it's a valid Cloudinary public_id
+            if receipt_url and not receipt_url.startswith('http'):
+                if receipt_url.startswith('bill_receipts/') or '/' in receipt_url:
+                    receipt_url = cloudinary_base + receipt_url
+                else:
+                    receipt_url = ''
+            elif receipt_url and not receipt_url.startswith('http'):
+                receipt_url = ''
+                
             transaction_list.append({
                 'id': txn['$id'],
                 'customer_id': txn.get('customer_id'),
@@ -741,7 +785,7 @@ def get_all_transactions():
                 'transaction_type': txn.get('transaction_type'),
                 'notes': txn.get('notes'),
                 'created_at': txn.get('created_at'),
-                'receipt_image_url': txn.get('receipt_image_url')
+                'receipt_image_url': receipt_url
             })
         
         return jsonify({'transactions': transaction_list}), 200
