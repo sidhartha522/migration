@@ -1,9 +1,9 @@
 /**
- * AddCustomer Page - Modern flat design
+ * AddCustomer Page - Material Design
  */
 .add-customer-page {
   padding-bottom: 0;
-  background: linear-gradient(180deg, #e8f4ff 0%, #f5f9ff 100%);
+  background: linear-gradient(180deg, #f5f3ff 0%, #faf5ff 50%, #fdf4ff 100%);
   min-height: 100vh;
 }
 
@@ -13,11 +13,11 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  background: white;
-  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.2);
 }
 
 .add-customer-page .btn-back {
@@ -25,18 +25,18 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: rgba(95, 37, 159, 0.1);
-  color: var(--primary-purple);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .add-customer-page .btn-back:hover {
-  background: rgba(95, 37, 159, 0.15);
+  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
 }
 
@@ -45,9 +45,9 @@
 }
 
 .add-customer-page .page-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
   margin: 0;
 }
 
@@ -58,10 +58,10 @@
 
 .form-card {
   background: white;
-  border-radius: 16px;
-  padding: var(--space-4);
+  border-radius: 24px;
+  padding: 24px;
   margin-bottom: var(--space-4);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   animation: fadeInUp 0.4s ease-out;
 }
 
@@ -86,28 +86,27 @@
 
 .form-card .form-label {
   display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-2);
+  font-size: 15px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 12px;
 }
 
 .form-card .form-input {
   width: 100%;
-  padding: var(--space-3);
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
+  padding: 16px;
+  border: none;
+  background: #f8fafc;
+  border-radius: 16px;
   font-size: 16px;
   color: var(--text-primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: white;
 }
 
 .form-card .form-input:focus {
   outline: none;
-  border-color: var(--primary-purple);
-  box-shadow: 0 0 0 4px rgba(95, 37, 159, 0.1);
-  transform: translateY(-2px);
+  background: white;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15), 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .form-card .form-input::placeholder {
@@ -150,54 +149,53 @@
 .btn-submit {
   width: 100%;
   padding: 18px var(--space-4);
-  background: var(--primary-purple);
+  backgroun20px var(--space-4);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0 var(--space-4) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(95, 37, 159, 0.2);
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35), 0 2px 8px rgba(124, 58, 237, 0.2);
 }
 
 .btn-submit i {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .btn-submit:hover {
-  background: var(--primary-purple-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(95, 37, 159, 0.3);
+  box-shadow: 0 10px 32px rgba(124, 58, 237, 0.45), 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-submit:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(95, 37, 159, 0.2);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
 }
 
 .btn-submit:disabled {
-  background: var(--text-muted);
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
-}
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
 
 /* Info Card */
 .info-card {
   background: linear-gradient(135deg, rgba(95, 37, 159, 0.08) 0%, rgba(95, 37, 159, 0.03) 100%);
   border: 1px solid rgba(95, 37, 159, 0.15);
-  border-radius: 12px;
-  padding: var(--space-3);
+  border-radius: 12px;124, 58, 237, 0.08) 0%, rgba(124, 58, 237, 0.03) 100%);
+  border-radius: 20px;
+  padding: 20px;
   margin: 0 var(--space-4) var(--space-3);
   animation: fadeInUp 0.5s ease-out 0.1s both;
-}
-
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08)
 .info-card-header {
   display: flex;
   align-items: center;
