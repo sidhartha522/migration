@@ -125,7 +125,7 @@ class AppwriteDB:
             logger.error(f"Appwrite get error: {e}")
             return None
 
-    def list_documents(self, collection_name, queries=None, limit=100):
+    def list_documents(self, collection_name, queries=None, limit=5000):
         """List documents with optional queries"""
         try:
             self._ensure_initialized()
