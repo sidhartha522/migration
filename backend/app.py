@@ -1328,6 +1328,7 @@ def get_products():
                 'stock_quantity': doc['stock_quantity'],
                 'unit': doc['unit'],
                 'price': doc['price'],
+                'hsn_code': doc.get('hsn_code', ''),
                 'product_image_url': doc.get('product_image_url', ''),
                 'is_public': doc['is_public'],
                 'low_stock_threshold': doc.get('low_stock_threshold', 10),
@@ -1394,6 +1395,13 @@ def add_product():
             except Exception as e:
                 logger.error(f"Cloudinary upload error: {str(e)}")
         
+        # Handle is_public field (can be bool or string)
+        is_public_value = data.get('is_public', False)
+        if isinstance(is_public_value, str):
+            is_public = is_public_value.lower() == 'true'
+        else:
+            is_public = bool(is_public_value)
+        
         # Create product document
         product_data = {
             'business_id': business_id,
@@ -1404,8 +1412,9 @@ def add_product():
             'stock_quantity': stock_quantity,
             'unit': data['unit'].strip(),
             'price': price,
+            'hsn_code': data.get('hsn_code', '').strip(),
             'product_image_url': product_image_url,
-            'is_public': data.get('is_public', 'false').lower() == 'true',
+            'is_public': is_public,
             'low_stock_threshold': int(data.get('low_stock_threshold', 10))
         }
         
@@ -1422,6 +1431,7 @@ def add_product():
             'stock_quantity': result['stock_quantity'],
             'unit': result['unit'],
             'price': result['price'],
+            'hsn_code': result.get('hsn_code', ''),
             'product_image_url': result.get('product_image_url', ''),
             'is_public': result['is_public'],
             'low_stock_threshold': result.get('low_stock_threshold', 10),
@@ -1460,6 +1470,7 @@ def get_product(product_id):
             'stock_quantity': doc['stock_quantity'],
             'unit': doc['unit'],
             'price': doc['price'],
+            'hsn_code': doc.get('hsn_code', ''),
             'product_image_url': doc.get('product_image_url', ''),
             'is_public': doc['is_public'],
             'low_stock_threshold': doc.get('low_stock_threshold', 10),
@@ -1509,7 +1520,7 @@ def update_product(product_id):
         
         # Update allowed fields only
         allowed_fields = ['name', 'description', 'category', 'subcategory', 'stock_quantity', 
-                         'unit', 'price', 'product_image_url', 'is_public', 'low_stock_threshold']
+                         'unit', 'price', 'hsn_code', 'product_image_url', 'is_public', 'low_stock_threshold']
         
         update_data = {k: v for k, v in data.items() if k in allowed_fields}
         

@@ -13,6 +13,11 @@ const AddEditProduct = () => {
   const { productId } = useParams();
   const isEditMode = !!productId;
 
+  // Generate random HSN code (8 digits)
+  const generateRandomHSN = () => {
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -21,6 +26,7 @@ const AddEditProduct = () => {
     stock_quantity: '',
     unit: '',
     price: '',
+    hsn_code: generateRandomHSN(),
     is_public: false,
     low_stock_threshold: '10',
     product_image: null
@@ -106,6 +112,7 @@ const AddEditProduct = () => {
         stock_quantity: product.stock_quantity.toString(),
         unit: product.unit,
         price: product.price.toString(),
+        hsn_code: product.hsn_code || generateRandomHSN(),
         is_public: product.is_public,
         low_stock_threshold: product.low_stock_threshold?.toString() || '10',
         product_image: null
@@ -516,6 +523,24 @@ const AddEditProduct = () => {
                   step="1"
                 />
                 <label htmlFor="low_stock_threshold" className="material-label">Alert Threshold</label>
+              </div>
+            </div>
+
+            <div className="material-input-group">
+              <input
+                type="text"
+                id="hsn_code"
+                name="hsn_code"
+                className="material-input"
+                value={formData.hsn_code}
+                onChange={handleChange}
+                placeholder=" "
+                maxLength="8"
+              />
+              <label htmlFor="hsn_code" className="material-label">HSN Code</label>
+              <div style={{fontSize: '12px', color: '#666', marginTop: '4px'}}>
+                <i className="fas fa-info-circle" style={{marginRight: '4px'}}></i>
+                Harmonized System of Nomenclature code for tax purposes
               </div>
             </div>
           </div>
