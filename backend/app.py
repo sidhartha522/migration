@@ -143,19 +143,19 @@ def register():
     try:
         data = request.get_json()
         business_name = data.get('business_name', '').strip()
-        phone = data.get('phone', '').strip()
+        phone_number = data.get('phone_number', '').strip()
         password = data.get('password')
         
-        if not business_name or not phone or not password:
+        if not business_name or not phone_number or not password:
             return jsonify({'error': 'Business name, phone number and password are required'}), 400
         
         # Validate phone number
-        if not phone.isdigit() or len(phone) != 10:
+        if not phone_number.isdigit() or len(phone_number) != 10:
             return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
         
         # Check if user already exists
         existing_users = appwrite_db.list_documents('users', [
-            Query.equal('phone_number', phone)
+            Query.equal('phone_number', phone_number)
         ])
         
         if existing_users:
@@ -167,7 +167,7 @@ def register():
         
         user_data = {
             'name': business_name,
-            'phone_number': phone,
+            'phone_number': phone_number,
             'password': generate_password_hash(password),
             'user_type': 'business',
             'created_at': datetime.now().isoformat()
@@ -184,7 +184,7 @@ def register():
         business_data = {
             'user_id': user_id,
             'name': business_name,
-            'phone_number': phone,
+            'phone_number': phone_number,
             'access_pin': business_pin,
             'is_active': True,
             'created_at': datetime.now().isoformat()
@@ -200,7 +200,7 @@ def register():
             'token': token,
             'user': {
                 'id': user_id,
-                'phone': phone,
+                'phone_number': phone_number,
                 'user_type': 'business',
                 'business_id': business_id,
                 'business_name': business_name,
@@ -217,15 +217,15 @@ def login():
     """Login business user"""
     try:
         data = request.get_json()
-        phone = data.get('phone')
+        phone_number = data.get('phone_number')
         password = data.get('password')
         
-        if not phone or not password:
+        if not phone_number or not password:
             return jsonify({'error': 'Phone number and password are required'}), 400
         
         # Find user
         users = appwrite_db.list_documents('users', [
-            Query.equal('phone_number', phone),
+            Query.equal('phone_number', phone_number),
             Query.equal('user_type', 'business')
         ])
         
@@ -276,7 +276,7 @@ def login():
             'token': token,
             'user': {
                 'id': user['$id'],
-                'phone': phone,
+                'phone_number': phone_number,
                 'user_type': 'business',
                 'business_id': business['$id'],
                 'business_name': business['name'],
@@ -328,21 +328,31 @@ def dashboard():
         total_customers = len(customers)
         total_credit = sum(float(t.get('amount', 0)) for t in all_transactions if t.get('transaction_type') == 'credit')
         total_payment = sum(float(t.get('amount', 0)) for t in all_transactions if t.get('transaction_type') == 'payment')
-        outstanding_balance = total_credit - total_payment
         
-        # Get pending payments (customers with positive balance) - use ALL transactions
+        # Get customer credits for accurate current balances
+        customer_credits = appwrite_db.list_documents('customer_credits', [
+            Query.equal('business_id', business_id)
+        ])
+        
+        # Create a map of customer_id -> current_balance and calculate outstanding balance
+        customer_balance_map = {}
+        outstanding_balance = 0
+        for credit in customer_credits:
+            customer_id = credit.get('customer_id')
+            current_balance = credit.get('current_balance', 0)
+            customer_balance_map[customer_id] = current_balance
+            outstanding_balance += current_balance
+        
+        # Get pending payments (customers with positive balance) from customer_credits
         pending_customers = []
         for customer in customers:
-            customer_transactions = [t for t in all_transactions if t.get('customer_id') == customer['$id']]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
-            customer_balance = customer_credit - customer_payment
+            customer_balance = customer_balance_map.get(customer['$id'], 0)
             
             if customer_balance > 0:
                 pending_customers.append({
                     'id': customer['$id'],
                     'name': customer.get('name'),
-                    'phone': customer.get('phone_number'),
+                    'phone_number': customer.get('phone_number'),
                     'balance': customer_balance
                 })
         
@@ -368,17 +378,15 @@ def dashboard():
             reverse=True
         )
         
-        # Take the top 4 and build the response - use ALL transactions for accurate balance
+        # Take the top 4 and build the response - fetch balance from customer_credits
         for customer_id in sorted_customer_ids[:4]:
             # Find the customer object
             customer = next((c for c in customers if c['$id'] == customer_id), None)
             if not customer:
                 continue
             
-            customer_transactions = [t for t in all_transactions if t.get('customer_id') == customer_id]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
-            customer_balance = customer_credit - customer_payment
+            # Get balance from customer_credits collection
+            customer_balance = customer_balance_map.get(customer_id, 0)
             
             recent_customers_list.append({
                 'id': customer['$id'],
@@ -391,7 +399,7 @@ def dashboard():
             'business': {
                 'id': business['$id'],
                 'name': business['name'],
-                'phone': business.get('phone_number'),
+                'phone_number': business.get('phone_number'),
                 'access_pin': business.get('access_pin')
             },
             'summary': {
@@ -441,34 +449,46 @@ def get_customers():
             Query.equal('business_id', business_id)
         ])
         
-        # Get transactions to calculate balances
+        # Get customer credits for accurate balances
+        customer_credits = appwrite_db.list_documents('customer_credits', [
+            Query.equal('business_id', business_id)
+        ])
+        
+        # Create a map of customer_id -> current_balance
+        customer_balance_map = {}
+        for credit in customer_credits:
+            customer_id = credit.get('customer_id')
+            current_balance = credit.get('current_balance', 0)
+            customer_balance_map[customer_id] = current_balance
+        
+        # Get transactions to find last transaction date and count
         transactions = appwrite_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
-        # Build a dict of customer_id -> last_transaction_date
+        # Build a dict of customer_id -> last_transaction_date and transaction_count
         customer_last_transaction = {}
+        customer_transaction_count = {}
         for txn in transactions:
             cid = txn.get('customer_id')
             txn_date = txn.get('$createdAt', '')
-            if cid and cid not in customer_last_transaction:
-                customer_last_transaction[cid] = txn_date
+            if cid:
+                if cid not in customer_last_transaction:
+                    customer_last_transaction[cid] = txn_date
+                customer_transaction_count[cid] = customer_transaction_count.get(cid, 0) + 1
         
-        # Calculate balance for each customer
+        # Build customer list with current balances from customer_credits
         customer_list = []
         for customer in customers:
             customer_id = customer['$id']
-            customer_transactions = [t for t in transactions if t.get('customer_id') == customer_id]
-            customer_credit = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'credit')
-            customer_payment = sum(float(t.get('amount', 0)) for t in customer_transactions if t.get('transaction_type') == 'payment')
             
             customer_list.append({
                 'id': customer_id,
                 'name': customer.get('name'),
-                'phone': customer.get('phone_number'),
-                'balance': customer_credit - customer_payment,
-                'transaction_count': len(customer_transactions),
+                'phone_number': customer.get('phone_number'),
+                'balance': customer_balance_map.get(customer_id, 0),
+                'transaction_count': customer_transaction_count.get(customer_id, 0),
                 'last_transaction_date': customer_last_transaction.get(customer_id, '')
             })
         
@@ -511,7 +531,7 @@ def get_customer_details(customer_id):
             'customer': {
                 'id': customer['$id'],
                 'name': customer.get('name'),
-                'phone': customer.get('phone_number'),
+                'phone_number': customer.get('phone_number'),
                 'balance': balance
             },
             'transactions': transactions,
@@ -598,22 +618,22 @@ def add_customer():
         data = request.get_json()
         
         name = data.get('name', '').strip()
-        phone = data.get('phone', '').strip()
+        phone_number = data.get('phone_number', '').strip()
         
-        if not name or not phone:
+        if not name or not phone_number:
             return jsonify({'error': 'Name and phone number are required'}), 400
         
         # Validate phone
-        if not phone.isdigit() or len(phone) != 10:
+        if not phone_number.isdigit() or len(phone_number) != 10:
             return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
         
         # Check if customer already exists
         existing = appwrite_db.list_documents('customers', [
             Query.equal('business_id', business_id),
-            Query.equal('phone_number', phone)
+            Query.equal('phone_number', phone_number)
         ])
         
-        if existing_customers:
+        if existing:
             return jsonify({'error': 'Customer with this phone number already exists'}), 400
         
         # Create customer
@@ -621,7 +641,7 @@ def add_customer():
         customer_data = {
             'business_id': business_id,
             'name': name,
-            'phone_number': phone,
+            'phone_number': phone_number,
             'created_at': datetime.utcnow().isoformat()
         }
         
@@ -1002,11 +1022,11 @@ def update_profile():
         # Basic information
         if 'name' in data:
             update_data['name'] = data['name'].strip()
-        if 'phone' in data:
-            phone = data['phone'].strip()
-            if phone and (not phone.isdigit() or len(phone) != 10):
+        if 'phone_number' in data:
+            phone_number = data['phone_number'].strip()
+            if phone_number and (not phone_number.isdigit() or len(phone_number) != 10):
                 return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
-            update_data['phone_number'] = phone
+            update_data['phone_number'] = phone_number
         if 'email' in data:
             update_data['email'] = data['email'].strip() if data['email'] else ''
         if 'gst_number' in data:

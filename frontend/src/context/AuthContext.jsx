@@ -34,10 +34,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const register = async (name, phone, password) => {
+  const register = async (name, phoneNumber, password) => {
     try {
       setError(null);
-      const response = await authAPI.register({ business_name: name, phone, password });
+      const response = await authAPI.register({ business_name: name, phone_number: phoneNumber, password });
       const { token, user: userData } = response.data;
       
       localStorage.setItem('token', token);
@@ -52,10 +52,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (phone, password) => {
+  const login = async (phoneNumber, password) => {
     try {
       setError(null);
-      const response = await authAPI.login({ phone, password });
+      const response = await authAPI.login({ phone_number: phoneNumber, password });
       const { token, user: userData } = response.data;
       
       localStorage.setItem('token', token);

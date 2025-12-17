@@ -9,7 +9,7 @@ import '../styles/Auth.css';
 
 const Register = () => {
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -20,13 +20,13 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !phone || !password) {
+    if (!name || !phoneNumber || !password) {
       setMessages([{ type: 'error', message: 'All fields are required' }]);
       return;
     }
 
     // Validate phone number
-    if (!phone.match(/^\d{10}$/)) {
+    if (!phoneNumber.match(/^\d{10}$/)) {
       setMessages([{ type: 'error', message: 'Phone number must be exactly 10 digits' }]);
       return;
     }
@@ -34,7 +34,7 @@ const Register = () => {
     setLoading(true);
     setMessages([]);
 
-    const result = await register(name, phone, password);
+    const result = await register(name, phoneNumber, password);
     
     if (result.success) {
       setMessages([{ type: 'success', message: 'Registration successful! Welcome to Ekthaa!' }]);
@@ -92,8 +92,8 @@ const Register = () => {
               <i className="fas fa-phone"></i>
               <input
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="Enter your 10-digit mobile number"
                 required
               />

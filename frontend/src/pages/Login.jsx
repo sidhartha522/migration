@@ -8,7 +8,7 @@ import FlashMessage from '../components/FlashMessage';
 import '../styles/Auth.css';
 
 const Login = () => {
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!phone || !password) {
+    if (!phoneNumber || !password) {
       setMessages([{ type: 'error', message: 'Please enter both phone number and password' }]);
       return;
     }
@@ -27,7 +27,7 @@ const Login = () => {
     setLoading(true);
     setMessages([]);
 
-    const result = await login(phone, password);
+    const result = await login(phoneNumber, password);
     
     if (result.success) {
       setMessages([{ type: 'success', message: 'Successfully logged in!' }]);
@@ -74,8 +74,8 @@ const Login = () => {
               <i className="fas fa-phone"></i>
               <input
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="Enter your mobile number"
                 required
               />

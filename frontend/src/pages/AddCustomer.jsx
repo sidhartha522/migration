@@ -11,7 +11,7 @@ const AddCustomer = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
-    phone: ''
+    phone_number: ''
   });
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -27,13 +27,13 @@ const AddCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone) {
+    if (!formData.name || !formData.phone_number) {
       setMessages([{ type: 'error', message: 'All fields are required' }]);
       return;
     }
 
     // Validate phone number
-    if (!formData.phone.match(/^\d{10}$/)) {
+    if (!formData.phone_number.match(/^\d{10}$/)) {
       setMessages([{ type: 'error', message: 'Phone number must be exactly 10 digits' }]);
       return;
     }
@@ -88,15 +88,15 @@ const AddCustomer = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="phone" className="form-label">Mobile Number *</label>
+            <label htmlFor="phone_number" className="form-label">Mobile Number *</label>
             <div className="icon-input-wrapper">
               <i className="fas fa-phone input-icon"></i>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
+                id="phone_number"
+                name="phone_number"
                 className="form-input"
-                value={formData.phone}
+                value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Enter 10-digit mobile number"
                 required

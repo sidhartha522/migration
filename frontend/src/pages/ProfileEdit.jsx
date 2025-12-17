@@ -30,7 +30,7 @@ function ProfileEdit() {
     description: '',
     keywords: [],
     gstNumber: '',
-    phone: '',
+    phone_number: '',
     email: '',
     website: '',
     facebook: '',
@@ -87,7 +87,7 @@ function ProfileEdit() {
         description: data.description || '',
         keywords: data.keywords || [],
         gstNumber: data.gst_number || '',
-        phone: data.phone || '',
+        phone_number: data.phone_number || '',
         email: data.email || '',
         website: data.website || '',
         facebook: data.facebook || '',
@@ -251,8 +251,8 @@ function ProfileEdit() {
             <label>Phone Number *</label>
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
+              name="phone_number"
+              value={formData.phone_number}
               onChange={handleChange}
               placeholder="Enter phone number"
               required

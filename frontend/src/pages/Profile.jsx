@@ -14,7 +14,7 @@ function Profile() {
   const { user, logout } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
-    phone: '',
+    phone_number: '',
     description: '',
     profile_photo: null
   });
@@ -39,7 +39,7 @@ function Profile() {
       
       setFormData({
         name: businessData.name || '',
-        phone: businessData.phone || '',
+        phone: businessData.phone_number || '',
         description: businessData.description || '',
         profile_photo: null
       });
@@ -141,7 +141,7 @@ function Profile() {
           </div>
           <div className="profile-photo-info">
             <div className="profile-name-large">{formData.name || 'Business Name'}</div>
-            <div className="profile-phone">{formData.phone || user?.phone}</div>
+            <div className="profile-phone">{formData.phone_number || user?.phone_number}</div>
           </div>
         </div>
 
@@ -263,13 +263,13 @@ function Profile() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone" className="form-label">Phone Number</label>
+              <label htmlFor="phone_number" className="form-label">Phone Number</label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
+                id="phone_number"
+                name="phone_number"
                 className="input input-disabled"
-                value={formData.phone}
+                value={formData.phone_number}
                 onChange={handleChange}
                 required
                 disabled

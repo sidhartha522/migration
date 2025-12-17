@@ -125,7 +125,7 @@ const Customers = () => {
                   </div>
                   <div className="customer-details">
                     <div className="customer-name-text">{customer.name}</div>
-                    <div className="customer-phone-text">{customer.phone_number || customer.phone}</div>
+                    <div className="customer-phone-text">{customer.phone_number}</div>
                   </div>
                   <div className="customer-balance-amount">
                     <div className={`balance-value ${balance > 0 ? 'positive' : 'negative'}`}>
@@ -138,7 +138,7 @@ const Customers = () => {
                   <i className="fas fa-chevron-right" style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}></i>
                 </Link>
                 <a
-                  href={`https://wa.me/91${customer.phone_number || customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(balance).toFixed(2)}`}
+                  href={`https://wa.me/91${customer.phone_number}?text=Hi ${customer.name}, your balance is ₹${Math.abs(balance).toFixed(2)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-btn-customer"

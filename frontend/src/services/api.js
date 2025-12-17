@@ -159,7 +159,7 @@ export const profileAPI = {
       const formData = new FormData();
       if (data.name) formData.append('name', data.name);
       if (data.description) formData.append('description', data.description);
-      if (data.phone) formData.append('phone', data.phone);
+      if (data.phone_number) formData.append('phone_number', data.phone_number);
       formData.append('profile_photo', data.profile_photo);
       
       return api.put('/profile', formData, {

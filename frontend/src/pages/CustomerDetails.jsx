@@ -154,7 +154,7 @@ const CustomerDetails = () => {
               ₹{Math.abs(customer.balance || 0).toFixed(0)}
             </div>
             <a 
-              href={`https://wa.me/91${customer.phone}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
+              href={`https://wa.me/91${customer.phone_number}?text=Hi ${customer.name}, your balance is ₹${Math.abs(customer.balance || 0).toFixed(2)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="whatsapp-btn-header"
