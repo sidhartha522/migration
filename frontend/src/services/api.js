@@ -170,6 +170,36 @@ export const profileAPI = {
     }
     return api.put('/profile', data);
   },
+  updateBusinessProfile: (formData) => {
+    // Convert FormData to JSON for API
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      if (key === 'keywords' || key === 'operatingDays') {
+        try {
+          data[key] = JSON.parse(value);
+        } catch (e) {
+          data[key] = value;
+        }
+      } else if (key === 'logo') {
+        // Skip logo for now - would need separate endpoint
+        continue;
+      } else {
+        // Map frontend field names to backend field names
+        const fieldMap = {
+          'businessName': 'name',
+          'gstNumber': 'gst_number',
+          'customBusinessType': 'custom_business_type',
+          'operatingHoursFrom': 'operating_hours_from',
+          'operatingHoursTo': 'operating_hours_to',
+          'operatingDays': 'operating_days',
+          'businessType': 'business_type'
+        };
+        const backendKey = fieldMap[key] || key;
+        data[backendKey] = value;
+      }
+    }
+    return api.put('/profile', data);
+  },
 };
 
 // QR Code APIs

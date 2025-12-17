@@ -998,13 +998,70 @@ def update_profile():
         data = request.get_json()
         
         update_data = {}
+        
+        # Basic information
         if 'name' in data:
             update_data['name'] = data['name'].strip()
         if 'phone' in data:
             phone = data['phone'].strip()
             if phone and (not phone.isdigit() or len(phone) != 10):
                 return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
-            update_data['phone'] = phone
+            update_data['phone_number'] = phone
+        if 'email' in data:
+            update_data['email'] = data['email'].strip() if data['email'] else ''
+        if 'gst_number' in data:
+            update_data['gst_number'] = data['gst_number'].strip().upper() if data['gst_number'] else ''
+        if 'description' in data:
+            update_data['description'] = data['description'].strip() if data['description'] else ''
+            
+        # Location information
+        if 'location' in data:
+            update_data['location'] = data['location'].strip() if data['location'] else ''
+        if 'address' in data:
+            update_data['address'] = data['address'].strip() if data['address'] else ''
+        if 'city' in data:
+            update_data['city'] = data['city'].strip() if data['city'] else ''
+        if 'state' in data:
+            update_data['state'] = data['state'].strip() if data['state'] else ''
+        if 'pincode' in data:
+            pincode = data['pincode'].strip()
+            if pincode and (not pincode.isdigit() or len(pincode) != 6):
+                return jsonify({'error': 'PIN code must be exactly 6 digits'}), 400
+            update_data['pincode'] = pincode
+            
+        # Business category and type
+        if 'category' in data:
+            update_data['category'] = data['category'].strip() if data['category'] else ''
+        if 'subcategory' in data:
+            update_data['subcategory'] = data['subcategory'].strip() if data['subcategory'] else ''
+        if 'business_type' in data:
+            update_data['business_type'] = data['business_type'].strip() if data['business_type'] else ''
+        if 'custom_business_type' in data:
+            update_data['custom_business_type'] = data['custom_business_type'].strip() if data['custom_business_type'] else ''
+            
+        # Social media links
+        if 'website' in data:
+            update_data['website'] = data['website'].strip() if data['website'] else ''
+        if 'facebook' in data:
+            update_data['facebook'] = data['facebook'].strip() if data['facebook'] else ''
+        if 'instagram' in data:
+            update_data['instagram'] = data['instagram'].strip() if data['instagram'] else ''
+        if 'twitter' in data:
+            update_data['twitter'] = data['twitter'].strip() if data['twitter'] else ''
+        if 'linkedin' in data:
+            update_data['linkedin'] = data['linkedin'].strip() if data['linkedin'] else ''
+            
+        # Operating hours and days
+        if 'operating_hours_from' in data:
+            update_data['operating_hours_from'] = data['operating_hours_from']
+        if 'operating_hours_to' in data:
+            update_data['operating_hours_to'] = data['operating_hours_to']
+        if 'operating_days' in data:
+            update_data['operating_days'] = data['operating_days']
+            
+        # Keywords
+        if 'keywords' in data:
+            update_data['keywords'] = data['keywords'] if isinstance(data['keywords'], list) else []
         
         if not update_data:
             return jsonify({'error': 'No data to update'}), 400
