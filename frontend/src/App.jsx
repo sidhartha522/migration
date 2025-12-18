@@ -16,6 +16,7 @@ import ProfileEdit from './pages/ProfileEdit';
 import BulkReminders from './pages/BulkReminders';
 import Products from './pages/Products';
 import AddEditProduct from './pages/AddEditProduct';
+import InvoiceGenerator from './pages/InvoiceGenerator';
 import './styles/App.css';
 
 function App() {
@@ -127,6 +128,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AddEditProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/invoice"
+              element={
+                <ProtectedRoute>
+                  <InvoiceGenerator />
                 </ProtectedRoute>
               }
             />

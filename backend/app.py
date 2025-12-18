@@ -19,6 +19,12 @@ from io import BytesIO
 import cloudinary
 import cloudinary.uploader
 from dotenv import load_dotenv
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
 # Load environment variables
 load_dotenv()
@@ -1612,6 +1618,267 @@ def get_units():
     ]
     
     return jsonify({'units': units}), 200
+
+# ============================================================================
+# INVOICE GENERATION
+# ============================================================================
+
+def number_to_words(num):
+    """Convert number to words (Indian format)"""
+    try:
+        if not isinstance(num, int):
+            num = int(num)
+    except Exception:
+        return str(num)
+
+    if num < 0:
+        return 'Minus ' + number_to_words(abs(num))
+
+    ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
+    tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+    teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+
+    def convert_below_thousand(n):
+        if n == 0:
+            return ''
+        elif n < 10:
+            return ones[n]
+        elif n < 20:
+            return teens[n - 10]
+        elif n < 100:
+            return tens[n // 10] + (' ' + ones[n % 10] if n % 10 != 0 else '')
+        else:
+            return ones[n // 100] + ' Hundred' + (' ' + convert_below_thousand(n % 100) if n % 100 != 0 else '')
+
+    if num == 0:
+        return 'Zero'
+    elif num < 1000:
+        return convert_below_thousand(num)
+    elif num < 100000:
+        return convert_below_thousand(num // 1000) + ' Thousand' + (' ' + convert_below_thousand(num % 1000) if num % 1000 != 0 else '')
+    elif num < 10000000:
+        return convert_below_thousand(num // 100000) + ' Lakh' + (' ' + convert_below_thousand(num % 100000) if num % 100000 != 0 else '')
+    elif num < 1000000000:
+        return convert_below_thousand(num // 10000000) + ' Crore' + (' ' + convert_below_thousand(num % 10000000) if num % 10000000 != 0 else '')
+    else:
+        return str(num)
+
+def create_invoice_pdf(data):
+    """Generate tax invoice PDF"""
+    try:
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=18, textColor=colors.HexColor('#000000'),
+                                    alignment=TA_CENTER, spaceAfter=20, fontName='Helvetica-Bold')
+        elements.append(Paragraph("TAX INVOICE", title_style))
+        elements.append(Spacer(1, 10))
+        
+        # Invoice details
+        invoice_date = datetime.now().strftime("%d-%b-%y")
+        invoice_number = f"2025-26/{datetime.now().strftime('%m%d%H%M')}"
+        
+        # Header table
+        seller_info = f"""<b>{data.get('seller_name', '')}</b><br/>{data.get('seller_address', '')}<br/>
+        {data.get('seller_city', '')}, {data.get('seller_state', '')} - {data.get('seller_pincode', '')}<br/>
+        GSTIN/UIN: {data.get('seller_gstin', '')}<br/>
+        State Name: {data.get('seller_state_name', '')}, Code: {data.get('seller_state_code', '')}"""
+        
+        buyer_info = f"""<b>{data.get('buyer_name', '')}</b><br/>{data.get('buyer_address', '')}<br/>
+        {data.get('buyer_city', '')}, {data.get('buyer_state', '')} - {data.get('buyer_pincode', '')}<br/>
+        {"GSTIN/UIN: " + data.get('buyer_gstin', '') if data.get('buyer_gstin') else ''}<br/>
+        {"State Code: " + data.get('buyer_state_code', '') if data.get('buyer_state_code') else ''}"""
+        
+        invoice_meta = f"""<b>Invoice No.</b> {invoice_number}<br/><b>Dated:</b> {invoice_date}<br/>
+        {"<b>Vehicle No:</b> " + data.get('vehicle_number', '') if data.get('vehicle_number') else ''}"""
+        
+        header_data = [
+            [Paragraph(seller_info, styles['Normal']), Paragraph(invoice_meta, styles['Normal'])],
+            [Paragraph("<b>Buyer (Bill to)</b>", styles['Normal']), ''],
+            [Paragraph(buyer_info, styles['Normal']), '']
+        ]
+        
+        header_table = Table(header_data, colWidths=[4*inch, 3.5*inch])
+        header_table.setStyle(TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('PADDING', (0, 0), (-1, -1), 10),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 15))
+        
+        # Items table
+        items = data.get('items', [])
+        cgst_rate = float(data.get('cgst_rate', 9))
+        sgst_rate = float(data.get('sgst_rate', 9))
+        
+        subtotal = 0
+        items_data = [['Sl', 'Description of Goods', 'HSN/SAC', 'Quantity', 'Rate', 'per', 'Amount']]
+        hsn_codes = []
+        
+        for idx, item in enumerate(items, 1):
+            if not item.get('description'):
+                continue
+            qty = float(item.get('quantity', 0))
+            rate = float(item.get('rate', 0))
+            amount = qty * rate
+            subtotal += amount
+            
+            hsn = item.get('hsn_code', '')
+            if hsn and hsn not in hsn_codes:
+                hsn_codes.append(hsn)
+            
+            items_data.append([
+                str(idx), item.get('description', ''), hsn,
+                f"{qty} {item.get('unit', 'Nos')}", f"Rs {rate:,.2f}",
+                item.get('unit', 'Nos'), f"Rs {amount:,.2f}"
+            ])
+        
+        items_data.append(['', '', '', '', '', 'Total', f"Rs {subtotal:,.2f}"])
+        
+        items_table = Table(items_data, colWidths=[0.4*inch, 3*inch, 0.8*inch, 0.9*inch, 0.9*inch, 0.5*inch, 1*inch])
+        items_table.setStyle(TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#666666')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('PADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (3, 1), (6, -1), 'RIGHT'),
+        ]))
+        elements.append(items_table)
+        elements.append(Spacer(1, 10))
+        
+        # Tax calculation
+        cgst_amount = (subtotal * cgst_rate) / 100
+        sgst_amount = (subtotal * sgst_rate) / 100
+        total = subtotal + cgst_amount + sgst_amount
+        hsn_display = hsn_codes[0] if hsn_codes else ''
+        
+        tax_data = [
+            ['HSN/SAC', 'Taxable Value', 'CGST', '', 'SGST/UTGST', '', 'Total Tax Amount'],
+            ['', '', 'Rate', 'Amount', 'Rate', 'Amount', ''],
+            [hsn_display, f"Rs {subtotal:,.2f}", f"{cgst_rate}%", f"Rs {cgst_amount:,.2f}",
+             f"{sgst_rate}%", f"Rs {sgst_amount:,.2f}", f"Rs {(cgst_amount + sgst_amount):,.2f}"],
+            ['', f"Total Rs {subtotal:,.2f}", '', '', '', '', f"Rs {(cgst_amount + sgst_amount):,.2f}"]
+        ]
+        
+        tax_table = Table(tax_data, colWidths=[0.8*inch, 1.3*inch, 0.6*inch, 1*inch, 0.8*inch, 1*inch, 1*inch])
+        tax_table.setStyle(TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 1), colors.HexColor('#666666')),
+            ('TEXTCOLOR', (0, 0), (-1, 1), colors.whitesmoke),
+            ('SPAN', (0, 0), (0, 1)), ('SPAN', (1, 0), (1, 1)), ('SPAN', (2, 0), (3, 0)),
+            ('SPAN', (4, 0), (5, 0)), ('SPAN', (6, 0), (6, 1)),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('PADDING', (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(tax_table)
+        elements.append(Spacer(1, 10))
+        
+        # Amount in words
+        total_int = int(total)
+        amount_words = f"INR {number_to_words(total_int)} Only"
+        amount_words_data = [[f"Amount Chargeable (in words): {amount_words}", f"Rs {total:,.2f}"]]
+        amount_words_table = Table(amount_words_data, colWidths=[5.5*inch, 2*inch])
+        amount_words_table.setStyle(TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('PADDING', (0, 0), (-1, -1), 8),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ]))
+        elements.append(amount_words_table)
+        elements.append(Spacer(1, 15))
+        
+        # Notes
+        if data.get('notes'):
+            elements.append(Paragraph(f"<b>Notes:</b> {data.get('notes', '')}", styles['Normal']))
+            elements.append(Spacer(1, 10))
+        
+        # Declaration and signature
+        declaration_style = ParagraphStyle('Declaration', parent=styles['Normal'], fontSize=9, spaceAfter=10)
+        elements.append(Spacer(1, 10))
+        elements.append(Paragraph("<b>Declaration:</b>", declaration_style))
+        elements.append(Paragraph("We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.", declaration_style))
+        elements.append(Spacer(1, 20))
+        
+        signature_style = ParagraphStyle('Signature', parent=styles['Normal'], fontSize=9, alignment=TA_RIGHT)
+        elements.append(Paragraph(f"<b>For {data.get('seller_name', '')}</b>", signature_style))
+        elements.append(Spacer(1, 30))
+        elements.append(Paragraph("Authorised Signatory", signature_style))
+        
+        footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, alignment=TA_CENTER)
+        elements.append(Paragraph("This is a Computer Generated Invoice", footer_style))
+        
+        doc.build(elements)
+        buffer.seek(0)
+        return buffer
+    except Exception as e:
+        raise Exception(f"Error creating PDF: {str(e)}")
+
+@app.route('/api/generate-invoice', methods=['POST'])
+@token_required
+@business_required
+def generate_invoice():
+    """Generate invoice PDF from provided data"""
+    try:
+        business_id = request.business_id
+        
+        if not request.json:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        data = request.json
+        
+        # Validate required buyer fields
+        required_fields = ['buyer_name', 'buyer_address', 'buyer_city', 'buyer_state', 'buyer_pincode']
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        
+        if missing_fields:
+            return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+        
+        # Validate items
+        items = data.get('items', [])
+        if not items or not isinstance(items, list):
+            return jsonify({'error': 'Please add at least one item'}), 400
+        
+        has_valid_item = any(item.get('description') and item.get('quantity') and item.get('rate') for item in items)
+        if not has_valid_item:
+            return jsonify({'error': 'At least one item must have description, quantity, and rate'}), 400
+        
+        # Get business details to auto-fill seller info
+        business = appwrite_db.get_document('businesses', business_id)
+        
+        # Merge business details with provided data
+        invoice_data = {
+            'seller_name': data.get('seller_name') or business.get('name', ''),
+            'seller_address': data.get('seller_address') or business.get('address', ''),
+            'seller_city': data.get('seller_city') or business.get('city', ''),
+            'seller_state': data.get('seller_state') or business.get('state', ''),
+            'seller_pincode': data.get('seller_pincode') or business.get('pincode', ''),
+            'seller_gstin': data.get('seller_gstin') or business.get('gst_number', ''),
+            'seller_state_name': data.get('seller_state_name') or business.get('state', ''),
+            'seller_state_code': data.get('seller_state_code', ''),
+            **data
+        }
+        
+        pdf_buffer = create_invoice_pdf(invoice_data)
+        
+        buyer_name_safe = data.get('buyer_name', 'customer').replace(' ', '_')
+        filename = f"invoice_{buyer_name_safe}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        
+        return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name=filename)
+        
+    except Exception as e:
+        logger.error(f"Generate invoice error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 # Error handlers
 @app.errorhandler(404)

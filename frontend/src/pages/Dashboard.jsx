@@ -117,6 +117,13 @@ const Dashboard = () => {
             <div className="action-label-modern">Add Product</div>
           </Link>
 
+          <Link to="/invoice" className="action-card">
+            <div className="action-icon-modern icon-blue">
+              <i className="fas fa-file-invoice"></i>
+            </div>
+            <div className="action-label-modern">Generate Invoice</div>
+          </Link>
+
           <button className="action-card" onClick={() => setShowQR(!showQR)} style={{border: '1px solid var(--border-light)', background: 'white', cursor: 'pointer'}}>
             <div className="action-icon-modern icon-orange">
               <i className="fas fa-qrcode"></i>
