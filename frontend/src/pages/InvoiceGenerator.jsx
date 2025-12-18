@@ -53,6 +53,8 @@ const InvoiceGenerator = () => {
   const [activeSection, setActiveSection] = useState('buyer');
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     loadBusinessProfile();
@@ -192,18 +194,19 @@ const InvoiceGenerator = () => {
 
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const timestamp = new Date().getTime();
-      link.download = `invoice_${formData.buyer_name.replace(/[^a-z0-9]/gi, '_')}_${timestamp}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      
+      // Clean up old preview URL if exists
+      if (pdfPreviewUrl) {
+        window.URL.revokeObjectURL(pdfPreviewUrl);
+      }
+      
+      setPdfPreviewUrl(url);
+      setShowPreview(true);
+      setActiveSection('preview');
 
       setMessages([{
         type: 'success',
-        message: 'Invoice generated successfully!'
+        message: 'Invoice generated successfully! Preview shown below.'
       }]);
     } catch (err) {
       console.error('Error generating invoice:', err);
@@ -213,6 +216,23 @@ const InvoiceGenerator = () => {
       }]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadPdf = () => {
+    if (pdfPreviewUrl) {
+      const link = document.createElement('a');
+      link.href = pdfPreviewUrl;
+      const timestamp = new Date().getTime();
+      link.download = `invoice_${formData.buyer_name.replace(/[^a-z0-9]/gi, '_')}_${timestamp}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setMessages([{
+        type: 'success',
+        message: 'Invoice downloaded successfully!'
+      }]);
     }
   };
 
@@ -230,7 +250,7 @@ const InvoiceGenerator = () => {
 
         {/* Section Navigation */}
         <div style={{display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto'}}>
-          {['seller', 'buyer', 'items', 'additional'].map(section => (
+          {['seller', 'buyer', 'items', 'additional', ...(showPreview ? ['preview'] : [])].map(section => (
             <button
               key={section}
               type="button"
@@ -544,14 +564,77 @@ const InvoiceGenerator = () => {
             </div>
           )}
 
-          <button 
-            type="submit" 
-            className="btn-primary" 
-            disabled={loading}
-            style={{width: '100%', marginTop: '20px'}}
-          >
-            {loading ? 'Generating Invoice...' : '📄 Generate Invoice PDF'}
-          </button>
+          {/* PDF Preview Section */}
+          {activeSection === 'preview' && showPreview && pdfPreviewUrl && (
+            <div className="section-card">
+              <h3 className="section-title">Invoice Preview</h3>
+              
+              {/* PDF Preview Iframe */}
+              <div style={{
+                width: '100%',
+                height: '600px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                marginBottom: '20px'
+              }}>
+                <iframe
+                  src={pdfPreviewUrl}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none'
+                  }}
+                  title="Invoice Preview"
+                />
+              </div>
+
+              {/* Download Button */}
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                className="btn-primary"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <i className="fas fa-download"></i>
+                Download Invoice PDF
+              </button>
+
+              {/* Generate New Invoice */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPreview(false);
+                  setPdfPreviewUrl(null);
+                  setActiveSection('buyer');
+                }}
+                className="btn-secondary"
+                style={{
+                  width: '100%',
+                  marginTop: '12px'
+                }}
+              >
+                Generate New Invoice
+              </button>
+            </div>
+          )}
+
+          {!showPreview && (
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              disabled={loading}
+              style={{width: '100%', marginTop: '20px'}}
+            >
+              {loading ? 'Generating Invoice...' : '📄 Generate Invoice PDF'}
+            </button>
+          )}
         </form>
       </div>
     </div>
