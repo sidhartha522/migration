@@ -31,6 +31,7 @@ const InvoiceGenerator = () => {
     
     // Invoice items
     items: [{
+      product_id: '',
       description: '',
       hsn_code: '',
       quantity: '',
@@ -50,9 +51,12 @@ const InvoiceGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [activeSection, setActiveSection] = useState('buyer');
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   useEffect(() => {
     loadBusinessProfile();
+    loadProducts();
   }, []);
 
   const loadBusinessProfile = async () => {
@@ -75,6 +79,22 @@ const InvoiceGenerator = () => {
     }
   };
 
+  const loadProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const response = await api.get('/products');
+      setProducts(response.data.products || []);
+    } catch (error) {
+      console.error('Failed to load products', error);
+      setMessages([{
+        type: 'error',
+        message: 'Failed to load products from inventory'
+      }]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -87,6 +107,22 @@ const InvoiceGenerator = () => {
     const newItems = [...formData.items];
     newItems[index][field] = value;
     setFormData(prev => ({ ...prev, items: newItems }));
+  };
+
+  const handleProductSelect = (index, productId) => {
+    const selectedProduct = products.find(p => p.id === productId);
+    if (selectedProduct) {
+      const newItems = [...formData.items];
+      newItems[index] = {
+        product_id: selectedProduct.id,
+        description: selectedProduct.name,
+        hsn_code: selectedProduct.hsn_code || '',
+        quantity: '1',
+        rate: selectedProduct.price.toString(),
+        unit: selectedProduct.unit
+      };
+      setFormData(prev => ({ ...prev, items: newItems }));
+    }
   };
 
   const addItem = () => {
@@ -375,6 +411,23 @@ const InvoiceGenerator = () => {
                       </button>
                     )}
                   </div>
+                  
+                  {/* Product Selection Dropdown */}
+                  <select
+                    value={item.product_id}
+                    onChange={(e) => handleProductSelect(index, e.target.value)}
+                    className="material-input"
+                    style={{marginBottom: '8px'}}
+                    disabled={loadingProducts}
+                  >
+                    <option value="">-- Select from Inventory (Optional) --</option>
+                    {products.map(product => (
+                      <option key={product.id} value={product.id}>
+                        {product.name} - ₹{product.price} / {product.unit} {product.stock_quantity > 0 ? `(${product.stock_quantity} in stock)` : '(Out of stock)'}
+                      </option>
+                    ))}
+                  </select>
+
                   <input
                     type="text"
                     placeholder="Description *"
