@@ -1,0 +1,256 @@
+/* Location Manager Styles */
+.location-manager {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.location-header {
+  margin-bottom: 20px;
+}
+
+.location-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.location-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Alerts */
+.location-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.location-alert .alert-icon {
+  font-size: 18px;
+}
+
+.location-error {
+  background: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.location-success {
+  background: #efe;
+  color: #3c3;
+  border: 1px solid #cfc;
+}
+
+/* Location Display */
+.location-display {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.location-coordinates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.coordinate-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coordinate-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.coordinate-value {
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+.location-info {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.location-updated {
+  font-size: 13px;
+  color: #888;
+}
+
+.location-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Empty State */
+.location-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.location-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.location-empty-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.location-empty-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 24px 0;
+}
+
+/* Footer */
+.location-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.location-note {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+.btn-large {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .location-manager {
+    padding: 20px;
+  }
+
+  .location-coordinates {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .location-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .location-manager {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .location-header h3 {
+    color: #e0e0e0;
+  }
+
+  .location-subtitle {
+    color: #a0a0a0;
+  }
+
+  .location-coordinates {
+    background: #2a2a2a;
+  }
+
+  .coordinate-label {
+    color: #a0a0a0;
+  }
+
+  .coordinate-value {
+    color: #e0e0e0;
+  }
+
+  .location-updated {
+    color: #999;
+  }
+
+  .location-empty-text {
+    color: #e0e0e0;
+  }
+
+  .location-empty-subtitle {
+    color: #a0a0a0;
+  }
+
+  .location-note {
+    color: #999;
+  }
+
+  .location-footer {
+    border-top-color: #333;
+  }
+}

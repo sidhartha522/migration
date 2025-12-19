@@ -2,7 +2,8 @@
  * Auth Context - Manages authentication state
  */
 import { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, locationAPI } from '../services/api';
+import locationService from '../services/locationService';
 
 const AuthContext = createContext();
 
@@ -61,6 +62,18 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
+      
+      // Capture and update location after successful login
+      try {
+        const location = await locationService.getCurrentLocation();
+        await locationAPI.updateLocation({
+          latitude: location.latitude,
+          longitude: location.longitude
+        });
+      } catch (locationError) {
+        console.error('Failed to update location:', locationError);
+        // Don't fail login if location fails
+      }
       
       return { success: true };
     } catch (err) {

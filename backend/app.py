@@ -1103,6 +1103,87 @@ def update_profile():
         logger.error(f"Update profile error: {str(e)}")
         return jsonify({'error': f'Failed to update profile: {str(e)}'}), 500
 
+# ========== Location Endpoints ==========
+
+@app.route('/api/location/update', methods=['POST'])
+@token_required
+@business_required
+def update_location():
+    """Update business location (latitude, longitude)"""
+    try:
+        business_id = request.business_id
+        data = request.get_json()
+        
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        
+        if latitude is None or longitude is None:
+            return jsonify({'error': 'Latitude and longitude are required'}), 400
+        
+        # Validate coordinates
+        try:
+            lat = float(latitude)
+            lng = float(longitude)
+            
+            if not (-90 <= lat <= 90):
+                return jsonify({'error': 'Latitude must be between -90 and 90'}), 400
+            if not (-180 <= lng <= 180):
+                return jsonify({'error': 'Longitude must be between -180 and 180'}), 400
+        except ValueError:
+            return jsonify({'error': 'Invalid coordinate format'}), 400
+        
+        # Update business location
+        update_data = {
+            'latitude': lat,
+            'longitude': lng,
+            'location_updated_at': datetime.now().isoformat()
+        }
+        
+        business = appwrite_db.update_document('businesses', business_id, update_data)
+        
+        return jsonify({
+            'message': 'Location updated successfully',
+            'location': {
+                'latitude': lat,
+                'longitude': lng
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Update location error: {str(e)}")
+        return jsonify({'error': f'Failed to update location: {str(e)}'}), 500
+
+@app.route('/api/location', methods=['GET'])
+@token_required
+@business_required
+def get_location():
+    """Get business location"""
+    try:
+        business_id = request.business_id
+        
+        business = appwrite_db.get_document('businesses', business_id)
+        
+        latitude = business.get('latitude')
+        longitude = business.get('longitude')
+        
+        if latitude is None or longitude is None:
+            return jsonify({
+                'message': 'Location not set',
+                'location': None
+            }), 200
+        
+        return jsonify({
+            'location': {
+                'latitude': latitude,
+                'longitude': longitude,
+                'updated_at': business.get('location_updated_at')
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Get location error: {str(e)}")
+        return jsonify({'error': f'Failed to get location: {str(e)}'}), 500
+
 @app.route('/api/profile/regenerate-pin', methods=['POST'])
 @token_required
 @business_required

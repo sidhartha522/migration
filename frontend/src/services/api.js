@@ -208,6 +208,12 @@ export const qrAPI = {
   getAccessPin: () => api.get('/business/access-pin'),
 };
 
+// Location APIs
+export const locationAPI = {
+  updateLocation: (data) => api.post('/location/update', data),
+  getLocation: () => api.get('/location'),
+};
+
 // Utility APIs
 export const utilityAPI = {
   healthCheck: () => api.get('/health'),

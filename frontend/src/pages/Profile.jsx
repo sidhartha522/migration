@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { profileAPI } from '../services/api';
 import FlashMessage from '../components/FlashMessage';
+import LocationManager from '../components/LocationManager';
 import '../styles/ProfileModern.css';
 import '../styles/SettingsModern.css';
 
@@ -166,6 +167,9 @@ function Profile() {
             <div className="stat-label">Joined</div>
           </div>
         </div>
+
+        {/* Location Manager */}
+        <LocationManager />
 
         {/* Settings Section - Google Style */}
         <div style={{marginTop: '20px', marginBottom: '20px'}}>
