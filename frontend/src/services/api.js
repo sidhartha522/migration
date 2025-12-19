@@ -75,7 +75,7 @@ export const transactionAPI = {
       formData.append('amount', data.amount);
       formData.append('notes', data.notes || '');
       formData.append('bill_image', data.bill_photo);
-      
+
       return api.post('/transaction', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -161,7 +161,7 @@ export const profileAPI = {
       if (data.description) formData.append('description', data.description);
       if (data.phone_number) formData.append('phone_number', data.phone_number);
       formData.append('profile_photo', data.profile_photo);
-      
+
       return api.put('/profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -171,6 +171,7 @@ export const profileAPI = {
     return api.put('/profile', data);
   },
   updateBusinessProfile: (formData) => {
+<<<<<<< Updated upstream
     // Convert FormData to JSON for API
     const data = {};
     for (let [key, value] of formData.entries()) {
@@ -199,6 +200,14 @@ export const profileAPI = {
       }
     }
     return api.put('/profile', data);
+=======
+    // Handles FormData with logo upload and all business profile fields
+    return api.put('/business-profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+>>>>>>> Stashed changes
   },
 };
 

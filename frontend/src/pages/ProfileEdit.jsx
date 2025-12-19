@@ -20,6 +20,8 @@ function ProfileEdit() {
     city: '',
     state: '',
     pincode: '',
+    latitude: null,
+    longitude: null,
     category: '',
     subcategory: '',
     businessType: '',
@@ -42,6 +44,8 @@ function ProfileEdit() {
   const [logoPreview, setLogoPreview] = useState('');
   const [logoFile, setLogoFile] = useState(null);
   const [level2Options, setLevel2Options] = useState([]);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState('');
 
   const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const businessCategoriesLevel1 = getAllLevel1Categories();
@@ -69,7 +73,7 @@ function ProfileEdit() {
       setLoadingProfile(true);
       const response = await profileAPI.getProfile();
       const data = response.data.business || response.data;
-      
+
       setFormData({
         businessName: data.name || '',
         location: data.location || '',
@@ -77,6 +81,8 @@ function ProfileEdit() {
         city: data.city || '',
         state: data.state || '',
         pincode: data.pincode || '',
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
         category: data.category || '',
         subcategory: data.subcategory || '',
         businessType: data.business_type || '',
@@ -95,7 +101,7 @@ function ProfileEdit() {
         twitter: data.twitter || '',
         linkedin: data.linkedin || ''
       });
-      
+
       if (data.logo_url) {
         setLogoPreview(data.logo_url);
       }
@@ -115,6 +121,52 @@ function ProfileEdit() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocationLoading(true);
+    setLocationError('');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        }));
+        setLocationLoading(false);
+        setMessages([{ type: 'success', message: 'Location captured successfully!' }]);
+      },
+      (error) => {
+        setLocationLoading(false);
+        let errorMessage = 'Failed to get location';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out.';
+            break;
+          default:
+            errorMessage = error.message || 'Failed to get location';
+        }
+        setLocationError(errorMessage);
+        setMessages([{ type: 'error', message: errorMessage }]);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
   const handleDayToggle = (day) => {
@@ -169,7 +221,7 @@ function ProfileEdit() {
           submitData.append(key, formData[key]);
         }
       });
-      
+
       if (logoFile) {
         submitData.append('logo', logoFile);
       }
@@ -200,7 +252,7 @@ function ProfileEdit() {
       </div>
 
       <form onSubmit={handleSubmit} className="profile-edit-form">
-        
+
         {/* Logo Upload */}
         <div className="section-card">
           <h3 className="section-title">
@@ -234,7 +286,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-building"></i> Basic Information
           </h3>
-          
+
           <div className="form-group">
             <label>Business Name *</label>
             <input
@@ -290,7 +342,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-map-marker-alt"></i> Location
           </h3>
-          
+
           <div className="form-group">
             <label>Address *</label>
             <input
@@ -351,6 +403,57 @@ function ProfileEdit() {
               placeholder="Near landmark or area name"
             />
           </div>
+
+          {/* GPS Location */}
+          <div className="form-group">
+            <label><i className="fas fa-crosshairs"></i> GPS Coordinates</label>
+            <div className="location-capture-container">
+              <button
+                type="button"
+                className="btn-get-location"
+                onClick={handleGetLocation}
+                disabled={locationLoading}
+              >
+                {locationLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> Getting Location...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-location-arrow"></i> Get Current Location
+                  </>
+                )}
+              </button>
+
+              {formData.latitude && formData.longitude && (
+                <div className="coordinates-display">
+                  <div className="coordinate-item">
+                    <span className="coordinate-label">Latitude:</span>
+                    <span className="coordinate-value">{formData.latitude.toFixed(6)}</span>
+                  </div>
+                  <div className="coordinate-item">
+                    <span className="coordinate-label">Longitude:</span>
+                    <span className="coordinate-value">{formData.longitude.toFixed(6)}</span>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="view-map-link"
+                  >
+                    <i className="fas fa-map-marked-alt"></i> View on Map
+                  </a>
+                </div>
+              )}
+
+              {locationError && (
+                <div className="location-error">
+                  <i className="fas fa-exclamation-circle"></i> {locationError}
+                </div>
+              )}
+            </div>
+            <small>Your GPS coordinates help customers find your business easily</small>
+          </div>
         </div>
 
         {/* Business Type */}
@@ -358,7 +461,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-briefcase"></i> Type of Business
           </h3>
-          
+
           <div className="form-group">
             <label>Business Category (Level 1) *</label>
             <select
@@ -414,7 +517,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-clock"></i> Operating Hours
           </h3>
-          
+
           <div className="form-row">
             <div className="form-group">
               <label>From</label>
@@ -458,7 +561,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-align-left"></i> Business Description
           </h3>
-          
+
           <div className="form-group">
             <label>About Your Business</label>
             <textarea
@@ -477,7 +580,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-tags"></i> Search Keywords
           </h3>
-          
+
           <div className="form-group">
             <label>Add Keywords (for better searchability)</label>
             <div className="keyword-input-group">
@@ -510,7 +613,7 @@ function ProfileEdit() {
           <h3 className="section-title">
             <i className="fas fa-share-alt"></i> Social Media & Website
           </h3>
-          
+
           <div className="form-group">
             <label><i className="fas fa-globe"></i> Website</label>
             <input
@@ -563,7 +666,7 @@ function ProfileEdit() {
               value={formData.linkedin}
               onChange={handleChange}
               placeholder="linkedin.com/company/yourcompany"
-              style={{wordBreak: 'break-all'}}
+              style={{ wordBreak: 'break-all' }}
             />
           </div>
         </div>
