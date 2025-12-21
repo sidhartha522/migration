@@ -1763,6 +1763,25 @@ def get_vouchers():
         logger.error(f"Error fetching vouchers: {str(e)}")
         return jsonify({'error': 'Failed to fetch vouchers'}), 500
 
+@app.route('/api/vouchers/<voucher_id>', methods=['GET'])
+@token_required
+def get_voucher(voucher_id):
+    """Get a single voucher by ID"""
+    try:
+        business_id = request.business_id
+        
+        # Get voucher
+        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        
+        if not voucher or voucher.get('business_id') != business_id:
+            return jsonify({'error': 'Voucher not found'}), 404
+        
+        return jsonify(voucher), 200
+        
+    except Exception as e:
+        logger.error(f"Error fetching voucher: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/voucher', methods=['POST'])
 @token_required
 def create_voucher():
@@ -1772,35 +1791,23 @@ def create_voucher():
         business_id = request.business_id
         
         # Validate required fields
-        required_fields = ['code', 'discount', 'validUntil']
+        required_fields = ['amount', 'validFrom', 'validUntil', 'quantity']
         for field in required_fields:
-            if field not in data or not data[field]:
+            if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
-        
-        # Check if voucher code already exists for this business
-        existing = appwrite_db.list_documents(
-            'vouchers',
-            queries=[
-                Query.equal('business_id', business_id),
-                Query.equal('code', data['code'].upper())
-            ]
-        )
-        
-        if existing:
-            return jsonify({'error': 'Voucher code already exists'}), 400
         
         # Create voucher
         voucher_id = str(uuid.uuid4())
         voucher_data = {
             'business_id': business_id,
-            'code': data['code'].upper(),
-            'discount': float(data['discount']),
-            'min_amount': float(data.get('minAmount', 0)),
-            'max_discount': float(data.get('maxDiscount', 0)),
-            'valid_until': data['validUntil'],
+            'title': data.get('title', ''),
             'description': data.get('description', ''),
-            'is_active': True,
-            'created_at': datetime.now().isoformat()
+            'amount': float(data['amount']),
+            'minPurchase': float(data.get('minPurchase', 0)),
+            'validFrom': data['validFrom'],
+            'validUntil': data['validUntil'],
+            'quantity': int(data['quantity']),
+            'status': data.get('status', 'draft')
         }
         
         voucher = appwrite_db.create_document('vouchers', voucher_id, voucher_data)
@@ -1809,7 +1816,7 @@ def create_voucher():
         
     except Exception as e:
         logger.error(f"Error creating voucher: {str(e)}")
-        return jsonify({'error': 'Failed to create voucher'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/voucher/<voucher_id>', methods=['PUT'])
 @token_required
@@ -1827,18 +1834,22 @@ def update_voucher(voucher_id):
         
         # Update fields
         update_data = {}
-        if 'code' in data:
-            update_data['code'] = data['code'].upper()
-        if 'discount' in data:
-            update_data['discount'] = float(data['discount'])
-        if 'minAmount' in data:
-            update_data['min_amount'] = float(data['minAmount'])
-        if 'maxDiscount' in data:
-            update_data['max_discount'] = float(data['maxDiscount'])
-        if 'validUntil' in data:
-            update_data['valid_until'] = data['validUntil']
+        if 'title' in data:
+            update_data['title'] = data['title']
         if 'description' in data:
             update_data['description'] = data['description']
+        if 'amount' in data:
+            update_data['amount'] = float(data['amount'])
+        if 'minPurchase' in data:
+            update_data['minPurchase'] = float(data['minPurchase'])
+        if 'validFrom' in data:
+            update_data['validFrom'] = data['validFrom']
+        if 'validUntil' in data:
+            update_data['validUntil'] = data['validUntil']
+        if 'quantity' in data:
+            update_data['quantity'] = int(data['quantity'])
+        if 'status' in data:
+            update_data['status'] = data['status']
         
         updated_voucher = appwrite_db.update_document('vouchers', voucher_id, update_data)
         
@@ -1846,12 +1857,12 @@ def update_voucher(voucher_id):
         
     except Exception as e:
         logger.error(f"Error updating voucher: {str(e)}")
-        return jsonify({'error': 'Failed to update voucher'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/voucher/<voucher_id>/toggle', methods=['PUT'])
 @token_required
 def toggle_voucher(voucher_id):
-    """Toggle voucher active status"""
+    """Toggle voucher status between active and draft"""
     try:
         business_id = request.business_id
         
@@ -1862,18 +1873,19 @@ def toggle_voucher(voucher_id):
             return jsonify({'error': 'Voucher not found'}), 404
         
         # Toggle status
-        new_status = not voucher.get('is_active', True)
+        current_status = voucher.get('status', 'draft')
+        new_status = 'draft' if current_status == 'active' else 'active'
         updated_voucher = appwrite_db.update_document(
             'vouchers',
             voucher_id,
-            {'is_active': new_status}
+            {'status': new_status}
         )
         
         return jsonify({'voucher': updated_voucher}), 200
         
     except Exception as e:
         logger.error(f"Error toggling voucher: {str(e)}")
-        return jsonify({'error': 'Failed to toggle voucher'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/voucher/<voucher_id>', methods=['DELETE'])
 @token_required
@@ -1920,54 +1932,57 @@ def get_offers():
         logger.error(f"Error fetching offers: {str(e)}")
         return jsonify({'error': 'Failed to fetch offers'}), 500
 
+@app.route('/api/offers/<offer_id>', methods=['GET'])
+@token_required
+def get_offer(offer_id):
+    """Get a single offer by ID"""
+    try:
+        business_id = request.business_id
+        
+        # Get offer
+        offer = appwrite_db.get_document('offers', offer_id)
+        
+        if not offer or offer.get('business_id') != business_id:
+            return jsonify({'error': 'Offer not found'}), 404
+        
+        return jsonify(offer), 200
+        
+    except Exception as e:
+        logger.error(f"Error fetching offer: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/offer', methods=['POST'])
 @token_required
 def create_offer():
     """Create new offer"""
     try:
         business_id = request.business_id
-        
-        # Handle multipart form data
-        if 'image' in request.files:
-            image_file = request.files['image']
-            
-            # Upload to Cloudinary
-            upload_result = cloudinary.uploader.upload(
-                image_file,
-                folder=f"businesses/{business_id}/offers",
-                transformation=[
-                    {'width': 800, 'height': 600, 'crop': 'fill'},
-                    {'quality': 'auto:best'}
-                ]
-            )
-            
-            image_url = upload_result.get('secure_url')
-        else:
-            image_url = None
-        
-        # Get other fields
-        title = request.form.get('title')
-        description = request.form.get('description')
-        discount = request.form.get('discount')
-        valid_from = request.form.get('validFrom')
-        valid_until = request.form.get('validUntil')
+        data = request.json
         
         # Validate required fields
-        if not all([title, description, discount, valid_until]):
-            return jsonify({'error': 'Missing required fields'}), 400
+        required_fields = ['name', 'offerType', 'startDate', 'endDate']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
         
         # Create offer
         offer_id = str(uuid.uuid4())
         offer_data = {
             'business_id': business_id,
-            'title': title,
-            'description': description,
-            'discount': float(discount),
-            'valid_from': valid_from or datetime.now().isoformat(),
-            'valid_until': valid_until,
-            'image_url': image_url,
-            'is_active': True,
-            'created_at': datetime.now().isoformat()
+            'name': data['name'],
+            'description': data.get('description', ''),
+            'offerType': data['offerType'],
+            'discountValue': float(data['discountValue']) if data.get('discountValue') else None,
+            'buyQuantity': int(data['buyQuantity']) if data.get('buyQuantity') else None,
+            'getQuantity': int(data['getQuantity']) if data.get('getQuantity') else None,
+            'specialPrice': float(data['specialPrice']) if data.get('specialPrice') else None,
+            'originalPrice': float(data['originalPrice']) if data.get('originalPrice') else None,
+            'applicableOn': data.get('applicableOn', 'entire_store'),
+            'minPurchase': float(data.get('minPurchase', 0)),
+            'maxDiscount': float(data.get('maxDiscount', 0)),
+            'startDate': data['startDate'],
+            'endDate': data['endDate'],
+            'status': data.get('status', 'active')
         }
         
         offer = appwrite_db.create_document('offers', offer_id, offer_data)
@@ -1976,7 +1991,7 @@ def create_offer():
         
     except Exception as e:
         logger.error(f"Error creating offer: {str(e)}")
-        return jsonify({'error': 'Failed to create offer'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/offer/<offer_id>', methods=['PUT'])
 @token_required
@@ -1984,6 +1999,7 @@ def update_offer(offer_id):
     """Update offer"""
     try:
         business_id = request.business_id
+        data = request.json
         
         # Get existing offer
         offer = appwrite_db.get_document('offers', offer_id)
@@ -1991,37 +2007,36 @@ def update_offer(offer_id):
         if not offer or offer.get('business_id') != business_id:
             return jsonify({'error': 'Offer not found'}), 404
         
-        # Handle image update
-        image_url = offer.get('image_url')
-        if 'image' in request.files:
-            image_file = request.files['image']
-            
-            # Upload to Cloudinary
-            upload_result = cloudinary.uploader.upload(
-                image_file,
-                folder=f"businesses/{business_id}/offers",
-                transformation=[
-                    {'width': 800, 'height': 600, 'crop': 'fill'},
-                    {'quality': 'auto:best'}
-                ]
-            )
-            
-            image_url = upload_result.get('secure_url')
-        
         # Update fields
         update_data = {}
-        if 'title' in request.form:
-            update_data['title'] = request.form['title']
-        if 'description' in request.form:
-            update_data['description'] = request.form['description']
-        if 'discount' in request.form:
-            update_data['discount'] = float(request.form['discount'])
-        if 'validFrom' in request.form:
-            update_data['valid_from'] = request.form['validFrom']
-        if 'validUntil' in request.form:
-            update_data['valid_until'] = request.form['validUntil']
-        if image_url:
-            update_data['image_url'] = image_url
+        if 'name' in data:
+            update_data['name'] = data['name']
+        if 'description' in data:
+            update_data['description'] = data['description']
+        if 'offerType' in data:
+            update_data['offerType'] = data['offerType']
+        if 'discountValue' in data:
+            update_data['discountValue'] = float(data['discountValue']) if data['discountValue'] else None
+        if 'buyQuantity' in data:
+            update_data['buyQuantity'] = int(data['buyQuantity']) if data['buyQuantity'] else None
+        if 'getQuantity' in data:
+            update_data['getQuantity'] = int(data['getQuantity']) if data['getQuantity'] else None
+        if 'specialPrice' in data:
+            update_data['specialPrice'] = float(data['specialPrice']) if data['specialPrice'] else None
+        if 'originalPrice' in data:
+            update_data['originalPrice'] = float(data['originalPrice']) if data['originalPrice'] else None
+        if 'applicableOn' in data:
+            update_data['applicableOn'] = data['applicableOn']
+        if 'minPurchase' in data:
+            update_data['minPurchase'] = float(data['minPurchase'])
+        if 'maxDiscount' in data:
+            update_data['maxDiscount'] = float(data['maxDiscount'])
+        if 'startDate' in data:
+            update_data['startDate'] = data['startDate']
+        if 'endDate' in data:
+            update_data['endDate'] = data['endDate']
+        if 'status' in data:
+            update_data['status'] = data['status']
         
         updated_offer = appwrite_db.update_document('offers', offer_id, update_data)
         
@@ -2029,12 +2044,12 @@ def update_offer(offer_id):
         
     except Exception as e:
         logger.error(f"Error updating offer: {str(e)}")
-        return jsonify({'error': 'Failed to update offer'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/offer/<offer_id>/toggle', methods=['PUT'])
 @token_required
 def toggle_offer(offer_id):
-    """Toggle offer active status"""
+    """Toggle offer status between active and inactive"""
     try:
         business_id = request.business_id
         
@@ -2045,18 +2060,19 @@ def toggle_offer(offer_id):
             return jsonify({'error': 'Offer not found'}), 404
         
         # Toggle status
-        new_status = not offer.get('is_active', True)
+        current_status = offer.get('status', 'active')
+        new_status = 'inactive' if current_status == 'active' else 'active'
         updated_offer = appwrite_db.update_document(
             'offers',
             offer_id,
-            {'is_active': new_status}
+            {'status': new_status}
         )
         
         return jsonify({'offer': updated_offer}), 200
         
     except Exception as e:
         logger.error(f"Error toggling offer: {str(e)}")
-        return jsonify({'error': 'Failed to toggle offer'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/offer/<offer_id>', methods=['DELETE'])
 @token_required
