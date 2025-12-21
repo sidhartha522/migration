@@ -3,6 +3,399 @@
 ## 📱 Overview
 This is an ultra-detailed documentation of every UI component, color, layout, button, text, and data element in the Kathape Business mobile application.
 
+**Design Philosophy**: Modern mobile-first design inspired by Google Pay, PhonePe, WhatsApp, and Cash App - combining flat design, vibrant colors, card-based layouts, and intuitive interactions.
+
+---
+
+## 🎨 DESIGN LANGUAGE & VISUAL SYSTEM
+
+### Design Principles
+
+#### 1. **Mobile-First Approach**
+- Optimized for touch interactions (minimum 44px touch targets)
+- Bottom navigation for easy thumb access
+- Fixed headers and action buttons for key functions
+- Gesture-friendly swipe and tap interactions
+
+#### 2. **Card-Based Architecture**
+- Everything is contained in cards with rounded corners (16px-24px)
+- White cards on light gray background for depth
+- Consistent shadow elevation system
+- Cards group related information visually
+
+#### 3. **Color as Communication**
+- **Purple (#7c3aed)** - Primary brand, headers, CTAs, active states
+- **Green** - Payments received, positive actions, success states
+- **Red** - Credits taken, negative balances, delete actions
+- **Orange/Yellow** - Low stock alerts, warnings, special features (QR)
+- **Blue** - Transactions, information, secondary actions
+
+#### 4. **Typography Hierarchy**
+- **Extra Bold (800)** - Hero amounts, critical numbers
+- **Bold (700)** - Headings, customer names, labels
+- **Semi-Bold (600)** - Navigation, buttons, sub-labels
+- **Medium (500)** - Body text, descriptions
+- System fonts for maximum readability on all devices
+
+#### 5. **Consistent Patterns**
+- Avatar circles with rotating pastel colors (10 color palette)
+- WhatsApp-style bubbles for transactions
+- Category pills with light backgrounds
+- Quantity steppers with +/- buttons
+- FAB (Floating Action Button) for primary actions
+- Search bars with left icon and clear button
+
+---
+
+### Visual Components Library
+
+#### A. Avatar System (10 Rotating Colors)
+Used for: Customer lists, transaction cards, profile displays
+
+**Colors** (applied via `avatar-color-{0-9}` classes):
+- **Purple** - `background: #e9d5ff`, `color: #7c3aed`
+- **Pink** - `background: #fce7f3`, `color: #db2777`
+- **Blue** - `background: #dbeafe`, `color: #2563eb`
+- **Cyan** - `background: #cffafe`, `color: #0891b2`
+- **Green** - `background: #d1fae5`, `color: #059669`
+- **Mint** - `background: #ccfbf1`, `color: #0d9488`
+- **Yellow** - `background: #fef3c7`, `color: #d97706`
+- **Orange** - `background: #fed7aa`, `color: #ea580c`
+- **Red** - `background: #fee2e2`, `color: #dc2626`
+- **Indigo** - `background: #e0e7ff`, `color: #4f46e5`
+
+**Structure**:
+- Circular containers (48px-120px depending on context)
+- First letter of name in uppercase
+- Font weight: 700
+- Assigned using `index % 10` for even distribution
+
+---
+
+#### B. Transaction Bubble Pattern (WhatsApp Style)
+
+**Layout Characteristics**:
+- Left-aligned: Customer-initiated transactions (payments from customer)
+- Right-aligned: Business-initiated transactions (credits given by business)
+- Maximum width: 85% of container
+- Border radius: 12px-16px
+- Top corner radius reduced on aligned side for "chat tail" effect
+
+**Color Coding**:
+- **Credit Bubbles** (Red theme):
+  - Background: Light red/pink `rgba(254, 226, 226, 0.9)`
+  - Amount color: Red `#ef4444`
+  - Icon: Up arrow in red circle
+  
+- **Payment Bubbles** (Green theme):
+  - Background: Light green `rgba(209, 250, 229, 0.9)` or white
+  - Amount color: Green `#10b981`
+  - Icon: Down arrow in green circle
+
+**Content Structure**:
+1. Header: Name + transaction type (small text)
+2. Amount: Large bold text with icon
+3. Notes: Optional gray text on light background
+4. Receipt image: Optional thumbnail (click to expand)
+5. Timestamp: Small gray text, right-aligned
+
+---
+
+#### C. Category Pill System
+
+**Used for**: Product categories, transaction types, filters
+
+**Structure**:
+- Inline-block display
+- Background: Light tinted color (opacity 0.15-0.2)
+- Text: Uppercase, bold (600-700)
+- Font size: 11px-13px
+- Letter spacing: 0.5px-1px
+- Padding: 6px 14px
+- Border radius: 8px-12px (full pill shape)
+- No border or subtle 1px border
+
+**Examples**:
+- **FOOD-GROCERIES**: Purple background `rgba(124, 58, 237, 0.15)`, purple text
+- **BEVERAGES**: Blue background, blue text
+- **SKINCARE PRODUCTS**: Pink background, pink text
+- **SMART DEVICES**: Green background, green text
+- **PEPSI**: Orange background, orange text
+
+---
+
+#### D. Product Catalogue Card
+
+**Visual Design**:
+- White background with subtle shadow
+- Border radius: 16px-20px
+- Padding: 16px-20px
+- Border: 1px solid light gray (optional)
+
+**Layout Structure**:
+1. **Top Section** - Product info
+   - Left: Product icon/image in circular or square container (56px-64px)
+   - Middle: Product name (bold), description (light), category pill
+   - Right: Unit price and measurement (e.g., "per liter")
+
+2. **Middle Section** - Pricing
+   - Large purple price (₹)
+   - Stock quantity with low stock warning (red text + triangle icon if < threshold)
+
+3. **Bottom Section** - Quantity controls
+   - Minus button (circular, light background)
+   - Quantity display (center, bold)
+   - Plus button (circular, light background)
+   - Edit button (icon only, top right)
+
+**Receipt Image Integration**:
+- Small thumbnail on right side
+- Click to expand in modal/new tab
+- Border radius: 8px
+- Aspect ratio: Maintained
+
+---
+
+#### E. Search & Filter System
+
+**Search Bar**:
+- Background: White or very light gray
+- Border: 1px solid `#e5e7eb`
+- Border radius: 12px-16px
+- Height: 48px-56px
+- Left icon: Search magnifying glass, gray color
+- Right icon: Clear X button (only when text present)
+- Placeholder: Light gray "Search..."
+
+**Category Filter Pills** (Horizontal scroll):
+- Active pill: Purple background, white text, bold
+- Inactive pill: Light gray background, dark gray text
+- Border radius: Full (pill shape)
+- Padding: 12px 24px
+- Font size: 14px-16px
+- Font weight: 600
+- Gap between pills: 12px
+- Examples: "All Products", "food-groceries", "Beverage"
+
+---
+
+#### F. Balance Display Patterns
+
+**Customer List Balance**:
+- Right-aligned in customer card
+- Two-line layout:
+  - Line 1: Amount in large bold font (18px-20px)
+  - Line 2: Status label in small caps (11px, uppercase)
+- Color coding:
+  - Green + "RECEIVED" for negative/paid balances
+  - Red + "TO RECEIVE" for positive balances
+- Format: ₹{amount} with 2 decimal places
+
+**Hero Card Balance** (Dashboard):
+- Centered large display
+- Label: Small caps, light color "TOTAL TO RECEIVE"
+- Amount: Extra large (48px+), white color, bold (800)
+- Background: Solid purple with decorative circles
+- Shadow: Purple glow
+- Format: ₹{amount}.00
+
+**Current Balance Card** (Customer Details):
+- Light background card
+- Label: "CURRENT BALANCE" in small gray text
+- Amount: Very large (36px+), color-coded (red/green)
+- Format: ₹{amount}
+
+---
+
+#### G. Map Integration Styling
+
+**Map Container**:
+- Border radius: 12px-16px
+- Height: 250px-300px
+- Margin: Within white card container
+- Zoom controls: Top left, white background buttons
+- Business marker: Purple location pin
+
+**Location Card Header**:
+- Icon: Purple location pin icon
+- Title: "Business Location" (bold, large)
+- Subtitle: "Help customers find your business on the map" (gray, smaller)
+- Padding: 16px-20px
+- Background: White
+
+---
+
+#### H. Action Button Patterns
+
+**Primary CTA Buttons**:
+- Background: Purple `#7c3aed`
+- Color: White
+- Border radius: 12px-16px
+- Padding: 16px 24px
+- Font size: 16px-18px
+- Font weight: 700
+- Full width or flex-based
+- Icon + text combination
+- Hover: Darker purple
+- Active: Scale down to 0.96
+
+**Secondary Action Buttons**:
+- Background: Light purple or white
+- Border: 1px solid purple or gray
+- Color: Purple or dark gray
+- Same dimensions as primary
+- Less visual weight
+
+**Danger Buttons** (Delete, Credit):
+- Background: Red `#ef4444` or light red
+- Color: White or red
+- Icon: X, trash, or up arrow
+
+**Success Buttons** (Payment, Confirm):
+- Background: Green `#10b981` or light green
+- Color: White or green
+- Icon: Checkmark or down arrow
+
+**Floating Action Button (FAB)**:
+- Position: Fixed, bottom right
+- Bottom offset: 90px (above bottom nav)
+- Right offset: 20px
+- Size: 60px circle
+- Background: Purple
+- Icon: Plus or specific action icon (white)
+- Shadow: Large elevation `0 4px 16px rgba(124, 58, 237, 0.3)`
+- Z-index: 999
+
+---
+
+#### I. Bottom Navigation Pattern
+
+**Structure**:
+- Fixed at bottom
+- Height: 72px (including safe area padding)
+- Background: White
+- Top border: 1px solid light gray
+- Shadow: Subtle top shadow
+
+**Tab Items** (5 tabs):
+1. **Customers** - Orange `#f97316`
+2. **Products** - Green `#10b981`
+3. **Home** (Dashboard) - Purple `#5f259f` (center position)
+4. **Business** - Primary purple `#7c3aed`
+5. **Transactions** - Blue `#3b82f6`
+
+**Tab Structure**:
+- Icon: 24px, colored when active, gray when inactive
+- Label: 11px, bold, colored when active
+- Layout: Vertical (icon top, label bottom)
+- Gap: 4px between icon and label
+- Active state: Color changes, icon scales to 1.08
+- Tap feedback: Scale to 0.96
+
+---
+
+#### J. Stats & Metrics Display
+
+**Stats Card Pattern** (Profile page):
+- 3-column grid layout
+- Dividers between columns (1px gray line)
+- Each stat:
+  - Value: Large bold number (20px+), purple or dark
+  - Label: Small caps (12px), gray, uppercase
+  - Center aligned
+
+**Stock Value Header** (Products page):
+- Large card with two sections
+- Left: Label + large value (purple)
+- Right: Alert badge (low stock count in red)
+- Badge: Light red background, rounded
+
+---
+
+### Typography Scale (Actual Usage)
+
+| Size | Weight | Usage | Example |
+|------|--------|-------|---------|
+| 48px | 800 | Hero amounts | Dashboard total to receive |
+| 36px | 800 | Current balance | Customer details balance |
+| 28px | 800 | Stock value | Products total stock value |
+| 24px | 700-800 | Transaction amounts | Bubble amounts, transaction cards |
+| 20px | 700 | Stat values | Profile stats, product prices |
+| 18px | 700-600 | Page titles | Business Management |
+| 16px | 700 | Card titles | Customer names, product names |
+| 14px | 600 | Navigation labels | Tab labels, button text |
+| 13px | 500-600 | Body text | Descriptions, notes |
+| 12px | 600 | Stat labels | Stats card labels (uppercase) |
+| 11px | 600 | Balance labels | "TO RECEIVE", "RECEIVED" |
+
+---
+
+### Spacing System (Actual Usage)
+
+- **4px** - Minimal gap (icon to text in tight spaces)
+- **6px** - Tight spacing (bubble header elements)
+- **8px** - Small gap (avatar to text, pill gap)
+- **12px** - Standard gap (between cards, form fields)
+- **16px** - Medium gap (card padding, section spacing)
+- **20px** - Large gap (page padding, section margins)
+- **24px** - Extra large (top padding in cards)
+- **32px** - Section separation
+- **100px** - Bottom padding (above bottom nav)
+
+---
+
+### Shadow Elevation System
+
+**Level 1 - Subtle** (Cards, inputs):
+```css
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+```
+
+**Level 2 - Standard** (Action cards on hover):
+```css
+box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+```
+
+**Level 3 - Elevated** (Modals, FAB):
+```css
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+```
+
+**Purple Glow** (Hero card, primary elements):
+```css
+box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2);
+```
+
+**FAB Shadow**:
+```css
+box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+```
+
+---
+
+### Interaction States
+
+**Hover States**:
+- Buttons: Darken background by 10-15%
+- Cards: Lift with increased shadow
+- Links: Underline appears
+
+**Active/Pressed States**:
+- Scale: `transform: scale(0.96)` for buttons
+- Opacity: Reduce to 0.8 for icons
+- Background: Slightly darker
+
+**Disabled States**:
+- Opacity: 0.5-0.6
+- Cursor: `not-allowed`
+- Colors: Desaturated
+
+**Loading States**:
+- Spinner icon with `fa-spin` animation
+- Text changes to "Loading..." or "Adding..."
+- Button disabled
+- Skeleton screens for page loads
+
 ---
 
 ## 🎨 Global Design System
@@ -2747,20 +3140,626 @@ App Root
 
 ---
 
-**This documentation is production-ready and can be used for**:
-- Developer onboarding
-- Design system reference
-- Component rebuilding
-- Testing specifications
-- Design handoff
-- Style guide maintenance
-- Accessibility audits
-- Performance optimization
-- Responsive design verification
+## 📸 VISUAL PATTERN REFERENCE
+
+### Screenshot-Based Design Patterns
+
+#### Pattern 1: Profile Header with Photo Upload
+**Visual Reference**: Profile page screenshot
+
+**Design Elements**:
+- **Top Section**: Purple header bar (`#7c3aed`) with "Ekthaa" logo (white text, 24px, weight 900)
+- **Profile Icon**: Top right, circular, white background icon
+- **Photo Container**: 
+  - Large circular area (120px diameter)
+  - Purple border (4px)
+  - Camera icon overlay in bottom-right corner
+  - Small purple circle (36px) with white camera icon
+  - Click to upload functionality
+- **Name Display**: Below photo, large bold text (24px+)
+- **Phone Display**: Gray text (16px), below name
+- **Background**: Light gray `#f5f5f5` or similar
 
 ---
 
-*Document created: 2024*
+#### Pattern 2: Stats Card with Dividers
+**Visual Reference**: Profile page - 3-stat card
+
+**Exact Layout**:
+```
+┌─────────────────────────────────────────┐
+│  17          │     136      │  20 Aug    │
+│  TOTAL       │ TRANSACTIONS │  JOINED    │
+│  CUSTOMERS   │              │  2025      │
+└─────────────────────────────────────────┘
+```
+
+**Specifications**:
+- White background, rounded corners (20px)
+- Even 3-column grid (33.33% each)
+- Vertical dividers: 1px solid light gray, height 40px
+- Values: Extra bold (800), 20px+, dark color or purple
+- Labels: 12px, uppercase, gray, letter-spacing 0.5px
+- Padding: 20px vertical, 16px horizontal
+- Center-aligned content
+
+---
+
+#### Pattern 3: Map Integration Card
+**Visual Reference**: Profile page - Business Location section
+
+**Structure**:
+- **Header Section**:
+  - Purple location pin icon (left)
+  - "Business Location" title (bold, 18px)
+  - "Help customers find your business on the map" subtitle (gray, 14px)
+  
+- **Map Container**:
+  - Height: ~250px
+  - Border radius: 12px
+  - Zoom controls: Top left corner, white buttons (+/-)
+  - Business marker: Purple pin at center
+  - OpenStreetMap or similar tiles
+
+**Card Styling**:
+- White background
+- Padding: 20px
+- Border radius: 24px
+- Margin: 16px from previous section
+
+---
+
+#### Pattern 4: Tab Navigation System
+**Visual Reference**: Business Management page
+
+**Tab Design**:
+- **Active Tab**:
+  - Background: Purple `#7c3aed`
+  - Text color: White
+  - Border radius: 16px (full pill)
+  - Padding: 12px 24px
+  - Icon + text horizontal layout
+  - Font weight: 600
+
+- **Inactive Tabs**:
+  - Background: Light gray `#f3f4f6`
+  - Text color: Gray `#6b7280`
+  - Same dimensions as active
+  - Hover: Slightly darker background
+
+**Tab Items**:
+1. "Business Details" - fa-store icon
+2. "Vouchers" - fa-ticket-alt icon
+3. "Offers" - fa-tags icon
+
+**Container**:
+- Horizontal scroll if needed
+- Gap: 12px between tabs
+- Padding: 12px
+- Background: White
+- Top border radius: 20px
+
+---
+
+#### Pattern 5: Business Info Display
+**Visual Reference**: Business Management - Business Details tab
+
+**Info Card Structure**:
+```
+Devi kirana
+retail
+
+📞 PHONE
+9705562341
+
+✉️ EMAIL
+sidharthajuluriboss@gmail.com
+
+📍 ADDRESS
+flat 201
+
+ℹ️ DESCRIPTION
+My business account
+```
+
+**Styling**:
+- Each section: Icon + label + value
+- Icon: Purple circle (40px), white icon inside
+- Label: Small gray text (12px, uppercase)
+- Value: Black text (16px), regular weight
+- Spacing: 24px between sections
+- Background: White card
+- Padding: 24px
+
+**Edit Button** (Bottom):
+- Full width
+- Purple background
+- White text
+- Border radius: 16px
+- Height: 56px
+- Icon: fa-edit + "Edit Business Details" text
+
+---
+
+#### Pattern 6: WhatsApp-Style Transaction Bubbles
+**Visual Reference**: Customer Details page (Sidhartha ₹285)
+
+**Credit Bubble** (Right-aligned):
+```
+┌─────────────────────────┐
+│ Sidhartha  credit taken │
+│ ↑  ₹250                 │
+│                06:21 pm │
+└─────────────────────────┘
+```
+- Background: Light pink/red `rgba(254, 226, 226, 0.95)`
+- Align: Right (margin-left: auto)
+- Max width: 85%
+- Border radius: 12px, top-right reduced
+- Up arrow icon: Red circle background
+- Amount: Red text, bold
+
+**Payment Bubble** (Left-aligned):
+```
+┌─────────────────────────┐
+│ Sidhartha  payment made │
+│ ↓  ₹550                 │
+│                06:22 pm │
+└─────────────────────────┘
+```
+- Background: Light green `rgba(209, 250, 229, 0.95)` or white
+- Align: Left (margin-right: auto)
+- Down arrow icon: Green circle background
+- Amount: Green text, bold
+
+**Date Separator**:
+```
+Mon, 24 Nov, 2025
+```
+- Center-aligned
+- Gray text (13px)
+- Padding: 12px vertical
+- Between different dates
+
+---
+
+#### Pattern 7: Current Balance Card
+**Visual Reference**: Customer Details page - bottom card
+
+**Design**:
+```
+┌──────────────────────────┐
+│   CURRENT BALANCE        │
+│      ₹285                │
+└──────────────────────────┘
+
+[Take Credit]  [Pay Back]
+```
+
+**Balance Card**:
+- Light gray/blue background
+- Border radius: 16px
+- Padding: 20px
+- Label: Small gray text
+- Amount: Very large (36px+), red color
+- Center-aligned
+
+**Action Buttons** (Below):
+- Two equal-width buttons
+- Left: Red "Take Credit" with up arrow
+- Right: Green "Pay Back" with down arrow
+- Border radius: 12px
+- Padding: 16px
+- Gap: 12px between buttons
+
+---
+
+#### Pattern 8: Customer List Card
+**Visual Reference**: Customers page
+
+**Card Structure**:
+```
+┌──────────────────────────────────────┐
+│ [S]  Sidhartha        ₹50.00      💬 │
+│      1473692546       RECEIVED       │
+└──────────────────────────────────────┘
+```
+
+**Elements**:
+- Avatar: Circle (48px), colored background, first letter
+- Name: Bold (16px), dark text
+- Phone: Gray (14px), below name
+- Balance: Right side, two lines
+  - Amount: Bold, color-coded (green/red)
+  - Label: Small caps (11px) "TO RECEIVE"/"RECEIVED"
+- WhatsApp Button: Green circle (40px), right edge
+- Chevron: Right arrow (gray), before WhatsApp button
+
+**Layout**:
+- Padding: 16px 20px
+- Background: White
+- Border radius: 20px
+- Shadow: Subtle
+- Margin: 12px between cards
+
+---
+
+#### Pattern 9: Product Catalogue Grid
+**Visual Reference**: Products page - catalogue view with images
+
+**Product Card**:
+```
+┌─────────────────────────┐
+│ [Icon] fyvvbe           │
+│        e                │
+│    SKINCARE PRODUCTS    │
+│    per liter            │
+│                         │
+│    ₹223.67              │
+│    30 in stock          │
+│    [-]  22  [+]         │
+└─────────────────────────┘
+```
+
+**Top Section**:
+- Product icon/image: Square or circle (56px)
+- Name: Bold (16px)
+- Description: Gray (14px)
+- Category pill: Purple/colored background, uppercase text
+- Unit: Gray text "per liter", "per kg", etc.
+
+**Middle Section**:
+- Price: Large purple text (24px+)
+- Stock: Gray text with count
+
+**Bottom Section**:
+- Quantity controls: Minus, number display, plus
+- Buttons: Light background, rounded
+- Display: Bold number
+
+**Receipt Image** (If present):
+- Thumbnail on right side
+- Border radius: 8px
+- Click to expand
+- Overlay or beside product info
+
+---
+
+#### Pattern 10: Category Filter Pills
+**Visual Reference**: Products page - horizontal scroll filters
+
+**Design**:
+```
+[All Products]  [food-groceries]  [Beverage]
+    ACTIVE         INACTIVE          INACTIVE
+```
+
+**Active Pill**:
+- Background: Purple `#7c3aed`
+- Text: White, bold (14px)
+- Padding: 12px 28px
+- Border radius: Full (pill)
+- Bottom indicator: Purple line (3px thick)
+
+**Inactive Pill**:
+- Background: Light gray or white
+- Text: Dark gray
+- Same dimensions
+- No indicator line
+
+**Container**:
+- Horizontal scroll
+- Gap: 12px
+- Padding: 8px 0
+- Background: White or light gray
+
+---
+
+#### Pattern 11: Search Bar with Icon
+**Visual Reference**: Multiple pages
+
+**Structure**:
+```
+[🔍] Search customers...              [×]
+```
+
+**Design**:
+- Background: Light gray `#f5f5f5` or white
+- Border: 1px solid `#e5e7eb`
+- Border radius: 12px
+- Height: 48px-56px
+- Padding: 12px 16px
+
+**Left Icon**:
+- Search magnifying glass
+- Color: Gray `#9ca3af`
+- Size: 18px
+- Margin-right: 12px
+
+**Input**:
+- Border: None
+- Background: Transparent
+- Font size: 16px
+- Placeholder: Light gray
+
+**Clear Button** (Right):
+- Only visible when text present
+- X icon in circle
+- Size: 24px
+- Light gray background
+- Hover: Darker
+
+---
+
+#### Pattern 12: Stock Value Header
+**Visual Reference**: Products page
+
+**Design**:
+```
+┌────────────────────────────────────────┐
+│ TOTAL STOCK VALUE    Low stock items  │
+│ ₹69,102.66                2            │
+└────────────────────────────────────────┘
+```
+
+**Left Section**:
+- Label: Small gray text (12px, uppercase)
+- Value: Very large purple text (28px+, bold 800)
+- Format: ₹ with thousand separators
+
+**Right Section**:
+- Background: Light red/pink
+- Border radius: 12px
+- Padding: 12px 16px
+- Label: "Low stock items" (11px, gray)
+- Count: Large red number (20px, bold)
+
+**Container**:
+- White background
+- Border radius: 20px
+- Padding: 20px
+- Flexbox layout (space-between)
+- Margin-bottom: 16px
+
+---
+
+## 📋 DESIGN PATTERN QUICK REFERENCE
+
+### Common Measurements
+
+**Border Radius**:
+- Small elements (pills, badges): 8px-12px
+- Cards: 16px-20px
+- Large cards: 24px
+- Buttons: 12px-16px
+- Avatars: 50% (circle)
+
+**Touch Targets**:
+- Minimum: 44px × 44px
+- Buttons: 48px-56px height
+- Icons: 40px-48px touch area
+- Bottom nav tabs: 72px height
+
+**Card Spacing**:
+- Gap between cards: 12px
+- Page padding: 16px-20px
+- Card padding: 16px-24px
+- Section margins: 24px-32px
+
+---
+
+## 🎯 COMPONENT STATE REFERENCE
+
+### Interactive States Table
+
+| Component | Default | Hover | Active | Disabled | Loading |
+|-----------|---------|-------|--------|----------|---------|
+| Primary Button | Purple bg | Darker purple | Scale 0.96 | Opacity 0.6 | Spinner icon |
+| FAB | Purple + shadow | Larger shadow | Scale 0.92 | Hidden | - |
+| Card | White + subtle shadow | Lifted shadow | - | Grayed out | Skeleton |
+| Tab | Gray bg/Purple bg | - | Purple bg | - | - |
+| Input | Border gray | Border purple | - | Opacity 0.5 | - |
+| Avatar | Colored bg | - | - | Grayed | - |
+| WhatsApp Btn | Green bg | Darker green | Scale 0.95 | - | - |
+
+---
+
+## 🔄 ANIMATION & TRANSITIONS
+
+**Standard Transitions**:
+```css
+transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+```
+
+**Scale Animations**:
+- Button press: `transform: scale(0.96)`
+- Icon active: `transform: scale(1.08)`
+- FAB press: `transform: scale(0.92)`
+
+**Loading Animations**:
+- Spinner: `fa-spin` class (360° rotation)
+- Skeleton: Shimmer effect with gradient background
+- Progressive loading: Fade in with opacity transition
+
+**Page Transitions**:
+- Route change: Slide in from right
+- Modal open: Fade in overlay + scale content
+- Bottom sheet: Slide up from bottom
+
+---
+
+## 📱 RESPONSIVE BEHAVIOR
+
+**Breakpoints**:
+- Mobile: < 400px (scale 0.55)
+- Large mobile: ≥ 400px (scale 0.75)
+- Tablet: ≥ 768px (max-width containers)
+
+**Scaling Strategy**:
+- Body transform scale for different screen sizes
+- Fixed elements (AppBar, BottomNav) maintain position
+- Cards adapt width within max-width constraint (768px)
+
+**Safe Areas**:
+- Top: `env(safe-area-inset-top)`
+- Bottom: `env(safe-area-inset-bottom)` for bottom nav
+- iOS specific: `-webkit-fill-available` for height
+
+---
+
+## 🎨 ICON USAGE GUIDE
+
+**FontAwesome Classes Used**:
+
+**Navigation**:
+- fa-home (Home/Dashboard)
+- fa-users (Customers)
+- fa-box (Products)
+- fa-store (Business)
+- fa-receipt (Transactions)
+
+**Actions**:
+- fa-plus / fa-user-plus / fa-plus-circle (Add)
+- fa-edit / fa-pen (Edit)
+- fa-trash / fa-times (Delete)
+- fa-arrow-left (Back)
+- fa-arrow-up (Credit)
+- fa-arrow-down (Payment)
+- fa-check-circle (Success)
+- fa-times-circle (Error)
+
+**Features**:
+- fa-qrcode (QR Code)
+- fa-whatsapp (WhatsApp)
+- fa-phone (Phone)
+- fa-envelope (Email)
+- fa-map-marker-alt (Location)
+- fa-camera (Photo)
+- fa-search (Search)
+- fa-filter (Filter)
+- fa-calendar (Date)
+- fa-lightbulb (Tips)
+
+**Business**:
+- fa-ticket-alt (Vouchers)
+- fa-tags (Offers)
+- fa-file-invoice (Invoice)
+- fa-chart-line (Analytics)
+
+---
+
+**This documentation is production-ready and can be used for**:
+- Developer onboarding and training
+- Design system reference and style guide
+- Component rebuilding and refactoring
+- Testing specifications and QA checklists
+- Design handoff and collaboration
+- Style guide maintenance and updates
+- Accessibility audits and improvements
+- Performance optimization
+- Responsive design verification
+- Brand consistency enforcement
+- Third-party developer integration
+
+---
+
+## 📚 APPENDIX
+
+### File Structure Reference
+```
+frontend/src/
+├── components/
+│   ├── Header.jsx
+│   ├── AppBar.jsx
+│   ├── BottomNav.jsx
+│   ├── FlashMessage.jsx
+│   ├── SearchBar.jsx
+│   ├── PageHeader.jsx
+│   └── business/
+├── pages/
+│   ├── Dashboard.jsx
+│   ├── Login.jsx
+│   ├── Register.jsx
+│   ├── Profile.jsx
+│   ├── Customers.jsx
+│   ├── CustomerDetails.jsx
+│   ├── AddCustomer.jsx
+│   ├── Transactions.jsx
+│   ├── Products.jsx
+│   └── BusinessManagement.jsx
+├── styles/
+│   ├── index.css (Global styles)
+│   ├── AppBar.css
+│   ├── BottomNav.css
+│   ├── DashboardModern.css
+│   ├── CustomersModern.css
+│   ├── CustomerDetailsWhatsApp.css
+│   ├── ProductsModern.css
+│   ├── ProfileModern.css
+│   ├── Auth.css
+│   ├── TransactionsModern.css
+│   ├── SearchBar.css
+│   ├── PageHeader.css
+│   ├── AvatarSystem.css
+│   └── TransactionCards.css
+└── services/
+    └── api.js
+```
+
+### CSS Variable Reference
+```css
+:root {
+  /* Colors */
+  --primary-purple: #7c3aed;
+  --dark-purple: #6d28d9;
+  --light-purple: #5f259f;
+  
+  --payment-green: #10b981;
+  --credit-red: #ef4444;
+  
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  
+  --bg-secondary: #f9fafb;
+  --border-light: #e5e7eb;
+  
+  /* Spacing */
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 36px;
+  
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+}
+```
+
+---
+
+*Document created: December 2024*
+*Last updated: December 21, 2024*
+*Version: 2.0 - With Design Language & Visual Patterns*
 *App: Kathape Business (React Mobile App)*
 *Framework: React 19.2.0 + Vite 7.2.4*
-*Styling: CSS Modules + Modern Variables*
+*Styling: CSS Modules + Modern CSS Variables*
+*Design Inspiration: Google Pay, PhonePe, WhatsApp, Cash App*
