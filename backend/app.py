@@ -1746,10 +1746,10 @@ def get_units():
 
 @app.route('/api/vouchers', methods=['GET'])
 @token_required
-def get_vouchers(current_user):
+def get_vouchers():
     """Get all vouchers for business"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Query vouchers by business_id
         vouchers = appwrite_db.list_documents(
@@ -1765,11 +1765,11 @@ def get_vouchers(current_user):
 
 @app.route('/api/voucher', methods=['POST'])
 @token_required
-def create_voucher(current_user):
+def create_voucher():
     """Create new voucher"""
     try:
         data = request.json
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Validate required fields
         required_fields = ['code', 'discount', 'validUntil']
@@ -1813,11 +1813,11 @@ def create_voucher(current_user):
 
 @app.route('/api/voucher/<voucher_id>', methods=['PUT'])
 @token_required
-def update_voucher(current_user, voucher_id):
+def update_voucher(voucher_id):
     """Update voucher"""
     try:
         data = request.json
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing voucher
         voucher = appwrite_db.get_document('vouchers', voucher_id)
@@ -1850,10 +1850,10 @@ def update_voucher(current_user, voucher_id):
 
 @app.route('/api/voucher/<voucher_id>/toggle', methods=['PUT'])
 @token_required
-def toggle_voucher(current_user, voucher_id):
+def toggle_voucher(voucher_id):
     """Toggle voucher active status"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing voucher
         voucher = appwrite_db.get_document('vouchers', voucher_id)
@@ -1877,10 +1877,10 @@ def toggle_voucher(current_user, voucher_id):
 
 @app.route('/api/voucher/<voucher_id>', methods=['DELETE'])
 @token_required
-def delete_voucher(current_user, voucher_id):
+def delete_voucher(voucher_id):
     """Delete voucher"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing voucher
         voucher = appwrite_db.get_document('vouchers', voucher_id)
@@ -1903,10 +1903,10 @@ def delete_voucher(current_user, voucher_id):
 
 @app.route('/api/offers', methods=['GET'])
 @token_required
-def get_offers(current_user):
+def get_offers():
     """Get all offers for business"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Query offers by business_id
         offers = appwrite_db.list_documents(
@@ -1922,10 +1922,10 @@ def get_offers(current_user):
 
 @app.route('/api/offer', methods=['POST'])
 @token_required
-def create_offer(current_user):
+def create_offer():
     """Create new offer"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Handle multipart form data
         if 'image' in request.files:
@@ -1980,10 +1980,10 @@ def create_offer(current_user):
 
 @app.route('/api/offer/<offer_id>', methods=['PUT'])
 @token_required
-def update_offer(current_user, offer_id):
+def update_offer(offer_id):
     """Update offer"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing offer
         offer = appwrite_db.get_document('offers', offer_id)
@@ -2033,10 +2033,10 @@ def update_offer(current_user, offer_id):
 
 @app.route('/api/offer/<offer_id>/toggle', methods=['PUT'])
 @token_required
-def toggle_offer(current_user, offer_id):
+def toggle_offer(offer_id):
     """Toggle offer active status"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing offer
         offer = appwrite_db.get_document('offers', offer_id)
@@ -2060,10 +2060,10 @@ def toggle_offer(current_user, offer_id):
 
 @app.route('/api/offer/<offer_id>', methods=['DELETE'])
 @token_required
-def delete_offer(current_user, offer_id):
+def delete_offer(offer_id):
     """Delete offer"""
     try:
-        business_id = current_user.get('business_id')
+        business_id = request.business_id
         
         # Get existing offer
         offer = appwrite_db.get_document('offers', offer_id)
