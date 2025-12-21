@@ -1,0 +1,16 @@
+{
+  "name": "kathape-business-twa",
+  "version": "1.0.0",
+  "description": "TWA builder for Kathape Business",
+  "scripts": {
+    "deploy": "cd frontend && npm run build && vercel --prod",
+    "twa:init": "bubblewrap init",
+    "twa:build": "cd twa-kathape-business && bubblewrap build",
+    "twa:build:release": "cd twa-kathape-business && bubblewrap build --release",
+    "twa:update": "cd twa-kathape-business && bubblewrap update",
+    "setup": "./build-twa.sh"
+  },
+  "devDependencies": {
+    "@bubblewrap/cli": "^1.20.0"
+  }
+}
