@@ -10,12 +10,14 @@ const VoucherList = () => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    code: '',
-    discount: '',
-    minAmount: '',
-    maxDiscount: '',
+    title: '',
+    description: '',
+    amount: '',
+    minPurchase: '',
+    validFrom: new Date().toISOString().split('T')[0],
     validUntil: '',
-    description: ''
+    quantity: '',
+    status: 'draft'
   });
 
   useEffect(() => {
@@ -50,12 +52,14 @@ const VoucherList = () => {
       await fetchVouchers(); // Refresh list
       setShowForm(false);
       setFormData({
-        code: '',
-        discount: '',
-        minAmount: '',
-        maxDiscount: '',
+        title: '',
+        description: '',
+        amount: '',
+        minPurchase: '',
+        validFrom: new Date().toISOString().split('T')[0],
         validUntil: '',
-        description: ''
+        quantity: '',
+        status: 'draft'
       });
     } catch (error) {
       console.error('Error creating voucher:', error);
@@ -103,67 +107,79 @@ const VoucherList = () => {
         <form className="voucher-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label>Voucher Code *</label>
+              <label>Voucher Title</label>
               <input
                 type="text"
-                name="code"
-                value={formData.code}
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-                required
-                placeholder="e.g., SAVE20"
+                placeholder="e.g., ₹50 Store Voucher"
               />
             </div>
 
             <div className="form-group">
-              <label>Discount (%) *</label>
+              <label>Voucher Amount (₹) *</label>
               <input
                 type="number"
-                name="discount"
-                value={formData.discount}
+                name="amount"
+                value={formData.amount}
                 onChange={handleChange}
                 required
-                min="0"
-                max="100"
-                placeholder="10"
+                min="1"
+                placeholder="100"
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Min Amount (₹)</label>
+              <label>Min Purchase (₹)</label>
               <input
                 type="number"
-                name="minAmount"
-                value={formData.minAmount}
+                name="minPurchase"
+                value={formData.minPurchase}
                 onChange={handleChange}
                 min="0"
-                placeholder="500"
+                placeholder="300"
               />
             </div>
 
             <div className="form-group">
-              <label>Max Discount (₹)</label>
+              <label>Quantity *</label>
               <input
                 type="number"
-                name="maxDiscount"
-                value={formData.maxDiscount}
+                name="quantity"
+                value={formData.quantity}
                 onChange={handleChange}
-                min="0"
+                required
+                min="1"
                 placeholder="100"
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Valid Until *</label>
-            <input
-              type="date"
-              name="validUntil"
-              value={formData.validUntil}
-              onChange={handleChange}
-              required
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Valid From *</label>
+              <input
+                type="date"
+                name="validFrom"
+                value={formData.validFrom}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Valid Until *</label>
+              <input
+                type="date"
+                name="validUntil"
+                value={formData.validUntil}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">
@@ -177,9 +193,17 @@ const VoucherList = () => {
             />
           </div>
 
-          <button type="submit" className="btn-submit">
+          <div className="form-group">
+            <label>Status</label>
+            <select name="status" value={formData.status} onChange={handleChange}>
+              <option value="draft">Draft</option>
+              <option value="active">Active</option>
+            </select>
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={loading}>
             <i className="fas fa-plus-circle"></i>
-            Create Voucher
+            {loading ? 'Creating...' : 'Create Voucher'}
           </button>
         </form>
       )}
@@ -198,41 +222,39 @@ const VoucherList = () => {
           </div>
         ) : (
           vouchers.map(voucher => (
-            <div key={voucher.$id} className={`voucher-card ${!voucher.is_active ? 'inactive' : ''}`}>
+            <div key={voucher.$id} className={`voucher-card ${voucher.status !== 'active' ? 'inactive' : ''}`}>
               <div className="voucher-code">
-                <span className="code">{voucher.code}</span>
-                <span className="badge">{voucher.discount}% OFF</span>
+                <span className="code">{voucher.title || `₹${voucher.amount} Voucher`}</span>
+                <span className="badge">₹{voucher.amount}</span>
               </div>
               
               <p className="voucher-description">{voucher.description || 'No description'}</p>
               
               <div className="voucher-details">
-                {voucher.min_amount > 0 && (
+                {voucher.minPurchase > 0 && (
                   <div className="detail">
                     <i className="fas fa-rupee-sign"></i>
-                    <span>Min: ₹{voucher.min_amount}</span>
-                  </div>
-                )}
-                {voucher.max_discount > 0 && (
-                  <div className="detail">
-                    <i className="fas fa-tag"></i>
-                    <span>Max: ₹{voucher.max_discount}</span>
+                    <span>Min: ₹{voucher.minPurchase}</span>
                   </div>
                 )}
                 <div className="detail">
+                  <i className="fas fa-list-ol"></i>
+                  <span>Qty: {voucher.quantity}</span>
+                </div>
+                <div className="detail">
                   <i className="fas fa-calendar"></i>
-                  <span>Until: {new Date(voucher.valid_until).toLocaleDateString()}</span>
+                  <span>Until: {new Date(voucher.validUntil).toLocaleDateString()}</span>
                 </div>
               </div>
 
               <div className="voucher-actions">
                 <button 
-                  className={`btn-toggle ${voucher.is_active ? 'active' : ''}`}
+                  className={`btn-toggle ${voucher.status === 'active' ? 'active' : ''}`}
                   onClick={() => toggleVoucher(voucher.$id)}
                   disabled={loading}
                 >
-                  <i className={`fas fa-${voucher.is_active ? 'check-circle' : 'times-circle'}`}></i>
-                  {voucher.is_active ? 'Active' : 'Inactive'}
+                  <i className={`fas fa-${voucher.status === 'active' ? 'check-circle' : 'times-circle'}`}></i>
+                  {voucher.status === 'active' ? 'Active' : 'Draft'}
                 </button>
                 <button 
                   className="btn-delete"
