@@ -1,0 +1,94 @@
+/**
+ * Business Management Page Styles - Modern App UI
+ */
+
+.business-management {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+/* Tabs Container */
+.tabs-container {
+  position: sticky;
+  top: 56px;
+  z-index: 100;
+  background: var(--bg-secondary);
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-3);
+  min-width: max-content;
+}
+
+/* Individual Tab */
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 14px 20px;
+  background: white;
+  border: none;
+  border-radius: 50px;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tab i {
+  font-size: 16px;
+}
+
+.tab:hover {
+  background: #f3f4f6;
+  color: var(--text-primary);
+}
+
+.tab.active {
+  background: #7c3aed;
+  color: white;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Tab Content */
+.tab-content {
+  padding: var(--space-4);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tabs-container {
+    padding: var(--space-3);
+  }
+
+  .tab {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+}

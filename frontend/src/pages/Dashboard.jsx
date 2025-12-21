@@ -14,11 +14,40 @@ const Dashboard = () => {
   const [messages, setMessages] = useState([]);
   const [showQR, setShowQR] = useState(false);
   const [accessPin, setAccessPin] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState(null);
 
   useEffect(() => {
     loadDashboard();
     loadAccessPin();
   }, []);
+
+  useEffect(() => {
+    if (showQR && !qrCodeUrl) {
+      loadQRCode();
+    }
+    
+    // Cleanup QR code URL on unmount
+    return () => {
+      if (qrCodeUrl) {
+        URL.revokeObjectURL(qrCodeUrl);
+      }
+    };
+  }, [showQR]);
+
+  const loadQRCode = async () => {
+    try {
+      const response = await qrAPI.getQRCode();
+      const blob = new Blob([response.data], { type: 'image/png' });
+      const url = URL.createObjectURL(blob);
+      setQrCodeUrl(url);
+    } catch (error) {
+      console.error('Failed to load QR code:', error);
+      setMessages([{
+        type: 'error',
+        message: 'Failed to load QR code. Please try again.'
+      }]);
+    }
+  };
 
   const loadDashboard = async () => {
     try {
@@ -148,11 +177,18 @@ const Dashboard = () => {
               <div style={{fontSize: 'var(--font-size-3xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--primary-purple)', letterSpacing: '4px'}}>{accessPin}</div>
             </div>
             <div style={{background: 'white', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'center'}}>
-              <img 
-                src={`${import.meta.env.VITE_API_URL || 'https://kathape-react-business.onrender.com/api'}/business/qr-code`} 
-                alt="Business QR Code"
-                style={{maxWidth: '100%', height: 'auto'}}
-              />
+              {qrCodeUrl ? (
+                <img 
+                  src={qrCodeUrl}
+                  alt="Business QR Code"
+                  style={{maxWidth: '100%', height: 'auto', maxHeight: '250px'}}
+                />
+              ) : (
+                <div style={{padding: '40px', textAlign: 'center', color: '#64748b'}}>
+                  <i className="fas fa-spinner fa-spin" style={{fontSize: '24px', marginBottom: '12px'}}></i>
+                  <p>Loading QR Code...</p>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -40,7 +40,7 @@ function Profile() {
       
       setFormData({
         name: businessData.name || '',
-        phone: businessData.phone_number || '',
+        phone_number: businessData.phone_number || '',
         description: businessData.description || '',
         profile_photo: null
       });

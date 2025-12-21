@@ -24,10 +24,11 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -65,4 +66,20 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Mobile-specific fixes */
+html, body {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }

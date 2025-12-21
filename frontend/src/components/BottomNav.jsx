@@ -27,10 +27,10 @@ const BottomNav = () => {
       color: '#5f259f'
     },
     {
-      path: '/invoice',
-      icon: 'fa-file-invoice',
-      label: 'Invoice',
-      color: '#8b5cf6'
+      path: '/business',
+      icon: 'fa-store',
+      label: 'Business',
+      color: '#7c3aed'
     },
     {
       path: '/transactions',

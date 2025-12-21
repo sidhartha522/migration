@@ -1245,6 +1245,46 @@ def generate_qr():
         logger.error(f"Generate QR error: {str(e)}")
         return jsonify({'error': f'Failed to generate QR: {str(e)}'}), 500
 
+@app.route('/api/business/qr-code', methods=['GET'])
+@token_required
+@business_required
+def get_business_qr_code():
+    """Generate QR code for business (alias endpoint for frontend compatibility)"""
+    try:
+        business_id = request.business_id
+        
+        business = appwrite_db.get_document('businesses', business_id)
+        access_pin = business.get('access_pin')
+        
+        if not access_pin:
+            return jsonify({'error': 'Business access PIN not found'}), 404
+        
+        # Create QR data with business ID and PIN
+        qr_data = f"KATHAPE_BUSINESS:{business_id}:{access_pin}"
+        
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="#7c3aed", back_color="white")
+        
+        # Convert to bytes
+        img_io = BytesIO()
+        img.save(img_io, 'PNG')
+        img_io.seek(0)
+        
+        return send_file(img_io, mimetype='image/png', as_attachment=False)
+        
+    except Exception as e:
+        logger.error(f"Generate business QR code error: {str(e)}")
+        return jsonify({'error': f'Failed to generate QR code: {str(e)}'}), 500
+
 # ========== Reminder Endpoints ==========
 
 @app.route('/api/customer/<customer_id>/remind', methods=['POST'])
@@ -1699,6 +1739,346 @@ def get_units():
     ]
     
     return jsonify({'units': units}), 200
+
+# ============================================================================
+# VOUCHER MANAGEMENT
+# ============================================================================
+
+@app.route('/api/vouchers', methods=['GET'])
+@token_required
+def get_vouchers(current_user):
+    """Get all vouchers for business"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Query vouchers by business_id
+        vouchers = appwrite_db.list_documents(
+            'vouchers',
+            queries=[Query.equal('business_id', business_id)]
+        )
+        
+        return jsonify({'vouchers': vouchers}), 200
+        
+    except Exception as e:
+        logger.error(f"Error fetching vouchers: {str(e)}")
+        return jsonify({'error': 'Failed to fetch vouchers'}), 500
+
+@app.route('/api/voucher', methods=['POST'])
+@token_required
+def create_voucher(current_user):
+    """Create new voucher"""
+    try:
+        data = request.json
+        business_id = current_user.get('business_id')
+        
+        # Validate required fields
+        required_fields = ['code', 'discount', 'validUntil']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Check if voucher code already exists for this business
+        existing = appwrite_db.list_documents(
+            'vouchers',
+            queries=[
+                Query.equal('business_id', business_id),
+                Query.equal('code', data['code'].upper())
+            ]
+        )
+        
+        if existing:
+            return jsonify({'error': 'Voucher code already exists'}), 400
+        
+        # Create voucher
+        voucher_id = str(uuid.uuid4())
+        voucher_data = {
+            'business_id': business_id,
+            'code': data['code'].upper(),
+            'discount': float(data['discount']),
+            'min_amount': float(data.get('minAmount', 0)),
+            'max_discount': float(data.get('maxDiscount', 0)),
+            'valid_until': data['validUntil'],
+            'description': data.get('description', ''),
+            'is_active': True,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        voucher = appwrite_db.create_document('vouchers', voucher_id, voucher_data)
+        
+        return jsonify({'voucher': voucher}), 201
+        
+    except Exception as e:
+        logger.error(f"Error creating voucher: {str(e)}")
+        return jsonify({'error': 'Failed to create voucher'}), 500
+
+@app.route('/api/voucher/<voucher_id>', methods=['PUT'])
+@token_required
+def update_voucher(current_user, voucher_id):
+    """Update voucher"""
+    try:
+        data = request.json
+        business_id = current_user.get('business_id')
+        
+        # Get existing voucher
+        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        
+        if not voucher or voucher.get('business_id') != business_id:
+            return jsonify({'error': 'Voucher not found'}), 404
+        
+        # Update fields
+        update_data = {}
+        if 'code' in data:
+            update_data['code'] = data['code'].upper()
+        if 'discount' in data:
+            update_data['discount'] = float(data['discount'])
+        if 'minAmount' in data:
+            update_data['min_amount'] = float(data['minAmount'])
+        if 'maxDiscount' in data:
+            update_data['max_discount'] = float(data['maxDiscount'])
+        if 'validUntil' in data:
+            update_data['valid_until'] = data['validUntil']
+        if 'description' in data:
+            update_data['description'] = data['description']
+        
+        updated_voucher = appwrite_db.update_document('vouchers', voucher_id, update_data)
+        
+        return jsonify({'voucher': updated_voucher}), 200
+        
+    except Exception as e:
+        logger.error(f"Error updating voucher: {str(e)}")
+        return jsonify({'error': 'Failed to update voucher'}), 500
+
+@app.route('/api/voucher/<voucher_id>/toggle', methods=['PUT'])
+@token_required
+def toggle_voucher(current_user, voucher_id):
+    """Toggle voucher active status"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Get existing voucher
+        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        
+        if not voucher or voucher.get('business_id') != business_id:
+            return jsonify({'error': 'Voucher not found'}), 404
+        
+        # Toggle status
+        new_status = not voucher.get('is_active', True)
+        updated_voucher = appwrite_db.update_document(
+            'vouchers',
+            voucher_id,
+            {'is_active': new_status}
+        )
+        
+        return jsonify({'voucher': updated_voucher}), 200
+        
+    except Exception as e:
+        logger.error(f"Error toggling voucher: {str(e)}")
+        return jsonify({'error': 'Failed to toggle voucher'}), 500
+
+@app.route('/api/voucher/<voucher_id>', methods=['DELETE'])
+@token_required
+def delete_voucher(current_user, voucher_id):
+    """Delete voucher"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Get existing voucher
+        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        
+        if not voucher or voucher.get('business_id') != business_id:
+            return jsonify({'error': 'Voucher not found'}), 404
+        
+        # Delete voucher
+        appwrite_db.delete_document('vouchers', voucher_id)
+        
+        return jsonify({'message': 'Voucher deleted successfully'}), 200
+        
+    except Exception as e:
+        logger.error(f"Error deleting voucher: {str(e)}")
+        return jsonify({'error': 'Failed to delete voucher'}), 500
+
+# ============================================================================
+# OFFER MANAGEMENT
+# ============================================================================
+
+@app.route('/api/offers', methods=['GET'])
+@token_required
+def get_offers(current_user):
+    """Get all offers for business"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Query offers by business_id
+        offers = appwrite_db.list_documents(
+            'offers',
+            queries=[Query.equal('business_id', business_id)]
+        )
+        
+        return jsonify({'offers': offers}), 200
+        
+    except Exception as e:
+        logger.error(f"Error fetching offers: {str(e)}")
+        return jsonify({'error': 'Failed to fetch offers'}), 500
+
+@app.route('/api/offer', methods=['POST'])
+@token_required
+def create_offer(current_user):
+    """Create new offer"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Handle multipart form data
+        if 'image' in request.files:
+            image_file = request.files['image']
+            
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                image_file,
+                folder=f"businesses/{business_id}/offers",
+                transformation=[
+                    {'width': 800, 'height': 600, 'crop': 'fill'},
+                    {'quality': 'auto:best'}
+                ]
+            )
+            
+            image_url = upload_result.get('secure_url')
+        else:
+            image_url = None
+        
+        # Get other fields
+        title = request.form.get('title')
+        description = request.form.get('description')
+        discount = request.form.get('discount')
+        valid_from = request.form.get('validFrom')
+        valid_until = request.form.get('validUntil')
+        
+        # Validate required fields
+        if not all([title, description, discount, valid_until]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Create offer
+        offer_id = str(uuid.uuid4())
+        offer_data = {
+            'business_id': business_id,
+            'title': title,
+            'description': description,
+            'discount': float(discount),
+            'valid_from': valid_from or datetime.now().isoformat(),
+            'valid_until': valid_until,
+            'image_url': image_url,
+            'is_active': True,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        offer = appwrite_db.create_document('offers', offer_id, offer_data)
+        
+        return jsonify({'offer': offer}), 201
+        
+    except Exception as e:
+        logger.error(f"Error creating offer: {str(e)}")
+        return jsonify({'error': 'Failed to create offer'}), 500
+
+@app.route('/api/offer/<offer_id>', methods=['PUT'])
+@token_required
+def update_offer(current_user, offer_id):
+    """Update offer"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Get existing offer
+        offer = appwrite_db.get_document('offers', offer_id)
+        
+        if not offer or offer.get('business_id') != business_id:
+            return jsonify({'error': 'Offer not found'}), 404
+        
+        # Handle image update
+        image_url = offer.get('image_url')
+        if 'image' in request.files:
+            image_file = request.files['image']
+            
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                image_file,
+                folder=f"businesses/{business_id}/offers",
+                transformation=[
+                    {'width': 800, 'height': 600, 'crop': 'fill'},
+                    {'quality': 'auto:best'}
+                ]
+            )
+            
+            image_url = upload_result.get('secure_url')
+        
+        # Update fields
+        update_data = {}
+        if 'title' in request.form:
+            update_data['title'] = request.form['title']
+        if 'description' in request.form:
+            update_data['description'] = request.form['description']
+        if 'discount' in request.form:
+            update_data['discount'] = float(request.form['discount'])
+        if 'validFrom' in request.form:
+            update_data['valid_from'] = request.form['validFrom']
+        if 'validUntil' in request.form:
+            update_data['valid_until'] = request.form['validUntil']
+        if image_url:
+            update_data['image_url'] = image_url
+        
+        updated_offer = appwrite_db.update_document('offers', offer_id, update_data)
+        
+        return jsonify({'offer': updated_offer}), 200
+        
+    except Exception as e:
+        logger.error(f"Error updating offer: {str(e)}")
+        return jsonify({'error': 'Failed to update offer'}), 500
+
+@app.route('/api/offer/<offer_id>/toggle', methods=['PUT'])
+@token_required
+def toggle_offer(current_user, offer_id):
+    """Toggle offer active status"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Get existing offer
+        offer = appwrite_db.get_document('offers', offer_id)
+        
+        if not offer or offer.get('business_id') != business_id:
+            return jsonify({'error': 'Offer not found'}), 404
+        
+        # Toggle status
+        new_status = not offer.get('is_active', True)
+        updated_offer = appwrite_db.update_document(
+            'offers',
+            offer_id,
+            {'is_active': new_status}
+        )
+        
+        return jsonify({'offer': updated_offer}), 200
+        
+    except Exception as e:
+        logger.error(f"Error toggling offer: {str(e)}")
+        return jsonify({'error': 'Failed to toggle offer'}), 500
+
+@app.route('/api/offer/<offer_id>', methods=['DELETE'])
+@token_required
+def delete_offer(current_user, offer_id):
+    """Delete offer"""
+    try:
+        business_id = current_user.get('business_id')
+        
+        # Get existing offer
+        offer = appwrite_db.get_document('offers', offer_id)
+        
+        if not offer or offer.get('business_id') != business_id:
+            return jsonify({'error': 'Offer not found'}), 404
+        
+        # Delete offer
+        appwrite_db.delete_document('offers', offer_id)
+        
+        return jsonify({'message': 'Offer deleted successfully'}), 200
+        
+    except Exception as e:
+        logger.error(f"Error deleting offer: {str(e)}")
+        return jsonify({'error': 'Failed to delete offer'}), 500
 
 # ============================================================================
 # INVOICE GENERATION

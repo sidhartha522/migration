@@ -52,7 +52,9 @@ class AppwriteDB:
                 'customer_credits': 'customer_credits',
                 'transactions': 'transactions',
                 'recurring_transactions': 'recurring_transactions',
-                'products': 'products'
+                'products': 'products',
+                'vouchers': 'vouchers',
+                'offers': 'offers'
             }
             self._initialized = True
     

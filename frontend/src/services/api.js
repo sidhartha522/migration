@@ -170,45 +170,59 @@ export const profileAPI = {
     }
     return api.put('/profile', data);
   },
-  updateBusinessProfile: (formData) => {
-<<<<<<< Updated upstream
-    // Convert FormData to JSON for API
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      if (key === 'keywords' || key === 'operatingDays') {
-        try {
-          data[key] = JSON.parse(value);
-        } catch (e) {
-          data[key] = value;
-        }
-      } else if (key === 'logo') {
-        // Skip logo for now - would need separate endpoint
-        continue;
-      } else {
-        // Map frontend field names to backend field names
-        const fieldMap = {
-          'businessName': 'name',
-          'gstNumber': 'gst_number',
-          'customBusinessType': 'custom_business_type',
-          'operatingHoursFrom': 'operating_hours_from',
-          'operatingHoursTo': 'operating_hours_to',
-          'operatingDays': 'operating_days',
-          'businessType': 'business_type'
-        };
-        const backendKey = fieldMap[key] || key;
-        data[backendKey] = value;
-      }
+};
+
+// Business Management APIs
+export const businessAPI = {
+  getBusinessProfile: () => api.get('/profile'),
+  updateBusinessProfile: (data) => {
+    // If data contains FormData, send as is
+    if (data instanceof FormData) {
+      return api.put('/profile', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
     }
     return api.put('/profile', data);
-=======
-    // Handles FormData with logo upload and all business profile fields
-    return api.put('/business-profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
->>>>>>> Stashed changes
   },
+  getVouchers: () => api.get('/vouchers'),
+  createVoucher: (data) => api.post('/voucher', data),
+  updateVoucher: (id, data) => api.put(`/voucher/${id}`, data),
+  deleteVoucher: (id) => api.delete(`/voucher/${id}`),
+  toggleVoucher: (id) => api.put(`/voucher/${id}/toggle`),
+  
+  getOffers: () => api.get('/offers'),
+  createOffer: (data) => {
+    if (data.image instanceof File) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      return api.post('/offer', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.post('/offer', data);
+  },
+  updateOffer: (id, data) => {
+    if (data.image instanceof File) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      return api.put(`/offer/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.put(`/offer/${id}`, data);
+  },
+  deleteOffer: (id) => api.delete(`/offer/${id}`),
+  toggleOffer: (id) => api.put(`/offer/${id}/toggle`),
 };
 
 // QR Code APIs

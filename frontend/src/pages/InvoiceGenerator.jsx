@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import FlashMessage from '../components/FlashMessage';
-import '../styles/AddEditProductMaterial.css';
+import PageHeader from '../components/PageHeader';
+import '../styles/InvoiceGenerator.css';
 
 const InvoiceGenerator = () => {
   const { user } = useAuth();
@@ -239,101 +240,130 @@ const InvoiceGenerator = () => {
   const totals = calculateTotals();
 
   return (
-    <div className="add-edit-product-modern">
-      <div className="product-form-container">
+    <div className="invoice-generator-container">
+      <PageHeader title="Invoice Generator" />
+      
+      <div className="invoice-content">
         <FlashMessage messages={messages} onClose={() => setMessages([])} />
         
-        <div className="modern-header" style={{marginBottom: '20px'}}>
-          <h1 className="header-title">📄 Invoice Generator</h1>
-          <p style={{color: '#666', fontSize: '14px', marginTop: '8px'}}>Create professional GST invoices</p>
-        </div>
-
-        {/* Section Navigation */}
-        <div style={{display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto'}}>
-          {['seller', 'buyer', 'items', 'additional', ...(showPreview ? ['preview'] : [])].map(section => (
+        {/* Section Pills Navigation */}
+        <div className="section-pills">
+          <button
+            type="button"
+            className={`section-pill ${activeSection === 'buyer' ? 'active' : ''}`}
+            onClick={() => setActiveSection('buyer')}
+          >
+            <i className="fas fa-user"></i> Buyer
+          </button>
+          <button
+            type="button"
+            className={`section-pill ${activeSection === 'seller' ? 'active' : ''}`}
+            onClick={() => setActiveSection('seller')}
+          >
+            <i className="fas fa-store"></i> Seller
+          </button>
+          <button
+            type="button"
+            className={`section-pill ${activeSection === 'items' ? 'active' : ''}`}
+            onClick={() => setActiveSection('items')}
+          >
+            <i className="fas fa-box"></i> Items
+          </button>
+          <button
+            type="button"
+            className={`section-pill ${activeSection === 'additional' ? 'active' : ''}`}
+            onClick={() => setActiveSection('additional')}
+          >
+            <i className="fas fa-plus-circle"></i> Extra
+          </button>
+          {showPreview && (
             <button
-              key={section}
               type="button"
-              onClick={() => setActiveSection(section)}
-              style={{
-                padding: '8px 16px',
-                border: `2px solid ${activeSection === section ? 'var(--primary-purple)' : '#ddd'}`,
-                background: activeSection === section ? 'var(--primary-purple)' : 'white',
-                color: activeSection === section ? 'white' : '#666',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
+              className={`section-pill ${activeSection === 'preview' ? 'active' : ''}`}
+              onClick={() => setActiveSection('preview')}
             >
-              {section.charAt(0).toUpperCase() + section.slice(1)}
+              <i className="fas fa-file-pdf"></i> Preview
             </button>
-          ))}
+          )}
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="invoice-form">
           {/* Seller Details */}
           {activeSection === 'seller' && (
-            <div className="section-card">
-              <h3 className="section-title">Seller Details (Your Business)</h3>
-              <div className="row-inputs">
+            <div className="invoice-section-card">
+              <h3 className="section-title">
+                <i className="fas fa-store"></i>
+                Seller Details (Your Business)
+              </h3>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Business Name *</label>
                 <input
                   type="text"
                   name="seller_name"
-                  placeholder="Business Name *"
+                  placeholder="Enter business name"
                   value={formData.seller_name}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
+                  required
                 />
+              </div>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">GSTIN</label>
                 <input
                   type="text"
                   name="seller_gstin"
-                  placeholder="GSTIN"
+                  placeholder="Enter GSTIN"
                   value={formData.seller_gstin}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                 />
               </div>
-              <textarea
-                name="seller_address"
-                placeholder="Address *"
-                value={formData.seller_address}
-                onChange={handleChange}
-                className="material-input"
-                rows="2"
-              />
-              <div className="row-inputs">
-                <input
-                  type="text"
-                  name="seller_city"
-                  placeholder="City *"
-                  value={formData.seller_city}
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Address *</label>
+                <textarea
+                  name="seller_address"
+                  placeholder="Enter complete address"
+                  value={formData.seller_address}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
+                  required
                 />
-                <input
-                  type="text"
-                  name="seller_state"
-                  placeholder="State *"
-                  value={formData.seller_state}
-                  onChange={handleChange}
-                  className="material-input"
-                />
+              </div>
+              <div className="invoice-row-inputs">
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">City *</label>
+                  <input
+                    type="text"
+                    name="seller_city"
+                    placeholder="City"
+                    value={formData.seller_city}
+                    onChange={handleChange}
+                    className="invoice-input"
+                    required
+                  />
+                </div>
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">State *</label>
+                  <input
+                    type="text"
+                    name="seller_state"
+                    placeholder="State"
+                    value={formData.seller_state}
+                    onChange={handleChange}
+                    className="invoice-input"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Pincode</label>
                 <input
                   type="text"
                   name="seller_pincode"
-                  placeholder="PIN Code *"
+                  placeholder="Enter pincode"
                   value={formData.seller_pincode}
                   onChange={handleChange}
-                  className="material-input"
-                />
-                <input
-                  type="text"
-                  name="seller_state_code"
-                  placeholder="State Code"
-                  value={formData.seller_state_code}
-                  onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                 />
               </div>
             </div>
@@ -341,183 +371,220 @@ const InvoiceGenerator = () => {
 
           {/* Buyer Details */}
           {activeSection === 'buyer' && (
-            <div className="section-card">
-              <h3>Buyer Details (Customer)</h3>
-              <div className="row-inputs">
+            <div className="invoice-section-card">
+              <h3 className="section-title">
+                <i className="fas fa-user"></i>
+                Buyer Details
+              </h3>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Buyer Name *</label>
                 <input
                   type="text"
                   name="buyer_name"
-                  placeholder="Buyer Name *"
+                  placeholder="Enter buyer name"
                   value={formData.buyer_name}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                   required
                 />
+              </div>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">GSTIN (Optional)</label>
                 <input
                   type="text"
                   name="buyer_gstin"
-                  placeholder="GSTIN (optional)"
+                  placeholder="Enter GSTIN if available"
                   value={formData.buyer_gstin}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                 />
               </div>
-              <textarea
-                name="buyer_address"
-                placeholder="Address *"
-                value={formData.buyer_address}
-                onChange={handleChange}
-                className="material-input"
-                rows="2"
-                required
-              />
-              <div className="row-inputs">
-                <input
-                  type="text"
-                  name="buyer_city"
-                  placeholder="City *"
-                  value={formData.buyer_city}
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Address *</label>
+                <textarea
+                  name="buyer_address"
+                  placeholder="Enter complete address"
+                  value={formData.buyer_address}
                   onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                   required
                 />
-                <input
-                  type="text"
-                  name="buyer_state"
-                  placeholder="State *"
-                  value={formData.buyer_state}
-                  onChange={handleChange}
-                  className="material-input"
-                  required
-                />
-                <input
-                  type="text"
-                  name="buyer_pincode"
-                  placeholder="PIN Code *"
-                  value={formData.buyer_pincode}
-                  onChange={handleChange}
-                  className="material-input"
-                  required
-                />
-                <input
-                  type="text"
-                  name="buyer_state_code"
-                  placeholder="State Code"
-                  value={formData.buyer_state_code}
-                  onChange={handleChange}
-                  className="material-input"
-                />
+              </div>
+              <div className="invoice-row-inputs">
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">City *</label>
+                  <input
+                    type="text"
+                    name="buyer_city"
+                    placeholder="City"
+                    value={formData.buyer_city}
+                    onChange={handleChange}
+                    className="invoice-input"
+                    required
+                  />
+                </div>
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">State *</label>
+                  <input
+                    type="text"
+                    name="buyer_state"
+                    placeholder="State"
+                    value={formData.buyer_state}
+                    onChange={handleChange}
+                    className="invoice-input"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="invoice-row-inputs">
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">Pincode *</label>
+                  <input
+                    type="text"
+                    name="buyer_pincode"
+                    placeholder="PIN Code"
+                    value={formData.buyer_pincode}
+                    onChange={handleChange}
+                    className="invoice-input"
+                    required
+                  />
+                </div>
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">State Code</label>
+                  <input
+                    type="text"
+                    name="buyer_state_code"
+                    placeholder="State Code"
+                    value={formData.buyer_state_code}
+                    onChange={handleChange}
+                    className="invoice-input"
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* Invoice Items */}
           {activeSection === 'items' && (
-            <div className="section-card">
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
-                <h3>Invoice Items</h3>
-                <button type="button" onClick={addItem} className="btn-secondary">
+            <div className="invoice-section-card">
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                <h3 className="section-title">
+                  <i className="fas fa-box"></i>
+                  Invoice Items
+                </h3>
+                <button type="button" onClick={addItem} className="invoice-btn-secondary" style={{width: 'auto', minHeight: 'auto', padding: '10px 20px'}}>
                   <i className="fas fa-plus"></i> Add Item
                 </button>
               </div>
               
               {formData.items.map((item, index) => (
-                <div key={index} style={{marginBottom: '20px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px'}}>
-                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '12px'}}>
-                    <strong>Item {index + 1}</strong>
+                <div key={index} className="selected-product-item">
+                  <div className="product-item-header">
+                    <span className="product-item-name">Item {index + 1}</span>
                     {formData.items.length > 1 && (
-                      <button type="button" onClick={() => removeItem(index)} style={{color: 'red', background: 'none', border: 'none', cursor: 'pointer'}}>
+                      <button type="button" onClick={() => removeItem(index)} className="remove-product-btn">
                         <i className="fas fa-trash"></i>
                       </button>
                     )}
                   </div>
                   
                   {/* Product Selection Dropdown */}
-                  <select
-                    value={item.product_id}
-                    onChange={(e) => handleProductSelect(index, e.target.value)}
-                    className="material-input"
-                    style={{marginBottom: '8px'}}
-                    disabled={loadingProducts}
-                  >
-                    <option value="">-- Select from Inventory (Optional) --</option>
-                    {products.map(product => (
-                      <option key={product.id} value={product.id}>
-                        {product.name} - ₹{product.price} / {product.unit} {product.stock_quantity > 0 ? `(${product.stock_quantity} in stock)` : '(Out of stock)'}
-                      </option>
-                    ))}
-                  </select>
-
-                  <input
-                    type="text"
-                    placeholder="Description *"
-                    value={item.description}
-                    onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                    className="material-input"
-                    style={{marginBottom: '8px'}}
-                  />
-                  <div className="row-inputs" style={{marginBottom: '8px'}}>
-                    <input
-                      type="text"
-                      placeholder="HSN Code"
-                      value={item.hsn_code}
-                      onChange={(e) => handleItemChange(index, 'hsn_code', e.target.value)}
-                      className="material-input"
-                    />
+                  <div className="invoice-input-group">
                     <select
-                      value={item.unit}
-                      onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
-                      className="material-input"
+                      value={item.product_id}
+                      onChange={(e) => handleProductSelect(index, e.target.value)}
+                      className="invoice-input"
+                      disabled={loadingProducts}
                     >
-                      <option value="Nos">Nos</option>
-                      <option value="Kg">Kg</option>
-                      <option value="Ltr">Ltr</option>
-                      <option value="Mtr">Mtr</option>
-                      <option value="Box">Box</option>
-                      <option value="Pkt">Pkt</option>
+                      <option value="">-- Select from Inventory (Optional) --</option>
+                      {products.map(product => (
+                        <option key={product.id} value={product.id}>
+                          {product.name} - ₹{product.price} / {product.unit} {product.stock_quantity > 0 ? `(${product.stock_quantity} in stock)` : '(Out of stock)'}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                  <div className="row-inputs">
+
+                  <div className="invoice-input-group">
                     <input
-                      type="number"
-                      placeholder="Quantity *"
-                      value={item.quantity}
-                      onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                      className="material-input"
-                      step="0.01"
+                      type="text"
+                      placeholder="Description *"
+                      value={item.description}
+                      onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                      className="invoice-input"
                     />
-                    <input
-                      type="number"
-                      placeholder="Rate *"
-                      value={item.rate}
-                      onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
-                      className="material-input"
-                      step="0.01"
-                    />
-                    <div style={{padding: '8px', background: '#f5f5f5', borderRadius: '4px', textAlign: 'right'}}>
-                      <strong>₹{calculateItemTotal(item).toFixed(2)}</strong>
+                  </div>
+                  <div className="invoice-row-inputs">
+                    <div className="invoice-input-group">
+                      <input
+                        type="text"
+                        placeholder="HSN Code"
+                        value={item.hsn_code}
+                        onChange={(e) => handleItemChange(index, 'hsn_code', e.target.value)}
+                        className="invoice-input"
+                      />
                     </div>
+                    <div className="invoice-input-group">
+                      <select
+                        value={item.unit}
+                        onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                        className="invoice-input"
+                      >
+                        <option value="Nos">Nos</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Ltr">Ltr</option>
+                        <option value="Mtr">Mtr</option>
+                        <option value="Box">Box</option>
+                        <option value="Pkt">Pkt</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="invoice-row-inputs">
+                    <div className="invoice-input-group">
+                      <input
+                        type="number"
+                        placeholder="Quantity *"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                        className="invoice-input"
+                        step="0.01"
+                      />
+                    </div>
+                    <div className="invoice-input-group">
+                      <input
+                        type="number"
+                        placeholder="Rate *"
+                        value={item.rate}
+                        onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
+                        className="invoice-input"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                  <div className="product-item-total">
+                    <span className="total-label">Item Total:</span>
+                    <span className="total-amount">₹{calculateItemTotal(item).toFixed(2)}</span>
                   </div>
                 </div>
               ))}
 
               {/* Totals Summary */}
-              <div style={{marginTop: '20px', padding: '16px', background: '#f9f9f9', borderRadius: '8px'}}>
-                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px'}}>
-                  <span>Subtotal:</span>
-                  <strong>₹{totals.subtotal.toFixed(2)}</strong>
+              <div className="totals-summary">
+                <div className="totals-row">
+                  <span className="totals-label">Subtotal:</span>
+                  <span className="totals-value">₹{totals.subtotal.toFixed(2)}</span>
                 </div>
-                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px'}}>
-                  <span>CGST ({formData.cgst_rate}%):</span>
-                  <span>₹{totals.cgst.toFixed(2)}</span>
+                <div className="totals-row">
+                  <span className="totals-label">CGST ({formData.cgst_rate}%):</span>
+                  <span className="totals-value">₹{totals.cgst.toFixed(2)}</span>
                 </div>
-                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px'}}>
-                  <span>SGST ({formData.sgst_rate}%):</span>
-                  <span>₹{totals.sgst.toFixed(2)}</span>
+                <div className="totals-row">
+                  <span className="totals-label">SGST ({formData.sgst_rate}%):</span>
+                  <span className="totals-value">₹{totals.sgst.toFixed(2)}</span>
                 </div>
-                <div style={{borderTop: '2px solid #ddd', paddingTop: '8px', marginTop: '8px', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong>Total:</strong>
-                  <strong style={{fontSize: '18px', color: 'var(--primary-purple)'}}>₹{totals.total.toFixed(2)}</strong>
+                <div className="totals-row">
+                  <span className="grand-total-label">Total:</span>
+                  <span className="grand-total-value">₹{totals.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -525,66 +592,73 @@ const InvoiceGenerator = () => {
 
           {/* Additional Info */}
           {activeSection === 'additional' && (
-            <div className="section-card">
-              <h3>Additional Information</h3>
-              <div className="row-inputs">
+            <div className="invoice-section-card">
+              <h3 className="section-title">
+                <i className="fas fa-plus-circle"></i>
+                Additional Information
+              </h3>
+              <div className="invoice-row-inputs">
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">CGST Rate (%)</label>
+                  <input
+                    type="text"
+                    name="cgst_rate"
+                    placeholder="CGST Rate"
+                    value={formData.cgst_rate}
+                    onChange={handleChange}
+                    className="invoice-input"
+                  />
+                </div>
+                <div className="invoice-input-group">
+                  <label className="invoice-input-label">SGST Rate (%)</label>
+                  <input
+                    type="text"
+                    name="sgst_rate"
+                    placeholder="SGST Rate"
+                    value={formData.sgst_rate}
+                    onChange={handleChange}
+                    className="invoice-input"
+                  />
+                </div>
+              </div>
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Vehicle Number</label>
                 <input
                   type="text"
-                  name="cgst_rate"
-                  placeholder="CGST Rate (%)"
-                  value={formData.cgst_rate}
+                  name="vehicle_number"
+                  placeholder="Vehicle Number (optional)"
+                  value={formData.vehicle_number}
                   onChange={handleChange}
-                  className="material-input"
-                />
-                <input
-                  type="text"
-                  name="sgst_rate"
-                  placeholder="SGST Rate (%)"
-                  value={formData.sgst_rate}
-                  onChange={handleChange}
-                  className="material-input"
+                  className="invoice-input"
                 />
               </div>
-              <input
-                type="text"
-                name="vehicle_number"
-                placeholder="Vehicle Number (optional)"
-                value={formData.vehicle_number}
-                onChange={handleChange}
-                className="material-input"
-              />
-              <textarea
-                name="notes"
-                placeholder="Additional Notes (optional)"
-                value={formData.notes}
-                onChange={handleChange}
-                className="material-input"
-                rows="3"
-              />
+              <div className="invoice-input-group">
+                <label className="invoice-input-label">Additional Notes</label>
+                <textarea
+                  name="notes"
+                  placeholder="Additional Notes (optional)"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  className="invoice-input"
+                  rows="3"
+                />
+              </div>
             </div>
           )}
 
           {/* PDF Preview Section */}
           {activeSection === 'preview' && showPreview && pdfPreviewUrl && (
-            <div className="section-card">
-              <h3 className="section-title">Invoice Preview</h3>
+            <div className="invoice-section-card">
+              <h3 className="section-title">
+                <i className="fas fa-file-pdf"></i>
+                Invoice Preview
+              </h3>
               
               {/* PDF Preview Iframe */}
-              <div style={{
-                width: '100%',
-                height: '600px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                marginBottom: '20px'
-              }}>
+              <div className="pdf-iframe-container">
                 <iframe
                   src={pdfPreviewUrl}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none'
-                  }}
+                  className="pdf-iframe"
                   title="Invoice Preview"
                 />
               </div>
@@ -593,14 +667,7 @@ const InvoiceGenerator = () => {
               <button
                 type="button"
                 onClick={handleDownloadPdf}
-                className="btn-primary"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
+                className="invoice-btn-primary invoice-btn-download"
               >
                 <i className="fas fa-download"></i>
                 Download Invoice PDF
@@ -614,12 +681,9 @@ const InvoiceGenerator = () => {
                   setPdfPreviewUrl(null);
                   setActiveSection('buyer');
                 }}
-                className="btn-secondary"
-                style={{
-                  width: '100%',
-                  marginTop: '12px'
-                }}
+                className="invoice-btn-secondary"
               >
+                <i className="fas fa-plus"></i>
                 Generate New Invoice
               </button>
             </div>
@@ -628,11 +692,21 @@ const InvoiceGenerator = () => {
           {!showPreview && (
             <button 
               type="submit" 
-              className="btn-primary" 
+              className="invoice-btn-primary" 
               disabled={loading}
-              style={{width: '100%', marginTop: '20px'}}
+              style={{marginTop: '20px'}}
             >
-              {loading ? 'Generating Invoice...' : '📄 Generate Invoice PDF'}
+              {loading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Generating Invoice...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-file-invoice"></i>
+                  Generate Invoice PDF
+                </>
+              )}
             </button>
           )}
         </form>

@@ -17,6 +17,7 @@ import BulkReminders from './pages/BulkReminders';
 import Products from './pages/Products';
 import AddEditProduct from './pages/AddEditProduct';
 import InvoiceGenerator from './pages/InvoiceGenerator';
+import BusinessManagement from './pages/BusinessManagement';
 import './styles/App.css';
 
 function App() {
@@ -136,6 +137,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <InvoiceGenerator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/business"
+              element={
+                <ProtectedRoute>
+                  <BusinessManagement />
                 </ProtectedRoute>
               }
             />
