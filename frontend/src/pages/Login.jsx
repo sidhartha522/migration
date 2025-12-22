@@ -42,7 +42,7 @@ const Login = () => {
   };
 
   return (
-    <div className="login-ios" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+    <div className="login-ios" style={{ paddingTop: '0px' }}>
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
       
       <div className="login-wrapper">
