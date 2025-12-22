@@ -72,8 +72,7 @@ const Register = () => {
         {/* Register Card */}
         <div className="login-card-clean">
           <div className="card-header-clean">
-            <h1>Create Your Business</h1>
-            <h2>Credit Book</h2>
+            <h1 style={{ fontWeight: 'bold', color: '#00A896' }}>Create Your Ekthaa Account</h1>
           </div>
           
           <form onSubmit={handleSubmit}>
@@ -110,7 +109,7 @@ const Register = () => {
               />
             </div>
             
-            <button type="submit" className="btn-submit-clean" disabled={loading}>
+            <button type="submit" className="btn-submit-clean" style={{ backgroundColor: '#000', color: '#fff' }} disabled={loading}>
               {loading ? (
                 <>
                   <i className="fas fa-spinner fa-spin"></i> Registering...
@@ -122,7 +121,7 @@ const Register = () => {
               )}
             </button>
             
-            <Link to="/login" className="link-switch-clean">
+            <Link to="/login" className="link-switch-clean" style={{ color: '#00A896' }}>
               <i className="fas fa-sign-in-alt"></i> Already have an account? Login
             </Link>
           </form>

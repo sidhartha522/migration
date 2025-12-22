@@ -42,7 +42,7 @@ const Login = () => {
   };
 
   return (
-    <div className="login-ios">
+    <div className="login-ios" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
       <FlashMessage messages={messages} onClose={() => setMessages([])} />
       
       <div className="login-wrapper">
@@ -50,12 +50,8 @@ const Login = () => {
         <div className="illustration-borderless">
           <img 
             src="/logo.png" 
-            alt="KhataPe Business" 
+            alt="Ekthaa" 
             className="logo-illustration"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextElementSibling.style.display = 'flex';
-            }}
           />
           <div className="logo-fallback" style={{ display: 'none' }}>
             <i className="fas fa-store"></i>
@@ -65,8 +61,7 @@ const Login = () => {
         {/* Login Card */}
         <div className="login-card-clean">
           <div className="card-header-clean">
-            <h1>Login to Access Your</h1>
-            <h2>Credit Book</h2>
+            <h1 style={{ fontWeight: 'bold', color: '#00A896' }}>Login to Ekthaa</h1>
           </div>
           
           <form onSubmit={handleSubmit}>
@@ -104,33 +99,19 @@ const Login = () => {
             </button>
           </form>
 
-          {messages.length > 0 && messages[0].type === 'success' && (
-            <div className="success-message-inline">
-              <i className="fas fa-check-circle"></i>
-              <span>Login successful! Redirecting...</span>
-            </div>
-          )}
-
-          {messages.length > 0 && messages[0].type === 'error' && (
-            <div className="error-message-inline">
-              <i className="fas fa-exclamation-circle"></i>
-              <span>{messages[0].message}</span>
-            </div>
-          )}
+          <div className="signup-link" style={{ marginTop: '20px', textAlign: 'center' }}>
+            <span style={{ fontWeight: 'bold', color: '#00A896' }}>Don't have an account?</span>
+            <Link to="/register" style={{ fontWeight: 'bold', color: '#00A896' }}>Create an account</Link>
+          </div>
 
           <div className="divider-clean">
             <span>Or login as</span>
           </div>
 
-          <a href="https://customer.khatape.tech" className="btn-customer-clean">
+          <a href="https://www.customer.ekthaa.app" className="btn-customer-clean">
             <i className="fas fa-user"></i>
             <span>Customer Login</span>
           </a>
-
-          <div className="signup-link">
-            <span>Don't have an account?</span>
-            <Link to="/register">Create an account</Link>
-          </div>
         </div>
       </div>
     </div>
