@@ -744,6 +744,13 @@ def create_transaction():
         
         # Create transaction
         transaction_id = str(uuid.uuid4())
+        
+        # Get created_by from request, default to 'business' if not provided
+        if request.is_json:
+            created_by = data.get('created_by', 'business')
+        else:
+            created_by = request.form.get('created_by', 'business')
+        
         transaction_data = {
             'business_id': business_id,
             'customer_id': customer_id,
@@ -751,7 +758,7 @@ def create_transaction():
             'amount': amount,
             'notes': notes,
             'receipt_image_url': bill_image_url or '',
-            'created_by': 'business',  # All web transactions are created by business
+            'created_by': created_by,  # Use from request or default
             'created_at': datetime.utcnow().isoformat()
         }
         
