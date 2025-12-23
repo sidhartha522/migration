@@ -818,7 +818,8 @@ def get_all_transactions():
                 'transaction_type': txn.get('transaction_type'),
                 'notes': txn.get('notes'),
                 'created_at': txn.get('created_at'),
-                'receipt_image_url': receipt_url
+                'receipt_image_url': receipt_url,
+                'created_by': txn.get('created_by')
             })
         
         return jsonify({'transactions': transaction_list}), 200
