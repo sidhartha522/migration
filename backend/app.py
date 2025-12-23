@@ -300,6 +300,74 @@ def logout():
     """Logout user"""
     return jsonify({'message': 'Logout successful'}), 200
 
+@app.route('/api/auth/change-password', methods=['POST'])
+@token_required
+@business_required
+def change_password():
+    """Change user password"""
+    try:
+        data = request.get_json()
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        
+        if not current_password or not new_password:
+            return jsonify({'error': 'Current password and new password are required'}), 400
+        
+        # Validate new password length
+        if len(new_password) < 6:
+            return jsonify({'error': 'New password must be at least 6 characters'}), 400
+        
+        # Get current user
+        try:
+            user = appwrite_db.get_document('users', request.user_id)
+        except Exception as e:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Verify current password
+        stored_password = user.get('password', '')
+        password_valid = False
+        
+        # Check if password is hashed
+        if stored_password.startswith('$') or stored_password.startswith('pbkdf2:') or stored_password.startswith('scrypt:'):
+            # Try hashed password verification
+            from werkzeug.security import check_password_hash
+            try:
+                password_valid = check_password_hash(stored_password, current_password)
+            except Exception as e:
+                # If werkzeug fails, try bcrypt directly
+                import bcrypt
+                try:
+                    password_valid = bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8'))
+                except:
+                    password_valid = False
+        else:
+            # Plain text password (legacy)
+            password_valid = (stored_password == current_password)
+        
+        if not password_valid:
+            return jsonify({'error': 'Current password is incorrect'}), 401
+        
+        # Hash new password
+        from werkzeug.security import generate_password_hash
+        hashed_password = generate_password_hash(new_password)
+        
+        # Update password in database
+        try:
+            appwrite_db.update_document('users', request.user_id, {
+                'password': hashed_password
+            })
+            
+            return jsonify({
+                'success': True,
+                'message': 'Password changed successfully'
+            }), 200
+            
+        except Exception as e:
+            return jsonify({'error': f'Failed to update password: {str(e)}'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== Dashboard Endpoints ==========
 
 @app.route('/api/dashboard', methods=['GET'])
