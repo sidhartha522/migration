@@ -523,36 +523,39 @@ def get_customers():
             Query.equal('business_id', business_id)
         ])
         
-        # Get customer credits for accurate balances
-        customer_credits = appwrite_db.list_documents('customer_credits', [
-            Query.equal('business_id', business_id)
-        ])
-        
-        # Create a map of customer_id -> current_balance
-        customer_balance_map = {}
-        for credit in customer_credits:
-            customer_id = credit.get('customer_id')
-            current_balance = credit.get('current_balance', 0)
-            customer_balance_map[customer_id] = current_balance
-        
-        # Get transactions to find last transaction date and count
+        # Get all transactions to calculate balances dynamically
         transactions = appwrite_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
-        # Build a dict of customer_id -> last_transaction_date and transaction_count
+        # Build maps for balance, last transaction, and transaction count
+        customer_balance_map = {}
         customer_last_transaction = {}
         customer_transaction_count = {}
+        
         for txn in transactions:
             cid = txn.get('customer_id')
             txn_date = txn.get('$createdAt', '')
+            amount = float(txn.get('amount', 0))
+            txn_type = txn.get('transaction_type')
+            
             if cid:
+                # Calculate balance (credit - payment)
+                if cid not in customer_balance_map:
+                    customer_balance_map[cid] = 0
+                
+                if txn_type == 'credit':
+                    customer_balance_map[cid] += amount
+                elif txn_type == 'payment':
+                    customer_balance_map[cid] -= amount
+                
+                # Track last transaction and count
                 if cid not in customer_last_transaction:
                     customer_last_transaction[cid] = txn_date
                 customer_transaction_count[cid] = customer_transaction_count.get(cid, 0) + 1
         
-        # Build customer list with current balances from customer_credits
+        # Build customer list with calculated balances
         customer_list = []
         for customer in customers:
             customer_id = customer['$id']
