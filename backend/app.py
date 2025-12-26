@@ -1089,6 +1089,10 @@ def get_profile():
         business['total_customers'] = total_customers
         business['total_transactions'] = total_transactions
         
+        # Ensure profile_photo_url is included (even if None)
+        if 'profile_photo_url' not in business:
+            business['profile_photo_url'] = None
+        
         return jsonify({'business': business}), 200
         
     except Exception as e:
