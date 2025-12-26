@@ -576,7 +576,8 @@ def get_customers():
         
     except Exception as e:
         logger.error(f"Get customers error: {str(e)}")
-        return jsonify({'error': f'Failed to get customers: {str(e)}'}), 500
+        # Return empty array on error to prevent frontend issues
+        return jsonify({'customers': [], 'error': f'Failed to get customers: {str(e)}'}), 200
 
 @app.route('/api/customer/<customer_id>', methods=['GET'])
 @token_required
@@ -897,7 +898,8 @@ def get_all_transactions():
         
     except Exception as e:
         logger.error(f"Get transactions error: {str(e)}")
-        return jsonify({'error': f'Failed to get transactions: {str(e)}'}), 500
+        # Return empty array on error to prevent frontend issues
+        return jsonify({'transactions': [], 'error': f'Failed to get transactions: {str(e)}'}), 200
 
 @app.route('/api/transaction/<transaction_id>/bill', methods=['GET'])
 @token_required
@@ -1287,6 +1289,65 @@ def regenerate_pin():
         logger.error(f"Regenerate PIN error: {str(e)}")
         return jsonify({'error': f'Failed to regenerate PIN: {str(e)}'}), 500
 
+@app.route('/api/profile/upload-photo', methods=['POST'])
+@token_required
+@business_required
+def upload_profile_photo():
+    """Upload business profile photo to Cloudinary"""
+    try:
+        business_id = request.business_id
+        
+        # Check if file is in request
+        if 'profile_photo' not in request.files:
+            return jsonify({'error': 'No profile photo provided'}), 400
+        
+        file = request.files['profile_photo']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed'}), 400
+        
+        try:
+            # Generate unique filename
+            photo_id = f"profile_{business_id}_{uuid.uuid4().hex[:8]}"
+            
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                file,
+                folder='business_profiles',
+                public_id=photo_id,
+                resource_type='image',
+                transformation=[
+                    {'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'},
+                    {'quality': 'auto:good'}
+                ]
+            )
+            
+            logger.info(f"Cloudinary upload result: {upload_result}")
+            
+            # Get the secure URL
+            photo_url = upload_result.get('secure_url')
+            
+            # Update business profile with photo URL
+            appwrite_db.update_document('businesses', business_id, {
+                'profile_photo_url': photo_url
+            })
+            
+            return jsonify({
+                'message': 'Profile photo uploaded successfully',
+                'photo_url': photo_url
+            }), 200
+            
+        except Exception as upload_error:
+            logger.error(f"Profile photo upload error: {str(upload_error)}")
+            return jsonify({'error': f'Failed to upload photo: {str(upload_error)}'}), 500
+            
+    except Exception as e:
+        logger.error(f"Upload profile photo error: {str(e)}")
+        return jsonify({'error': f'Failed to upload profile photo: {str(e)}'}), 500
+
 @app.route('/api/profile/qr', methods=['GET'])
 @token_required
 @business_required
@@ -1551,7 +1612,8 @@ def get_products():
         
     except Exception as e:
         logger.error(f"Get products error: {str(e)}")
-        return jsonify({'error': f'Failed to get products: {str(e)}'}), 500
+        # Return empty array on error to prevent frontend issues
+        return jsonify({'products': [], 'count': 0, 'error': f'Failed to get products: {str(e)}'}), 200
 
 @app.route('/api/product', methods=['POST'])
 @token_required
