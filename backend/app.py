@@ -1069,7 +1069,14 @@ def get_profile():
     try:
         business_id = request.business_id
         
+        logger.info(f"🔍 Getting profile for business_id: {business_id}")
+        
         business = appwrite_db.get_document('businesses', business_id)
+        
+        logger.info(f"📋 Business Name: {business.get('name')}")
+        logger.info(f"🔑 Access PIN: {business.get('access_pin')}")
+        logger.info(f"📱 Phone: {business.get('phone_number')}")
+        logger.info(f"🆔 Business ID: {business['$id']}")
         
         # Get customer count
         customers = appwrite_db.list_documents(
