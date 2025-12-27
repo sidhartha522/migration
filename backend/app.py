@@ -181,9 +181,9 @@ def register():
         
         user = appwrite_db.create_document('users', user_id, user_data)
         
-        # Generate business PIN (4-digit unique PIN)
+        # Generate business PIN (6-digit unique PIN)
         import random
-        business_pin = ''.join([str(random.randint(0, 9)) for _ in range(4)])
+        business_pin = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         
         # Create business profile
         business_id = str(uuid.uuid4())
@@ -1278,10 +1278,10 @@ def regenerate_pin():
         business_id = request.business_id
         
         import random
-        new_pin = ''.join([str(random.randint(0, 9)) for _ in range(4)])
+        new_pin = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         
         business = appwrite_db.update_document('businesses', business_id, {
-            'pin': new_pin
+            'access_pin': new_pin
         })
         
         return jsonify({
