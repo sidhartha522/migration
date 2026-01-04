@@ -776,6 +776,9 @@ def create_transaction():
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
+        # Generate transaction ID first (needed for file upload)
+        transaction_id = str(uuid.uuid4())
+        
         # Handle bill image upload
         bill_image_url = None
         if 'bill_photo' in request.files:
@@ -813,9 +816,6 @@ def create_transaction():
                     bill_image_url = upload_result.get('public_id')
                 except Exception as upload_error:
                     logger.error(f"Image upload error: {str(upload_error)}")
-        
-        # Create transaction
-        transaction_id = str(uuid.uuid4())
         
         # Get created_by from request, default to 'business' if not provided
         if request.is_json:
