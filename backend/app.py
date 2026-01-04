@@ -10,7 +10,11 @@ from appwrite.query import Query
 import os
 import uuid
 import logging
+import re
+import html
 from functools import wraps
+from collections import defaultdict
+import time
 from werkzeug.utils import secure_filename
 import jwt
 from datetime import datetime, timedelta
@@ -33,6 +37,91 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# ========== Security Utilities ==========
+
+# Simple in-memory rate limiter
+_rate_limit_store = defaultdict(list)
+RATE_LIMIT_WINDOW = 60  # seconds
+RATE_LIMIT_MAX_REQUESTS = 100  # max requests per window
+
+def check_rate_limit(identifier: str, max_requests: int = RATE_LIMIT_MAX_REQUESTS) -> bool:
+    """Check if identifier has exceeded rate limit"""
+    current_time = time.time()
+    window_start = current_time - RATE_LIMIT_WINDOW
+    
+    # Clean old requests
+    _rate_limit_store[identifier] = [
+        t for t in _rate_limit_store[identifier] if t > window_start
+    ]
+    
+    # Check limit
+    if len(_rate_limit_store[identifier]) >= max_requests:
+        return False
+    
+    # Add current request
+    _rate_limit_store[identifier].append(current_time)
+    return True
+
+def rate_limit(max_requests: int = RATE_LIMIT_MAX_REQUESTS):
+    """Rate limiting decorator"""
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            # Use IP address as identifier
+            identifier = request.remote_addr or 'unknown'
+            
+            if not check_rate_limit(identifier, max_requests):
+                logger.warning(f"Rate limit exceeded for {identifier}")
+                return jsonify({'error': 'Too many requests. Please try again later.'}), 429
+            
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+def sanitize_input(value: str, max_length: int = 500) -> str:
+    """Sanitize user input to prevent XSS and injection attacks"""
+    if not value:
+        return ''
+    
+    # Convert to string and strip
+    value = str(value).strip()
+    
+    # Truncate to max length
+    value = value[:max_length]
+    
+    # HTML escape
+    value = html.escape(value)
+    
+    return value
+
+def validate_phone_number(phone: str) -> tuple:
+    """Validate Indian phone number format"""
+    if not phone:
+        return False, 'Phone number is required'
+    
+    # Remove any non-digit characters
+    cleaned = re.sub(r'\D', '', phone)
+    
+    if len(cleaned) != 10:
+        return False, 'Phone number must be exactly 10 digits'
+    
+    if cleaned[0] not in '6789':
+        return False, 'Invalid Indian phone number format'
+    
+    return True, cleaned
+
+def validate_amount(amount) -> tuple:
+    """Validate transaction amount"""
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            return False, 'Amount must be greater than 0', None
+        if amount > 10000000:  # 1 crore limit
+            return False, 'Amount cannot exceed ₹1,00,00,000', None
+        return True, None, amount
+    except (ValueError, TypeError):
+        return False, 'Invalid amount format', None
+
 # Initialize Appwrite
 appwrite_db = AppwriteDB()
 
@@ -54,8 +143,24 @@ def allowed_file(filename):
 
 # Create Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
+# SECURITY: Require proper secret keys in production
+_secret_key = os.getenv('SECRET_KEY')
+_jwt_secret = os.getenv('JWT_SECRET_KEY')
+
+if not _secret_key or _secret_key == 'dev-secret-key-change-in-production':
+    if os.getenv('FLASK_ENV') == 'production':
+        raise ValueError('SECRET_KEY must be set in production!')
+    logger.warning('⚠️ Using default SECRET_KEY - NOT SAFE FOR PRODUCTION')
+    _secret_key = 'dev-secret-key-change-in-production'
+
+if not _jwt_secret or _jwt_secret == 'jwt-secret-key-change-in-production':
+    if os.getenv('FLASK_ENV') == 'production':
+        raise ValueError('JWT_SECRET_KEY must be set in production!')
+    logger.warning('⚠️ Using default JWT_SECRET_KEY - NOT SAFE FOR PRODUCTION')
+    _jwt_secret = 'jwt-secret-key-change-in-production'
+
+app.config['SECRET_KEY'] = _secret_key
+app.config['JWT_SECRET_KEY'] = _jwt_secret
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # Enable CORS - Allow localhost and mobile device access
@@ -144,20 +249,34 @@ def health_check():
 # ========== Authentication Endpoints ==========
 
 @app.route('/api/auth/register', methods=['POST'])
+@rate_limit(max_requests=10)  # Stricter rate limit for registration
 def register():
     """Register new business user"""
     try:
         data = request.get_json()
-        business_name = data.get('business_name', '').strip()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        # Sanitize and validate inputs
+        business_name = sanitize_input(data.get('business_name', ''), max_length=100)
         phone_number = data.get('phone_number', '').strip()
-        password = data.get('password')
+        password = data.get('password', '')
         
         if not business_name or not phone_number or not password:
             return jsonify({'error': 'Business name, phone number and password are required'}), 400
         
-        # Validate phone number
-        if not phone_number.isdigit() or len(phone_number) != 10:
-            return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
+        # Validate phone number using helper
+        is_valid_phone, phone_error = validate_phone_number(phone_number)
+        if not is_valid_phone:
+            return jsonify({'error': phone_error}), 400
+        
+        # Validate password strength
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        # Additional password strength checks
+        if password.isdigit() or password.isalpha():
+            return jsonify({'error': 'Password must contain both letters and numbers'}), 400
         
         # Check if user already exists
         existing_users = appwrite_db.list_documents('users', [
@@ -219,15 +338,25 @@ def register():
         return jsonify({'error': f'Registration failed: {str(e)}'}), 500
 
 @app.route('/api/auth/login', methods=['POST'])
+@rate_limit(max_requests=20)  # Rate limit for login attempts
 def login():
     """Login business user"""
     try:
         data = request.get_json()
-        phone_number = data.get('phone_number')
-        password = data.get('password')
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        phone_number = data.get('phone_number', '').strip()
+        password = data.get('password', '')
         
         if not phone_number or not password:
             return jsonify({'error': 'Phone number and password are required'}), 400
+        
+        # Validate phone format before querying database
+        is_valid_phone, _ = validate_phone_number(phone_number)
+        if not is_valid_phone:
+            # Generic error to prevent phone enumeration
+            return jsonify({'error': 'Invalid phone number or password'}), 401
         
         # Find user
         users = appwrite_db.list_documents('users', [
@@ -695,15 +824,20 @@ def add_customer():
         business_id = request.business_id
         data = request.get_json()
         
-        name = data.get('name', '').strip()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        # Sanitize inputs
+        name = sanitize_input(data.get('name', ''), max_length=100)
         phone_number = data.get('phone_number', '').strip()
         
         if not name or not phone_number:
             return jsonify({'error': 'Name and phone number are required'}), 400
         
-        # Validate phone
-        if not phone_number.isdigit() or len(phone_number) != 10:
-            return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
+        # Validate phone using helper
+        is_valid_phone, phone_error = validate_phone_number(phone_number)
+        if not is_valid_phone:
+            return jsonify({'error': phone_error}), 400
         
         # Check if customer already exists
         existing = appwrite_db.list_documents('customers', [
@@ -750,13 +884,13 @@ def create_transaction():
             customer_id = data.get('customer_id')
             transaction_type = data.get('type')
             amount = data.get('amount')
-            notes = data.get('notes', '')
+            notes = sanitize_input(data.get('notes', ''), max_length=500)
         else:
             # Handle multipart form data for file upload
             customer_id = request.form.get('customer_id')
             transaction_type = request.form.get('type')
             amount = request.form.get('amount')
-            notes = request.form.get('notes', '')
+            notes = sanitize_input(request.form.get('notes', ''), max_length=500)
         
         if not customer_id or not transaction_type or not amount:
             return jsonify({'error': 'Customer ID, type, and amount are required'}), 400
@@ -764,12 +898,11 @@ def create_transaction():
         if transaction_type not in ['credit', 'payment']:
             return jsonify({'error': 'Type must be credit or payment'}), 400
         
-        try:
-            amount = float(amount)
-            if amount <= 0:
-                return jsonify({'error': 'Amount must be greater than 0'}), 400
-        except ValueError:
-            return jsonify({'error': 'Invalid amount'}), 400
+        # Validate amount using helper
+        is_valid_amount, validated_amount, amount_error = validate_amount(amount)
+        if not is_valid_amount:
+            return jsonify({'error': amount_error}), 400
+        amount = validated_amount
         
         # Verify customer belongs to business
         customer = appwrite_db.get_document('customers', customer_id)
