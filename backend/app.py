@@ -1775,7 +1775,10 @@ def update_product(product_id):
         # Get existing product to verify ownership
         doc = appwrite_db.get_document('products', product_id)
         
-        if doc['business_id'] != business_id:
+        if not doc:
+            return jsonify({'error': 'Product not found'}), 404
+        
+        if doc.get('business_id') != business_id:
             return jsonify({'error': 'Unauthorized access to product'}), 403
         
         # Validate numeric fields if provided
@@ -1809,19 +1812,22 @@ def update_product(product_id):
         # Update product
         result = appwrite_db.update_document('products', product_id, update_data)
         
+        if not result:
+            return jsonify({'error': 'Failed to update product in database'}), 500
+        
         product = {
-            'id': result['$id'],
-            'name': result['name'],
+            'id': result.get('$id', product_id),
+            'name': result.get('name', ''),
             'description': result.get('description', ''),
-            'category': result['category'],
+            'category': result.get('category', ''),
             'subcategory': result.get('subcategory', ''),
-            'stock_quantity': result['stock_quantity'],
-            'unit': result['unit'],
-            'price': result['price'],
+            'stock_quantity': result.get('stock_quantity', 0),
+            'unit': result.get('unit', ''),
+            'price': result.get('price', 0),
             'product_image_url': result.get('product_image_url', ''),
-            'is_public': result['is_public'],
+            'is_public': result.get('is_public', False),
             'low_stock_threshold': result.get('low_stock_threshold', 10),
-            'updated_at': result['$updatedAt']
+            'updated_at': result.get('$updatedAt', '')
         }
         
         return jsonify({
