@@ -5,8 +5,8 @@ Handles all business operations including customers, transactions, recurring tra
 """
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from appwrite_utils import AppwriteDB
-from appwrite.query import Query
+from firebase_utils import FirebaseDB
+from firebase_query import Query
 import os
 import uuid
 import logging
@@ -33,8 +33,8 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Appwrite
-appwrite_db = AppwriteDB()
+# Initialize Firebase
+firebase_db = FirebaseDB()
 
 # Initialize Cloudinary
 cloudinary.config(
@@ -160,7 +160,7 @@ def register():
             return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
         
         # Check if user already exists
-        existing_users = appwrite_db.list_documents('users', [
+        existing_users = firebase_db.list_documents('users', [
             Query.equal('phone_number', phone_number)
         ])
         
@@ -179,7 +179,7 @@ def register():
             'created_at': datetime.now().isoformat()
         }
         
-        user = appwrite_db.create_document('users', user_id, user_data)
+        user = firebase_db.create_document('users', user_id, user_data)
         
         # Generate business PIN (6-digit unique PIN)
         import random
@@ -196,7 +196,7 @@ def register():
             'created_at': datetime.now().isoformat()
         }
         
-        business = appwrite_db.create_document('businesses', business_id, business_data)
+        business = firebase_db.create_document('businesses', business_id, business_data)
         
         # Create access token
         token = create_access_token(user_id, 'business', business_id)
@@ -230,7 +230,7 @@ def login():
             return jsonify({'error': 'Phone number and password are required'}), 400
         
         # Find user
-        users = appwrite_db.list_documents('users', [
+        users = firebase_db.list_documents('users', [
             Query.equal('phone_number', phone_number),
             Query.equal('user_type', 'business')
         ])
@@ -265,7 +265,7 @@ def login():
             return jsonify({'error': 'Invalid phone number or password'}), 401
         
         # Get business details
-        businesses = appwrite_db.list_documents('businesses', [
+        businesses = firebase_db.list_documents('businesses', [
             Query.equal('user_id', user['$id'])
         ])
         
@@ -319,7 +319,7 @@ def change_password():
         
         # Get current user
         try:
-            user = appwrite_db.get_document('users', request.user_id)
+            user = firebase_db.get_document('users', request.user_id)
         except Exception as e:
             return jsonify({'error': 'User not found'}), 404
         
@@ -353,7 +353,7 @@ def change_password():
         
         # Update password in database
         try:
-            appwrite_db.update_document('users', request.user_id, {
+            firebase_db.update_document('users', request.user_id, {
                 'password': hashed_password
             })
             
@@ -379,20 +379,20 @@ def dashboard():
         business_id = request.business_id
         
         # Get business details
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         # Get all customers
-        customers = appwrite_db.list_documents('customers', [
+        customers = firebase_db.list_documents('customers', [
             Query.equal('business_id', business_id)
         ])
         
         # Get ALL transactions for accurate calculations (no limit)
-        all_transactions = appwrite_db.list_documents('transactions', [
+        all_transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id)
         ])
         
         # Get recent transactions for display (limited to 100)
-        transactions = appwrite_db.list_documents('transactions', [
+        transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at'),
             Query.limit(100)
@@ -404,7 +404,7 @@ def dashboard():
         total_payment = sum(float(t.get('amount', 0)) for t in all_transactions if t.get('transaction_type') == 'payment')
         
         # Get customer credits for accurate current balances
-        customer_credits = appwrite_db.list_documents('customer_credits', [
+        customer_credits = firebase_db.list_documents('customer_credits', [
             Query.equal('business_id', business_id)
         ])
         
@@ -499,7 +499,7 @@ def get_access_pin():
     """Get business access PIN"""
     try:
         business_id = request.business_id
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         return jsonify({
             'access_pin': business.get('access_pin')
@@ -519,12 +519,12 @@ def get_customers():
     try:
         business_id = request.business_id
         
-        customers = appwrite_db.list_documents('customers', [
+        customers = firebase_db.list_documents('customers', [
             Query.equal('business_id', business_id)
         ])
         
         # Get all transactions to calculate balances dynamically
-        transactions = appwrite_db.list_documents('transactions', [
+        transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
@@ -588,13 +588,13 @@ def get_customer_details(customer_id):
         business_id = request.business_id
         
         # Get customer
-        customer = appwrite_db.get_document('customers', customer_id)
+        customer = firebase_db.get_document('customers', customer_id)
         
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
         # Get customer transactions
-        transactions = appwrite_db.list_documents('transactions', [
+        transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.equal('customer_id', customer_id),
             Query.order_desc('created_at')
@@ -634,12 +634,12 @@ def get_customer_transactions(customer_id):
         business_id = request.business_id
         
         # Verify customer belongs to business
-        customer = appwrite_db.get_document('customers', customer_id)
+        customer = firebase_db.get_document('customers', customer_id)
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
         # Get transactions
-        transactions = appwrite_db.list_documents('transactions', [
+        transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.equal('customer_id', customer_id),
             Query.order_desc('created_at')
@@ -706,7 +706,7 @@ def add_customer():
             return jsonify({'error': 'Phone number must be exactly 10 digits'}), 400
         
         # Check if customer already exists
-        existing = appwrite_db.list_documents('customers', [
+        existing = firebase_db.list_documents('customers', [
             Query.equal('business_id', business_id),
             Query.equal('phone_number', phone_number)
         ])
@@ -723,7 +723,7 @@ def add_customer():
             'created_at': datetime.utcnow().isoformat()
         }
         
-        customer = appwrite_db.create_document('customers', customer_id, customer_data)
+        customer = firebase_db.create_document('customers', customer_id, customer_data)
         
         return jsonify({
             'message': 'Customer added successfully',
@@ -772,7 +772,7 @@ def create_transaction():
             return jsonify({'error': 'Invalid amount'}), 400
         
         # Verify customer belongs to business
-        customer = appwrite_db.get_document('customers', customer_id)
+        customer = firebase_db.get_document('customers', customer_id)
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
@@ -835,7 +835,7 @@ def create_transaction():
         }
         
         logger.info(f"Creating transaction with receipt_image_url: {transaction_data.get('receipt_image_url')}")
-        transaction = appwrite_db.create_document('transactions', transaction_id, transaction_data)
+        transaction = firebase_db.create_document('transactions', transaction_id, transaction_data)
         logger.info(f"Created transaction document: {transaction}")
         
         return jsonify({
@@ -855,13 +855,13 @@ def get_all_transactions():
     try:
         business_id = request.business_id
         
-        transactions = appwrite_db.list_documents('transactions', [
+        transactions = firebase_db.list_documents('transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
-        customers = appwrite_db.list_documents('customers', [
+        customers = firebase_db.list_documents('customers', [
             Query.equal('business_id', business_id)
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
@@ -909,7 +909,7 @@ def get_bill_image(transaction_id):
     try:
         business_id = request.business_id
         
-        transaction = appwrite_db.get_document('transactions', transaction_id)
+        transaction = firebase_db.get_document('transactions', transaction_id)
         
         if transaction.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
@@ -934,13 +934,13 @@ def get_recurring_transactions():
     try:
         business_id = request.business_id
         
-        recurring_transactions = appwrite_db.list_documents('recurring_transactions', [
+        recurring_transactions = firebase_db.list_documents('recurring_transactions', [
             Query.equal('business_id', business_id),
             Query.order_desc('created_at')
         ])
         
         # Get customer names
-        customers = appwrite_db.list_documents('customers', [
+        customers = firebase_db.list_documents('customers', [
             Query.equal('business_id', business_id)
         ])
         customer_map = {c['$id']: c.get('name', 'Unknown') for c in customers}
@@ -982,7 +982,7 @@ def create_recurring_transaction():
             return jsonify({'error': 'Invalid amount'}), 400
         
         # Verify customer belongs to business
-        customer = appwrite_db.get_document('customers', customer_id)
+        customer = firebase_db.get_document('customers', customer_id)
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
@@ -999,7 +999,7 @@ def create_recurring_transaction():
             'created_at': datetime.utcnow().isoformat()
         }
         
-        recurring_transaction = appwrite_db.create_document('recurring_transactions', recurring_id, recurring_data)
+        recurring_transaction = firebase_db.create_document('recurring_transactions', recurring_id, recurring_data)
         
         return jsonify({
             'message': 'Recurring transaction created successfully',
@@ -1018,14 +1018,14 @@ def toggle_recurring_transaction(recurring_id):
     try:
         business_id = request.business_id
         
-        recurring_transaction = appwrite_db.get_document('recurring_transactions', recurring_id)
+        recurring_transaction = firebase_db.get_document('recurring_transactions', recurring_id)
         
         if recurring_transaction.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
         # Toggle is_active
         new_status = not recurring_transaction.get('is_active', False)
-        appwrite_db.update_document('recurring_transactions', recurring_id, {
+        firebase_db.update_document('recurring_transactions', recurring_id, {
             'is_active': new_status
         })
         
@@ -1046,12 +1046,12 @@ def delete_recurring_transaction(recurring_id):
     try:
         business_id = request.business_id
         
-        recurring_transaction = appwrite_db.get_document('recurring_transactions', recurring_id)
+        recurring_transaction = firebase_db.get_document('recurring_transactions', recurring_id)
         
         if recurring_transaction.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
-        appwrite_db.delete_document('recurring_transactions', recurring_id)
+        firebase_db.delete_document('recurring_transactions', recurring_id)
         
         return jsonify({'message': 'Recurring transaction deleted successfully'}), 200
         
@@ -1071,7 +1071,7 @@ def get_profile():
         
         logger.info(f"🔍 Getting profile for business_id: {business_id}")
         
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         logger.info(f"📋 Business Name: {business.get('name')}")
         logger.info(f"🔑 Access PIN: {business.get('access_pin')}")
@@ -1079,14 +1079,14 @@ def get_profile():
         logger.info(f"🆔 Business ID: {business['$id']}")
         
         # Get customer count
-        customers = appwrite_db.list_documents(
+        customers = firebase_db.list_documents(
             'customers',
             [Query.equal('business_id', business_id)]
         )
         total_customers = len(customers)
         
         # Get transaction count
-        transactions = appwrite_db.list_documents(
+        transactions = firebase_db.list_documents(
             'transactions',
             [Query.equal('business_id', business_id)]
         )
@@ -1184,7 +1184,7 @@ def update_profile():
         if not update_data:
             return jsonify({'error': 'No data to update'}), 400
         
-        business = appwrite_db.update_document('businesses', business_id, update_data)
+        business = firebase_db.update_document('businesses', business_id, update_data)
         
         return jsonify({
             'message': 'Profile updated successfully',
@@ -1231,7 +1231,7 @@ def update_location():
             'location_updated_at': datetime.now().isoformat()
         }
         
-        business = appwrite_db.update_document('businesses', business_id, update_data)
+        business = firebase_db.update_document('businesses', business_id, update_data)
         
         return jsonify({
             'message': 'Location updated successfully',
@@ -1253,7 +1253,7 @@ def get_location():
     try:
         business_id = request.business_id
         
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         latitude = business.get('latitude')
         longitude = business.get('longitude')
@@ -1287,7 +1287,7 @@ def regenerate_pin():
         import random
         new_pin = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         
-        business = appwrite_db.update_document('businesses', business_id, {
+        business = firebase_db.update_document('businesses', business_id, {
             'access_pin': new_pin
         })
         
@@ -1342,7 +1342,7 @@ def upload_profile_photo():
             photo_url = upload_result.get('secure_url')
             
             # Update business profile with photo URL
-            appwrite_db.update_document('businesses', business_id, {
+            firebase_db.update_document('businesses', business_id, {
                 'profile_photo_url': photo_url
             })
             
@@ -1367,7 +1367,7 @@ def generate_qr():
     try:
         business_id = request.business_id
         
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         pin = business.get('pin')
         
         if not pin:
@@ -1404,7 +1404,7 @@ def get_business_qr_code():
     try:
         business_id = request.business_id
         
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         access_pin = business.get('access_pin')
         
         if not access_pin:
@@ -1447,15 +1447,15 @@ def remind_customer(customer_id):
         business_id = request.business_id
         
         # Verify customer belongs to business
-        customer = appwrite_db.get_document('customers', customer_id)
+        customer = firebase_db.get_document('customers', customer_id)
         if customer.get('business_id') != business_id:
             return jsonify({'error': 'Access denied'}), 403
         
         # Get business details
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         # Get credit relationship for balance
-        credit_docs = appwrite_db.list_documents('customer_credits', [
+        credit_docs = firebase_db.list_documents('customer_credits', [
             Query.equal('business_id', business_id),
             Query.equal('customer_id', customer_id)
         ])
@@ -1509,11 +1509,11 @@ def remind_all_customers():
         import urllib.parse
         
         # Get business details
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         business_name = business.get('name', 'Business')
         
         # Get all customer credits with positive balance
-        customer_credits = appwrite_db.list_documents('customer_credits', [
+        customer_credits = firebase_db.list_documents('customer_credits', [
             Query.equal('business_id', business_id)
         ])
         
@@ -1522,7 +1522,7 @@ def remind_all_customers():
             balance = credit.get('current_balance', 0)
             if balance > 0:
                 customer_id = credit.get('customer_id')
-                customer = appwrite_db.get_document('customers', customer_id)
+                customer = firebase_db.get_document('customers', customer_id)
                 
                 if customer:
                     # Clean and format phone number
@@ -1589,7 +1589,7 @@ def get_products():
             queries.append(Query.search('name', search))
         
         # Get products
-        products = appwrite_db.list_documents(
+        products = firebase_db.list_documents(
             'products',
             queries
         )
@@ -1699,7 +1699,7 @@ def add_product():
         
         # Save to database
         product_id = str(uuid.uuid4())
-        result = appwrite_db.create_document('products', product_id, product_data)
+        result = firebase_db.create_document('products', product_id, product_data)
         
         product = {
             'id': result['$id'],
@@ -1734,7 +1734,7 @@ def get_product(product_id):
         business_id = request.business_id
         
         # Get product
-        doc = appwrite_db.get_document('products', product_id)
+        doc = firebase_db.get_document('products', product_id)
         
         # Verify ownership
         if doc['business_id'] != business_id:
@@ -1773,7 +1773,7 @@ def update_product(product_id):
         data = request.json
         
         # Get existing product to verify ownership
-        doc = appwrite_db.get_document('products', product_id)
+        doc = firebase_db.get_document('products', product_id)
         
         if not doc:
             return jsonify({'error': 'Product not found'}), 404
@@ -1810,7 +1810,7 @@ def update_product(product_id):
             return jsonify({'error': 'No valid fields to update'}), 400
         
         # Update product
-        result = appwrite_db.update_document('products', product_id, update_data)
+        result = firebase_db.update_document('products', product_id, update_data)
         
         if not result:
             return jsonify({'error': 'Failed to update product in database'}), 500
@@ -1847,13 +1847,13 @@ def delete_product(product_id):
         business_id = request.business_id
         
         # Get product to verify ownership
-        doc = appwrite_db.get_document('products', product_id)
+        doc = firebase_db.get_document('products', product_id)
         
         if doc['business_id'] != business_id:
             return jsonify({'error': 'Unauthorized access to product'}), 403
         
         # Delete product
-        appwrite_db.delete_document('products', product_id)
+        firebase_db.delete_document('products', product_id)
         
         return jsonify({'message': 'Product deleted successfully'}), 200
         
@@ -1910,7 +1910,7 @@ def get_vouchers():
         business_id = request.business_id
         
         # Query vouchers by business_id
-        vouchers = appwrite_db.list_documents(
+        vouchers = firebase_db.list_documents(
             'vouchers',
             queries=[Query.equal('business_id', business_id)]
         )
@@ -1929,7 +1929,7 @@ def get_voucher(voucher_id):
         business_id = request.business_id
         
         # Get voucher
-        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        voucher = firebase_db.get_document('vouchers', voucher_id)
         
         if not voucher or voucher.get('business_id') != business_id:
             return jsonify({'error': 'Voucher not found'}), 404
@@ -1968,7 +1968,7 @@ def create_voucher():
             'status': data.get('status', 'draft')
         }
         
-        voucher = appwrite_db.create_document('vouchers', voucher_id, voucher_data)
+        voucher = firebase_db.create_document('vouchers', voucher_id, voucher_data)
         
         return jsonify({'voucher': voucher}), 201
         
@@ -1985,7 +1985,7 @@ def update_voucher(voucher_id):
         business_id = request.business_id
         
         # Get existing voucher
-        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        voucher = firebase_db.get_document('vouchers', voucher_id)
         
         if not voucher or voucher.get('business_id') != business_id:
             return jsonify({'error': 'Voucher not found'}), 404
@@ -2009,7 +2009,7 @@ def update_voucher(voucher_id):
         if 'status' in data:
             update_data['status'] = data['status']
         
-        updated_voucher = appwrite_db.update_document('vouchers', voucher_id, update_data)
+        updated_voucher = firebase_db.update_document('vouchers', voucher_id, update_data)
         
         return jsonify({'voucher': updated_voucher}), 200
         
@@ -2025,7 +2025,7 @@ def toggle_voucher(voucher_id):
         business_id = request.business_id
         
         # Get existing voucher
-        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        voucher = firebase_db.get_document('vouchers', voucher_id)
         
         if not voucher or voucher.get('business_id') != business_id:
             return jsonify({'error': 'Voucher not found'}), 404
@@ -2033,7 +2033,7 @@ def toggle_voucher(voucher_id):
         # Toggle status
         current_status = voucher.get('status', 'draft')
         new_status = 'draft' if current_status == 'active' else 'active'
-        updated_voucher = appwrite_db.update_document(
+        updated_voucher = firebase_db.update_document(
             'vouchers',
             voucher_id,
             {'status': new_status}
@@ -2053,13 +2053,13 @@ def delete_voucher(voucher_id):
         business_id = request.business_id
         
         # Get existing voucher
-        voucher = appwrite_db.get_document('vouchers', voucher_id)
+        voucher = firebase_db.get_document('vouchers', voucher_id)
         
         if not voucher or voucher.get('business_id') != business_id:
             return jsonify({'error': 'Voucher not found'}), 404
         
         # Delete voucher
-        appwrite_db.delete_document('vouchers', voucher_id)
+        firebase_db.delete_document('vouchers', voucher_id)
         
         return jsonify({'message': 'Voucher deleted successfully'}), 200
         
@@ -2079,7 +2079,7 @@ def get_offers():
         business_id = request.business_id
         
         # Query offers by business_id
-        offers = appwrite_db.list_documents(
+        offers = firebase_db.list_documents(
             'offers',
             queries=[Query.equal('business_id', business_id)]
         )
@@ -2098,7 +2098,7 @@ def get_offer(offer_id):
         business_id = request.business_id
         
         # Get offer
-        offer = appwrite_db.get_document('offers', offer_id)
+        offer = firebase_db.get_document('offers', offer_id)
         
         if not offer or offer.get('business_id') != business_id:
             return jsonify({'error': 'Offer not found'}), 404
@@ -2143,7 +2143,7 @@ def create_offer():
             'status': data.get('status', 'active')
         }
         
-        offer = appwrite_db.create_document('offers', offer_id, offer_data)
+        offer = firebase_db.create_document('offers', offer_id, offer_data)
         
         return jsonify({'offer': offer}), 201
         
@@ -2160,7 +2160,7 @@ def update_offer(offer_id):
         data = request.json
         
         # Get existing offer
-        offer = appwrite_db.get_document('offers', offer_id)
+        offer = firebase_db.get_document('offers', offer_id)
         
         if not offer or offer.get('business_id') != business_id:
             return jsonify({'error': 'Offer not found'}), 404
@@ -2196,7 +2196,7 @@ def update_offer(offer_id):
         if 'status' in data:
             update_data['status'] = data['status']
         
-        updated_offer = appwrite_db.update_document('offers', offer_id, update_data)
+        updated_offer = firebase_db.update_document('offers', offer_id, update_data)
         
         return jsonify({'offer': updated_offer}), 200
         
@@ -2212,7 +2212,7 @@ def toggle_offer(offer_id):
         business_id = request.business_id
         
         # Get existing offer
-        offer = appwrite_db.get_document('offers', offer_id)
+        offer = firebase_db.get_document('offers', offer_id)
         
         if not offer or offer.get('business_id') != business_id:
             return jsonify({'error': 'Offer not found'}), 404
@@ -2220,7 +2220,7 @@ def toggle_offer(offer_id):
         # Toggle status
         current_status = offer.get('status', 'active')
         new_status = 'inactive' if current_status == 'active' else 'active'
-        updated_offer = appwrite_db.update_document(
+        updated_offer = firebase_db.update_document(
             'offers',
             offer_id,
             {'status': new_status}
@@ -2240,13 +2240,13 @@ def delete_offer(offer_id):
         business_id = request.business_id
         
         # Get existing offer
-        offer = appwrite_db.get_document('offers', offer_id)
+        offer = firebase_db.get_document('offers', offer_id)
         
         if not offer or offer.get('business_id') != business_id:
             return jsonify({'error': 'Offer not found'}), 404
         
         # Delete offer
-        appwrite_db.delete_document('offers', offer_id)
+        firebase_db.delete_document('offers', offer_id)
         
         return jsonify({'message': 'Offer deleted successfully'}), 200
         
@@ -2489,7 +2489,7 @@ def generate_invoice():
             return jsonify({'error': 'At least one item must have description, quantity, and rate'}), 400
         
         # Get business details to auto-fill seller info
-        business = appwrite_db.get_document('businesses', business_id)
+        business = firebase_db.get_document('businesses', business_id)
         
         # Merge business details with provided data
         invoice_data = {

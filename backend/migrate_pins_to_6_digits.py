@@ -4,10 +4,10 @@ Run this once to standardize all existing businesses to 6-digit PINs
 """
 
 import random
-from appwrite_utils import AppwriteDB
+from firebase_utils import FirebaseDB
 
 # Initialize database
-appwrite_db = AppwriteDB()
+firebase_db = FirebaseDB()
 
 def migrate_pins_to_6_digits():
     """Update all businesses with 4-digit PINs to 6-digit PINs"""
@@ -16,7 +16,7 @@ def migrate_pins_to_6_digits():
     
     try:
         # Get all businesses
-        businesses = appwrite_db.list_documents('businesses')
+        businesses = firebase_db.list_documents('businesses')
         
         updated_count = 0
         already_6_digit = 0
@@ -41,7 +41,7 @@ def migrate_pins_to_6_digits():
             new_pin = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             
             # Update the business
-            appwrite_db.update_document('businesses', business_id, {
+            firebase_db.update_document('businesses', business_id, {
                 'access_pin': new_pin
             })
             
